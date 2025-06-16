@@ -64,8 +64,15 @@ dependencies:
   lottie: ^3.3.1
   connectivity_plus: ^6.1.4
   provider: ^6.1.2   # added
+
   flutter_dotenv: ^5.1.0  #added
+<<<<<<< HEAD
   
+=======
+
+
+ 
+>>>>>>> be02d22 (Add AI-based image validation in new_entry.dart)
 dev_dependencies:
   flutter_test:
     sdk: flutter

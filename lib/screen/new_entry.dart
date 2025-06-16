@@ -207,14 +207,14 @@ class _NewEntryPageState extends State<NewEntryPage> {
   }
 
 
-
-
+ 
   //added
     Future<String?> _predictIssueFromImage(String imageUrl) async {      //new
   const String apiUrl = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
   const String token = "Bearer ${dotenv.env['HUGGINGFACE_API_KEY']}";
 
   
+
   try {
     final response = await Dio().post(
       apiUrl,
@@ -237,10 +237,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
   }
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> eacc589 (Add AI-based image validation in new_entry.dart)
   // Submit Form & Upload Data to Firebase
   Future<void> _submitForm() async {
     if (_selectedImage == null) {
@@ -296,7 +293,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
         _isUploading = false;
       });
     }
-  }
+  }}
 
   @override
   Widget build(BuildContext context) {
