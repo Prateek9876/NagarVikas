@@ -150,20 +150,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {   
-        return false;   // 🚫 Prevent back navigation to avoid unintended logout or state loss
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Admin Dashboard"),
-      backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-        
+@override
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async {
+      return false; //  Prevent back navigation
+    },
+    child: Scaffold(
+      appBar: AppBar(
+        title: const Text("Admin Dashboard"),
+        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         automaticallyImplyLeading: false,
         actions: [
-          IconButton(icon: const Icon(Icons.logout), onPressed: () => _logout(context)),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _logout(context),
+          ),
         ],
       ),
       body: Padding(
@@ -173,7 +175,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             TextField(
               controller: searchController,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 hintText: "Search complaints...",
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 filled: true,
@@ -182,100 +184,84 @@ class _AdminDashboardState extends State<AdminDashboard> {
               onChanged: _searchComplaints,
             ),
             const SizedBox(height: 20),
- fix/no-complaints-message
-           Expanded( // complaint list or no complaints UI
-                    child: filteredComplaints.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.inbox_outlined,
-                              size: 80,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              "No Complaints Found",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              searchController.text.isNotEmpty
-                                  ? "Try adjusting your search criteria"
-                                  : "There are no complaints to display",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: filteredComplaints.length,
-                        itemBuilder: (ctx, index) {
-                          final complaint = filteredComplaints[index];
-                          return Card(
-                            margin: EdgeInsets.symmetric(vertical: 8),
-                            elevation: 5,
-                            child: ListTile(
-                              leading: complaint["image_url"].isNotEmpty
-                                  ? Image.network(complaint["image_url"], width: 80, height: 80, fit: BoxFit.cover)
-                                  : Icon(Icons.image_not_supported, size: 50),
-                              title: Text(complaint["issue_type"], style: TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("User: ${complaint["user_name"]} (${complaint["user_email"]})"),
-                                  Text("Status: ${complaint["status"]}"),
-                                  Text("Date: ${complaint["date"]}  Time: ${complaint["time"]}"),
-                                ],
-                              ),
-                              trailing: Icon(Icons.arrow_forward),
-                              onTap: () => _showComplaintDetails(context, complaint),
-                            ),
-                          );
-                        },
-
-            // 📋 Complaints ListView
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredComplaints.length,
-                itemBuilder: (ctx, index) {
-                  final complaint = filteredComplaints[index];
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    elevation: 5,
-                    child: ListTile(
-                      leading: complaint["image_url"].isNotEmpty
-                          ? Image.network(complaint["image_url"], width: 80, height: 80, fit: BoxFit.cover)
-                          : Icon(Icons.image_not_supported, size: 50),
-                      title: Text(complaint["issue_type"], style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              child: filteredComplaints.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("User: ${complaint["user_name"]} (${complaint["user_email"]})"),
-                          Text("Status: ${complaint["status"]}"),
-                          Text("Date: ${complaint["date"]}  Time: ${complaint["time"]}"),
+                          Icon(
+                            Icons.inbox_outlined,
+                            size: 80,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "No Complaints Found",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            searchController.text.isNotEmpty
+                                ? "Try adjusting your search criteria"
+                                : "There are no complaints to display",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
                         ],
- main
                       ),
-              ),
-            ],
-          ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredComplaints.length,
+                      itemBuilder: (ctx, index) {
+                        final complaint = filteredComplaints[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          elevation: 5,
+                          child: ListTile(
+                            leading: complaint["image_url"].isNotEmpty
+                                ? Image.network(
+                                    complaint["image_url"],
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Icon(Icons.image_not_supported, size: 50),
+                            title: Text(
+                              complaint["issue_type"],
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("User: ${complaint["user_name"]} (${complaint["user_email"]})"),
+                                Text("Status: ${complaint["status"]}"),
+                                Text("Date: ${complaint["date"]}  Time: ${complaint["time"]}"),
+                              ],
+                            ),
+                            trailing: const Icon(Icons.arrow_forward),
+                            onTap: () => _showComplaintDetails(context, complaint),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-  fix/no-complaints-message
+    ),
+  );
+}
 
+  
+            
   /// 📄 Shows full details of a selected complaint with status editing
- main
   void _showComplaintDetails(BuildContext context, Map<String, dynamic> complaint) {
   String selectedStatus = complaint["status"];
 
