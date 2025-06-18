@@ -1,5 +1,6 @@
 // 📦 Importing necessary packages and screens
 import 'package:NagarVikas/service/ConnectivityService.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; //for .env
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -18,8 +19,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart'; 
 import 'package:NagarVikas/theme/theme_provider.dart'; 
 
-
-
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -29,6 +28,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
+
+// ✅ Load environment variables from .env file
+  await dotenv.load();
 
   // ✅ OneSignal push notification setup
   OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
