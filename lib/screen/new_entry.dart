@@ -205,10 +205,12 @@ class _NewEntryPageState extends State<NewEntryPage> {
   }
 
 
+
   //added
     Future<String?> _predictIssueFromImage(String imageUrl) async {      //new
   const String apiUrl = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
   const String token = "Bearer ${dotenv.env['HUGGINGFACE_API_KEY']}";
+
 
   try {
     final response = await Dio().post(
