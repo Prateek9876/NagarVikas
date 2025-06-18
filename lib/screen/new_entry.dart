@@ -204,6 +204,35 @@ class _NewEntryPageState extends State<NewEntryPage> {
     }
   }
 
+
+  //added
+    Future<String?> _predictIssueFromImage(String imageUrl) async {      //new
+  const String apiUrl = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
+  const String token = "Bearer ${dotenv.env['HUGGINGFACE_API_KEY']}";
+
+  try {
+    final response = await Dio().post(
+      apiUrl,
+      options: Options(
+        headers: {"Authorization": token},
+      ),
+      data: {"inputs": imageUrl},
+    );
+
+    final predictions = response.data as List;
+    print("Predicted Label from HuggingFace: $predictions"); //   THIS LINE to print to image label
+    if (predictions.isNotEmpty && predictions[0]['label'] != null) {
+      return predictions[0]['label'];
+    } else {
+      return "New Issue";
+    }
+  } catch (e) {
+    print("Prediction error: $e");
+    return "New Issue";
+  }
+}
+
+
   // Submit Form & Upload Data to Firebase
   Future<void> _submitForm() async {
     if (_selectedImage == null) {
