@@ -2,17 +2,22 @@
 
 *NagarVikas* is a smart complaint management app built with Flutter and Firebase. It allows citizens to raise civic issues in their locality while enabling government authorities to track, manage, and resolve them efficiently.
 
-## Table of Contents
+<details>
+<summary><strong>📋 Table of Contents</strong></summary>
+
 
 - [Getting Started](#getting-started)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
+- [Preview](#preview)
 - [How to Contribute](#-how-to-contribute)
 - [Good First Issues](#-good-first-issues)
 - [Project Admin](#-project-admin)
 - [License](#-license)
 
-## Getting Started
+</details>
+
+## 💻 Getting Started
 
 This project is a starting point for a Flutter application.
 
@@ -53,6 +58,37 @@ For help getting started with Flutter development, view the [online documentatio
 
 ---
 
+## 📸 Preview
+
+<details>
+<summary><strong>Screenshot 1</strong></summary>
+
+![Image](https://github.com/user-attachments/assets/62c4cf33-effa-42cc-a4cd-78bb7e31fca4)
+
+</details>
+
+
+<details>
+<summary><strong>Screenshot 2</strong></summary>
+
+![Image](https://github.com/user-attachments/assets/3756888e-6498-455a-a49c-bb5a22fd0312)
+
+</details>
+
+<details>
+<summary><strong>Screenshot 3</strong></summary>
+
+![Image](https://github.com/user-attachments/assets/fa6ceeca-cf9b-41bf-874d-c1b7723cad83)
+
+</details>
+
+<details>
+<summary><strong>Screenshot 4</strong></summary>
+
+![Image](https://github.com/user-attachments/assets/c8fc0008-121c-4c60-98be-fe44d635c2d1)
+
+</details>
+
 ## 🤝 How to Contribute
 
 > We welcome contributors to improve and scale NagarVikas! Here's how you can help:
@@ -75,7 +111,7 @@ For help getting started with Flutter development, view the [online documentatio
 
 ---
 
-## 🧑‍💻 Project Admin
+## 🧑 Project Admin
 
 *Prateek Chourasia*  
 📧 prateekchourasia9876@gmail.com  
@@ -85,4 +121,6 @@ For help getting started with Flutter development, view the [online documentatio
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE.md).
+
+---

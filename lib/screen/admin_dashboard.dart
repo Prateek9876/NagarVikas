@@ -150,11 +150,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-@override
+
+ @override
 Widget build(BuildContext context) {
   return WillPopScope(
     onWillPop: () async {
-      return false; //  Prevent back navigation
+      return false; // Prevent back navigation
     },
     child: Scaffold(
       appBar: AppBar(
@@ -177,7 +178,9 @@ Widget build(BuildContext context) {
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 hintText: "Search complaints...",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 filled: true,
                 fillColor: Colors.white,
               ),
@@ -222,7 +225,8 @@ Widget build(BuildContext context) {
                       itemBuilder: (ctx, index) {
                         final complaint = filteredComplaints[index];
                         return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
+                         margin: const EdgeInsets.symmetric(vertical: 8),
+
                           elevation: 5,
                           child: ListTile(
                             leading: complaint["image_url"].isNotEmpty
@@ -232,6 +236,7 @@ Widget build(BuildContext context) {
                                     height: 80,
                                     fit: BoxFit.cover,
                                   )
+
                                 : const Icon(Icons.image_not_supported, size: 50),
                             title: Text(
                               complaint["issue_type"],
@@ -245,6 +250,7 @@ Widget build(BuildContext context) {
                                 Text("Date: ${complaint["date"]}  Time: ${complaint["time"]}"),
                               ],
                             ),
+
                             trailing: const Icon(Icons.arrow_forward),
                             onTap: () => _showComplaintDetails(context, complaint),
                           ),
@@ -258,6 +264,9 @@ Widget build(BuildContext context) {
     ),
   );
 }
+
+
+
 
   
             

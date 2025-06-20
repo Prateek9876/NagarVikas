@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart'; 
 import 'package:NagarVikas/theme/theme_provider.dart'; 
 
+
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -61,16 +62,14 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Run the app
-  await ConnectivityService().initialize();
-  runApp(const MyApp());
-  runApp(
+
+await ConnectivityService().initialize();
+runApp(
   ChangeNotifierProvider(
     create: (_) => ThemeProvider(),
     child: const MyApp(),
   ),
 );
-  
-
 }
 
 // ✅ Main Application Widget
@@ -86,12 +85,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         textTheme: GoogleFonts.nunitoTextTheme(),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple,
+        brightness: Brightness.light),
         useMaterial3: true,
       ),
-
-      home: ConnectivityOverlay(child: const AuthCheckScreen()),
-
       
       darkTheme: ThemeData(
         brightness: Brightness.dark,

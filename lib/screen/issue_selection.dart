@@ -26,6 +26,7 @@ import 'discussion.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {
@@ -336,6 +337,17 @@ Future<void> _loadAppVersion() async {
         buildDrawerItem(context, Icons.info, "About App", AboutAppPage()),
         buildDrawerItem(
             context, Icons.headset_mic, "Contact Us", ContactUsPage()),
+        //Share App
+        ListTile(
+                leading: Icon(Icons.share),
+                title: Text('Share App'),
+                onTap: () {
+                  Share.share(
+                    'Check out this app: https://github.com/Prateek9876/NagarVikas',
+                    subject: 'NagarVikas App',
+                  );
+                },
+              ),
 
         // Logout Option
         ListTile(

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "847955234719",
+    "project_id": "nagarvikas-a1d4f",
+    "storage_bucket": "nagarvikas-a1d4f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:847955234719:android:9febce65f5a88d8cdfb7aa",
+        "android_client_info": {
+          "package_name": "com.example.nagarsur"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpNWZc52CibDa9mv7fLa4Smk5rr92UDRA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
