@@ -150,6 +150,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+
  @override
 Widget build(BuildContext context) {
   return WillPopScope(
@@ -175,7 +176,7 @@ Widget build(BuildContext context) {
             TextField(
               controller: searchController,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 hintText: "Search complaints...",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -224,7 +225,8 @@ Widget build(BuildContext context) {
                       itemBuilder: (ctx, index) {
                         final complaint = filteredComplaints[index];
                         return Card(
-                          margin: EdgeInsets.symmetric(vertical: 8),
+                         margin: const EdgeInsets.symmetric(vertical: 8),
+
                           elevation: 5,
                           child: ListTile(
                             leading: complaint["image_url"].isNotEmpty
@@ -234,10 +236,11 @@ Widget build(BuildContext context) {
                                     height: 80,
                                     fit: BoxFit.cover,
                                   )
-                                : Icon(Icons.image_not_supported, size: 50),
+
+                                : const Icon(Icons.image_not_supported, size: 50),
                             title: Text(
                               complaint["issue_type"],
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +250,8 @@ Widget build(BuildContext context) {
                                 Text("Date: ${complaint["date"]}  Time: ${complaint["time"]}"),
                               ],
                             ),
-                            trailing: Icon(Icons.arrow_forward),
+
+                            trailing: const Icon(Icons.arrow_forward),
                             onTap: () => _showComplaintDetails(context, complaint),
                           ),
                         );
@@ -257,11 +261,15 @@ Widget build(BuildContext context) {
           ],
         ),
       ),
-),
-);
+    ),
+  );
 }
 
 
+
+
+  
+            
   /// 📄 Shows full details of a selected complaint with status editing
   void _showComplaintDetails(BuildContext context, Map<String, dynamic> complaint) {
   String selectedStatus = complaint["status"];

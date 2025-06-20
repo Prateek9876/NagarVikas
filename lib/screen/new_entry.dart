@@ -191,6 +191,8 @@ class _NewEntryPageState extends State<NewEntryPage> {
     String cloudinaryUrl =
         "https://api.cloudinary.com/v1_1/$cloudName/image/upload";
 
+    
+
     FormData formData = FormData.fromMap({
       "file": await MultipartFile.fromFile(imageFile.path),
       "upload_preset": uploadPreset,
@@ -203,6 +205,38 @@ class _NewEntryPageState extends State<NewEntryPage> {
       return null;
     }
   }
+
+
+ 
+  //added
+    Future<String?> _predictIssueFromImage(String imageUrl) async {      //new
+  const String apiUrl = "https://api-inference.huggingface.co/models/google/vit-base-patch16-224";
+  const String token = "Bearer ${dotenv.env['HUGGINGFACE_API_KEY']}";
+
+  
+
+  try {
+    final response = await Dio().post(
+      apiUrl,
+      options: Options(
+        headers: {"Authorization": token},
+      ),
+      data: {"inputs": imageUrl},
+    );
+
+    final predictions = response.data as List;
+    print("Predicted Label from HuggingFace: $predictions"); //   THIS LINE to print to image label
+    if (predictions.isNotEmpty && predictions[0]['label'] != null) {
+      return predictions[0]['label'];
+    } else {
+      return "New Issue";
+    }
+  } catch (e) {
+    print("Prediction error: $e");
+    return "New Issue";
+  }
+}
+
 
   // Submit Form & Upload Data to Firebase
   Future<void> _submitForm() async {
@@ -217,15 +251,29 @@ class _NewEntryPageState extends State<NewEntryPage> {
 
     try {
       String? imageUrl = await _uploadImageToCloudinary(_selectedImage!);
+      String? predictedLabel = await _predictIssueFromImage(imageUrl!);   //new
+
       if (imageUrl == null) {
         throw Exception("Image upload failed.");
       }
+
+       // Check if prediction is a civic issue
+    List<String> validLabels = [
+      "streetlight", "pothole", "garbage", "trash", "road", "manhole"
+    ];
+    if (!validLabels.contains(predictedLabel?.toLowerCase())) {
+      Fluttertoast.showToast(
+        msg: "The uploaded image doesn't seem to be related to a civic issue. Please upload a relevant image.",
+      );
+      setState(() => _isUploading = false);
+      return;
+    }
 
       DatabaseReference complaintsRef =
           FirebaseDatabase.instance.ref("complaints");
       await complaintsRef.push().set({
         'user_id': FirebaseAuth.instance.currentUser?.uid,
-        'issue_type': "New Issue",
+        'issue_type':  predictedLabel ?? "New Issue",    //new
         'state': _selectedState,
         'city': _selectedCity,
         'location': _locationController.text,
@@ -245,7 +293,7 @@ class _NewEntryPageState extends State<NewEntryPage> {
         _isUploading = false;
       });
     }
-  }
+  }}
 
   @override
   Widget build(BuildContext context) {
