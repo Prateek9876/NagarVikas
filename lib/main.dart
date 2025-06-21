@@ -1,5 +1,6 @@
 // 📦 Importing necessary packages and screens
 import 'package:NagarVikas/service/ConnectivityService.dart';
+import 'package:NagarVikas/widgets/bottom_nav_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -15,10 +16,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart'; 
-import 'package:NagarVikas/theme/theme_provider.dart'; 
-
-
+import 'package:provider/provider.dart';
+import 'package:NagarVikas/theme/theme_provider.dart';
 
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -59,13 +58,13 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Run the app
-await ConnectivityService().initialize();
-runApp(
-  ChangeNotifierProvider(
-    create: (_) => ThemeProvider(),
-    child: const MyApp(),
-  ),
-);
+  await ConnectivityService().initialize();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 // ✅ Main Application Widget
@@ -80,14 +79,14 @@ class MyApp extends StatelessWidget {
       title: 'NagarVikas',
       theme: ThemeData(
         textTheme: GoogleFonts.nunitoTextTheme(),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple,
-        brightness: Brightness.light),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple, brightness: Brightness.light),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         textTheme: GoogleFonts.nunitoTextTheme(ThemeData.dark().textTheme),
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple,
-        brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple, brightness: Brightness.dark),
         useMaterial3: true,
       ),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
@@ -155,11 +154,10 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     if (user == null) {
       return const WelcomeScreen();
     } else {
-      // ✅ Admin should only go to AdminDashboard IF they were last logged in as Admin
-      if (isAdmin && user!.email!.contains("gov")) {
+      if (isAdmin && user!.email?.contains("gov") == true) {
         return AdminDashboard();
       } else {
-        return const IssueSelectionPage();
+        return const BottomNavBar();
       }
     }
   }
@@ -177,10 +175,14 @@ Future<void> handleAdminLogin(BuildContext context) async {
 Future<void> handleLogout(BuildContext context) async {
   // Clear stored admin status
   final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('isAdmin'); // ✅ Clear admin status 
-  await firebase_auth.FirebaseAuth.instance.signOut(); 
-  Navigator.pushReplacement( // ✅ Redirect to Login Page
-      context, MaterialPageRoute(builder: (context) => const LoginPage())); // ✅ Fix: Use const for LoginPage to avoid unnecessary rebuilds
+  await prefs.remove('isAdmin'); // ✅ Clear admin status
+  await firebase_auth.FirebaseAuth.instance.signOut();
+  Navigator.pushReplacement(
+      // ✅ Redirect to Login Page
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              const LoginPage())); // ✅ Fix: Use const for LoginPage to avoid unnecessary rebuilds
 }
 
 /// SplashScreen - displays an animated logo on app launch
@@ -202,7 +204,7 @@ class SplashScreen extends StatelessWidget {
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
-  @override 
+  @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
@@ -226,42 +228,42 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
   }
 
-  @override 
-  Widget build(BuildContext context) { 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 253, 253, 253),
-  drawer: Drawer(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        const DrawerHeader(
-          decoration: BoxDecoration(
-            color: Colors.deepPurple,
-          ),
-          child: Text(
-            'Settings',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
+              ),
+              child: Text(
+                'Settings',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
             ),
-          ),
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, _) => SwitchListTile(
+                title: const Text("Dark Mode"),
+                value: themeProvider.isDarkMode,
+                onChanged: (value) => themeProvider.toggleTheme(),
+                secondary: const Icon(Icons.dark_mode),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Logout"),
+              onTap: () => handleLogout(context),
+            ),
+          ],
         ),
-        Consumer<ThemeProvider>(
-          builder: (context, themeProvider, _) => SwitchListTile(
-            title: const Text("Dark Mode"),
-            value: themeProvider.isDarkMode,
-            onChanged: (value) => themeProvider.toggleTheme(),
-            secondary: const Icon(Icons.dark_mode),
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.logout),
-          title: const Text("Logout"),
-          onTap: () => handleLogout(context),
-        ),
-      ],
-    ),
-  ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -327,7 +329,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             const SizedBox(height: 50),
 
             // ✅ Get Started Button
-            FadeInUp( // Animation for button
+            FadeInUp(
+              // Animation for button
               duration: const Duration(milliseconds: 1600),
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _onGetStartedPressed,
@@ -338,7 +341,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ), // ✅ Button style
-                child: _isLoading 
+                child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text("Get Started",
                         style: TextStyle(

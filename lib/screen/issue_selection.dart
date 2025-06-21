@@ -44,8 +44,8 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
     // Add OneSignal trigger for in-app messages
     OneSignal.InAppMessages.addTrigger("welcoming_you", "available");
 
-  // Save FCM Token to Firebase if user is logged in, and request notification permission if not already granted.
-  getTokenAndSave();
+    // Save FCM Token to Firebase if user is logged in, and request notification permission if not already granted.
+    getTokenAndSave();
     requestNotificationPermission();
   }
 
@@ -53,7 +53,6 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
   void requestNotificationPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    
     NotificationSettings settings = await messaging.getNotificationSettings();
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
@@ -63,7 +62,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
 
       if (!hasShownToast) {
         Fluttertoast.showToast(msg: "Notifications Enabled");
-        await prefs.setBool('hasShownToast', true); 
+        await prefs.setBool('hasShownToast', true);
       }
     } else {
       // Request notification permissions if not already granted
@@ -71,7 +70,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
       if (newSettings.authorizationStatus == AuthorizationStatus.authorized) {
         Fluttertoast.showToast(msg: "Notifications Enabled");
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('hasShownToast', true); 
+        await prefs.setBool('hasShownToast', true);
       }
     }
   }
@@ -96,7 +95,6 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
     DatabaseReference userRef =
         FirebaseDatabase.instance.ref("users/${user.uid}/fcmToken");
 
-    
     DatabaseEvent event = await userRef.once();
     String? existingToken = event.snapshot.value as String?;
 
@@ -124,10 +122,10 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
         title: FadeInDown(
           duration: Duration(milliseconds: 1000),
           child: const Text(
-          "What type of issue are you facing?",
-          style: TextStyle(
-              color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
-        ),
+            "What type of issue are you facing?",
+            style: TextStyle(
+                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w900),
+          ),
         ),
         centerTitle: true,
       ),
@@ -144,43 +142,48 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
                 children: [
                   // Each issue card has a ZoomIn animation for better user experience and smooth UI.
                   ZoomIn(
-                    delay: Duration(milliseconds: 200),
-                    child:  
-                  buildIssueCard(context, "No garbage lifting in my area.",
-                      "assets/garbage.png", const GarbagePage())),
-                      ZoomIn(
-                        delay: Duration(milliseconds: 400),
-                        child: 
-                  buildIssueCard(context, "No water supply in my area.",
-                      "assets/water.png", const WaterPage())),
-                      ZoomIn(
-                        delay: Duration(milliseconds: 600),
-                        child: 
-                  buildIssueCard(context, "Road damage in my area.",
-                      "assets/road.png", const RoadPage())),
-                      ZoomIn(
-                        delay: Duration(milliseconds: 800),
-                        child: 
-                  buildIssueCard(
-                      context,
-                      "Streetlights not working in my area.",
-                      "assets/streetlight.png",
-                      const StreetLightPage())),
-                      ZoomIn(
-                        delay: Duration(milliseconds: 1000),
-                        child: 
-                  buildIssueCard(context, "Stray animals issue in my area.",
-                      "assets/animals.png", const AnimalsPage())),
-                      ZoomIn(
-                        delay: Duration(milliseconds: 1200),
-                        child: 
-                  buildIssueCard(context, "Blocked drainage in my area.",
-                      "assets/drainage.png", const DrainagePage())),
-                      ZoomIn(
-                        delay: Duration(milliseconds: 1400),
-                        child: 
-                  buildIssueCard(context, "Facing any other issue.",
-                      "assets/newentry.png", const NewEntryPage())),
+                      delay: Duration(milliseconds: 200),
+                      child: buildIssueCard(
+                          context,
+                          "No garbage lifting in my area.",
+                          "assets/garbage.png",
+                          const GarbagePage())),
+                  ZoomIn(
+                      delay: Duration(milliseconds: 400),
+                      child: buildIssueCard(
+                          context,
+                          "No water supply in my area.",
+                          "assets/water.png",
+                          const WaterPage())),
+                  ZoomIn(
+                      delay: Duration(milliseconds: 600),
+                      child: buildIssueCard(context, "Road damage in my area.",
+                          "assets/road.png", const RoadPage())),
+                  ZoomIn(
+                      delay: Duration(milliseconds: 800),
+                      child: buildIssueCard(
+                          context,
+                          "Streetlights not working in my area.",
+                          "assets/streetlight.png",
+                          const StreetLightPage())),
+                  ZoomIn(
+                      delay: Duration(milliseconds: 1000),
+                      child: buildIssueCard(
+                          context,
+                          "Stray animals issue in my area.",
+                          "assets/animals.png",
+                          const AnimalsPage())),
+                  ZoomIn(
+                      delay: Duration(milliseconds: 1200),
+                      child: buildIssueCard(
+                          context,
+                          "Blocked drainage in my area.",
+                          "assets/drainage.png",
+                          const DrainagePage())),
+                  ZoomIn(
+                      delay: Duration(milliseconds: 1400),
+                      child: buildIssueCard(context, "Facing any other issue.",
+                          "assets/newentry.png", const NewEntryPage())),
                 ],
               ),
             ),
@@ -280,7 +283,7 @@ void showProcessingDialog(BuildContext context, Widget nextPage) {
 
   // After 2 seconds, close the dialog and navigate
   Future.delayed(const Duration(seconds: 2), () {
-    Navigator.pop(context); 
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
   });
 }
@@ -290,55 +293,55 @@ class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
 
   @override
-  _AppDrawerState createState() =>
-  _AppDrawerState();
+  _AppDrawerState createState() => _AppDrawerState();
 }
+
 class _AppDrawerState extends State<AppDrawer> {
   String _appVersion = "Loading...";
 
   @override
   void initState() {
     super.initState();
-   _loadAppVersion();
- }
+    _loadAppVersion();
+  }
 
 // Load app version using package_info_plus
-Future<void> _loadAppVersion() async {
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  setState(() {
-    _appVersion =packageInfo.version;
-  });
-}
+  Future<void> _loadAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-        child: Column(
-      children: [
-        Expanded(
-          child: ListView(
-            children: [
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(children: [
               // App title
               const DrawerHeader(
-          decoration: BoxDecoration(color: Color.fromARGB(255, 4, 204, 240)),
-          child: Text("NagarVikas",
-              style: TextStyle(fontSize: 24, color: Colors.black)),
-        ),
-        // Drawer Items
-        buildDrawerItem(context, Icons.person, "Profile", ProfilePage()),
-        buildDrawerItem(
-            context, Icons.history, "My Complaints", MyComplaintsScreen()),
-        buildDrawerItem(
-            context, Icons.favorite, "User Feedback", FeedbackPage()),
-        buildDrawerItem(
-            context, Icons.card_giftcard, "Refer and Earn", ReferAndEarnPage()),
-        buildDrawerItem(context, Icons.report_problem, "Facing Issues in App",
-            FacingIssuesPage()),
-        buildDrawerItem(context, Icons.info, "About App", AboutAppPage()),
-        buildDrawerItem(
-            context, Icons.headset_mic, "Contact Us", ContactUsPage()),
-        //Share App
-        ListTile(
+                decoration:
+                    BoxDecoration(color: Color.fromARGB(255, 4, 204, 240)),
+                child: Text("NagarVikas",
+                    style: TextStyle(fontSize: 24, color: Colors.black)),
+              ),
+              // Drawer Items
+              buildDrawerItem(context, Icons.person, "Profile", ProfilePage()),
+              buildDrawerItem(context, Icons.history, "My Complaints",
+                  MyComplaintsScreen()),
+              buildDrawerItem(
+                  context, Icons.favorite, "User Feedback", FeedbackPage()),
+              buildDrawerItem(context, Icons.card_giftcard, "Refer and Earn",
+                  ReferAndEarnPage()),
+              buildDrawerItem(context, Icons.report_problem,
+                  "Facing Issues in App", FacingIssuesPage()),
+              buildDrawerItem(context, Icons.info, "About App", AboutAppPage()),
+              buildDrawerItem(
+                  context, Icons.headset_mic, "Contact Us", ContactUsPage()),
+              //Share App
+              ListTile(
                 leading: Icon(Icons.share),
                 title: Text('Share App'),
                 onTap: () {
@@ -349,107 +352,113 @@ Future<void> _loadAppVersion() async {
                 },
               ),
 
-        // Logout Option
-        ListTile(
-          leading: const Icon(Icons.logout),
-          title: const Text("Logout"),
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
+              // Logout Option
+              ListTile(
+                leading: const Icon(Icons.logout),
                 title: const Text("Logout"),
-                content: const Text("Are you sure you want to logout?"),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancel"),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      final FirebaseAuth auth = FirebaseAuth.instance;
-                      await auth.signOut();
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()));
-                    },
-                    child: const Text("Yes"),
-                  ),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Logout"),
+                      content: const Text("Are you sure you want to logout?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            final FirebaseAuth auth = FirebaseAuth.instance;
+                            await auth.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LoginPage()));
+                          },
+                          child: const Text("Yes"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+              const Divider(),
+
+              // Social media section
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 15),
+                child: Text(
+                  "Follow Us On",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+
+              // Social Media Icons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _socialMediaIcon(FontAwesomeIcons.facebook,
+                      "https://facebook.com", Color(0xFF1877F2)),
+                  _socialMediaIcon(FontAwesomeIcons.instagram,
+                      "https://instagram.com", Color(0xFFC13584)),
+                  _socialMediaIcon(FontAwesomeIcons.youtube,
+                      "https://youtube.com", Color(0xFFFF0000)),
+                  _socialMediaIcon(FontAwesomeIcons.twitter,
+                      "https://twitter.com", Color(0xFF1DA1F2)),
+                  _socialMediaIcon(
+                      FontAwesomeIcons.linkedin,
+                      "https://linkedin.com/in/prateek-chourasia-in",
+                      Color(0xFF0A66C2)),
                 ],
               ),
-            );
-          },
-        ),
-      
+              const SizedBox(height: 20),
 
-      const Divider(),
-
-       // Social media section
-       const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 15),
-        child: Text(
-          "Follow Us On",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-
-      // Social Media Icons
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _socialMediaIcon(FontAwesomeIcons.facebook, "https://facebook.com", Color(0xFF1877F2)),
-          _socialMediaIcon(FontAwesomeIcons.instagram, "https://instagram.com",Color(0xFFC13584)),
-           _socialMediaIcon(FontAwesomeIcons.youtube, "https://youtube.com",Color(0xFFFF0000)),
-          _socialMediaIcon(FontAwesomeIcons.twitter, "https://twitter.com",Color(0xFF1DA1F2)),
-          _socialMediaIcon(FontAwesomeIcons.linkedin, "https://linkedin.com/in/prateek-chourasia-in",Color(0xFF0A66C2)),
+              Divider(), // Divider before the footer
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Column(
+                  children: [
+                    Text(
+                      "© 2025 NextGen Soft Labs and Prateek.\nAll Rights Reserved.",
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "Version $_appVersion",
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    )
+                  ],
+                ),
+              ),
+            ]),
+          ),
         ],
       ),
-      const SizedBox(height: 20), 
-    
-Divider(), // Divider before the footer
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-           child: Column(
-            children: [
-              Text("© 2025 NextGen Soft Labs and Prateek.\nAll Rights Reserved.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-              Text("Version $_appVersion",
-              style: TextStyle(fontSize: 12,
-              color: Colors.grey),
-              )
-            ],
-           ),
-          ),
-            ]
-        ),
-        ), 
-      ],
-        ),
     );
-  }    
-        
+  }
+
   // Reusable method for social media icon buttons
   Widget _socialMediaIcon(IconData icon, String url, Color color) {
     return IconButton(
-      icon: FaIcon(
-        icon, 
-        color: color, size: 35
-      ),
+      icon: FaIcon(icon, color: color, size: 35),
       onPressed: () {
-         launchUrl(Uri.parse(url));
+        launchUrl(Uri.parse(url));
       },
     );
   }
 }
 
 // Reusable widget to build drawer items
-Widget buildDrawerItem(BuildContext context, IconData icon, String title, Widget page) {
+Widget buildDrawerItem(
+    BuildContext context, IconData icon, String title, Widget page) {
   return Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => page)),
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (context) => page)),
       splashColor: Colors.blue.withOpacity(0.5), // Ripple effect color
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -461,6 +470,6 @@ Widget buildDrawerItem(BuildContext context, IconData icon, String title, Widget
           ],
         ),
       ),
-),
-);
+    ),
+  );
 }

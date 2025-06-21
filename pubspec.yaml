@@ -66,6 +66,7 @@ dependencies:
   provider: ^6.1.5
   share_plus: ^11.0.0
   video_player: ^2.10.0
+  google_nav_bar: ^5.0.7
        
  
 dev_dependencies:
