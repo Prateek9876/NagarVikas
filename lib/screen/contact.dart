@@ -67,21 +67,57 @@ class ContactUsPage extends StatelessWidget {
 
   // Function to launch the phone dialer
   _launchPhoneDialer() async {
-    final phoneUrl = 'tel:$phoneNumber'; // tel: URL scheme for phone calls
-    if (await canLaunch(phoneUrl)) {
-      await launch(phoneUrl);  // Launch the phone dialer
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
     } else {
-      throw 'Could not launch $phoneUrl';  // Handle error if dialing fails
+      throw 'Could not launch $phoneUri';
     }
   }
 
   // Function to launch the email client
   _launchEmailClient() async {
-    final emailUrl = 'mailto:$email'; // mailto: URL scheme for email
-    if (await canLaunch(emailUrl)) {
-      await launch(emailUrl);  // Launch the email client
-    } else {
-      throw 'Could not launch $emailUrl';  // Handle error if email client fails
-}
-}
+    final String subject = 'Support Request - Nagar Vikas';
+    final String body = 'Hi team,\n\nI need help with ';
+
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {
+        'subject': subject,
+        'body': body,
+      },
+    );
+
+    String emailUrl = emailLaunchUri.toString();
+
+    // Replace + with %20 to fix space encoding for mailto
+    emailUrl = emailUrl.replaceAll('+', '%20');
+
+    try {
+      final bool launched = await launchUrl(
+        Uri.parse(emailUrl),
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        // Gmail fallback
+        final fallbackUrl = Uri.parse(
+          'https://mail.google.com/mail/?view=cm&fs=1'
+              '&to=${Uri.encodeComponent(email)}'
+              '&su=${Uri.encodeComponent(subject)}'
+              '&body=${Uri.encodeComponent(body)}',
+        );
+
+        if (await canLaunchUrl(fallbackUrl)) {
+          await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
+        } else {
+          throw 'No email app or Gmail available.';
+        }
+      }
+    } catch (e) {
+      debugPrint('Email launch error: $e');
+    }
+  }
 }
