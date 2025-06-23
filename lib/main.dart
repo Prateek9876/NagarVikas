@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:NagarVikas/theme/theme_provider.dart';
 
+
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -135,12 +136,11 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     final prefs = await SharedPreferences.getInstance();
     bool? storedIsAdmin = prefs.getBool('isAdmin');
 
-    if (storedIsAdmin != null) {
-      setState(() {
-        isAdmin = storedIsAdmin;
-      });
+    setState(() {
+    isAdmin = storedIsAdmin ?? false;
+
+    });
     }
-  }
 
   // ✅ Build Method (Decides Which Screen to Show)
   @override

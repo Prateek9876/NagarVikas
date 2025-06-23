@@ -4,6 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
 
 class MyComplaintsScreen extends StatefulWidget {
+  const MyComplaintsScreen({super.key});
+
   @override
   _MyComplaintsScreenState createState() => _MyComplaintsScreenState();
 }
@@ -24,7 +26,6 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
 
   Future<void> _fetchComplaints() async {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return;
 
     DatabaseReference ref = FirebaseDatabase.instance.ref('complaints/');
 

@@ -85,10 +85,6 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
 
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     String? token = await messaging.getToken();
-    if (token == null) {
-      print("Failed to get FCM token.");
-      return;
-    }
 
     print("FCM Token: $token");
 

@@ -44,7 +44,7 @@ class ConnectivityService {
 
 class ConnectivityOverlay extends StatefulWidget {
   final Widget child;
-  const ConnectivityOverlay({Key? key, required this.child}) : super(key: key);
+  const ConnectivityOverlay({super.key, required this.child});
 
   @override
   State<ConnectivityOverlay> createState() => _ConnectivityOverlayState();

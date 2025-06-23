@@ -7,6 +7,8 @@ import 'package:firebase_database/firebase_database.dart';
 /// Uses Firebase Realtime Database for message storage.
 
 class DiscussionForum extends StatefulWidget {
+  const DiscussionForum({super.key});
+
   @override
   _DiscussionForumState createState() => _DiscussionForumState();
 }
@@ -131,8 +133,8 @@ class _DiscussionForumState extends State<DiscussionForum> {
                 // 🚀 Send button
                 FloatingActionButton(
                   onPressed: _sendMessage,
-                  child: Icon(Icons.send, color: Colors.white),
                   backgroundColor: const Color.fromARGB(255, 7, 7, 7),
+                  child: Icon(Icons.send, color: Colors.white),
                 ),
               ],
             ),

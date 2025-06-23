@@ -6,6 +6,7 @@
 /// - Email verification
 /// - Guest login
 /// - Firebase Realtime Database integration
+library;
 
 
 // import necessary Flutter and Firebase packages

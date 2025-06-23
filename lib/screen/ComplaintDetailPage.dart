@@ -275,7 +275,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
     if (isoTimestamp == null) return "-";
     try {
       final dt = DateTime.parse(isoTimestamp).toLocal();
-      return "${dt.toLocal().toString().split('.')[0]}";
+      return dt.toLocal().toString().split('.')[0];
     } catch (_) {
       return isoTimestamp;
     }

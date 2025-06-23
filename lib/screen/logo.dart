@@ -11,6 +11,8 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 /// - Optional redirect logic (currently simulated)
 
 class LogoWidget extends StatefulWidget {
+  const LogoWidget({super.key});
+
   @override
   _LogoWidgetState createState() => _LogoWidgetState();
 }

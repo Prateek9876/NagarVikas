@@ -67,8 +67,13 @@ dependencies:
   share_plus: ^11.0.0
   video_player: ^2.10.0
   google_nav_bar: ^5.0.7
-       
- 
+  flutter_staggered_animations: ^1.1.1
+  glassmorphism_ui: ^0.3.0 # Optional for glassmorphism effect
+  fl_chart: ^0.66.0
+  loading_animation_widget: ^1.2.0
+
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
