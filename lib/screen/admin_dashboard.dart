@@ -14,6 +14,7 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  int _selectedIndex = 0; // Home is selected by default
   int totalComplaints = 0;
   int pendingComplaints = 0;
   int inProgressComplaints = 0;
@@ -21,9 +22,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   List<Map<String, dynamic>> complaints = [];
   List<Map<String, dynamic>> filteredComplaints = [];
-
   TextEditingController searchController = TextEditingController();
   StreamSubscription? _complaintsSubscription;
+
+  // Bottom navigation items
+  static const List<BottomNavigationBarItem> _bottomNavItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: 'Home',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.analytics),
+      label: 'Analytics',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.logout),
+      label: 'Logout',
+    ),
+  ];
 
   @override
   void initState() {
@@ -141,6 +157,55 @@ class _AdminDashboardState extends State<AdminDashboard> {
         const curve = Curves.easeInOut;
         final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
+      },
+    );
+  }
+
+  // Handle bottom navigation item tap
+  void _onItemTapped(int index) {
+    if (index == 1) { // Analytics
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AnalyticsDashboard()),
+      );
+    } else if (index == 2) { // Logout
+      _showLogoutDialog();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  // Show logout confirmation dialog
+  Future<void> _showLogoutDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                if (!mounted) return;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                );
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
       },
     );
   }
@@ -337,6 +402,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: _bottomNavItems,
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Theme.of(context).brightness == Brightness.dark 
+            ? Colors.grey[900] 
+            : Colors.white,
+        elevation: 10,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }
