@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:NagarVikas/widgets/bar_chart_widget.dart';
 import 'package:NagarVikas/widgets/pie_chart_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'admin_dashboard.dart';
+import 'login_page.dart';
 
 class AnalyticsDashboard extends StatefulWidget {
   const AnalyticsDashboard({super.key});
@@ -13,6 +16,7 @@ class AnalyticsDashboard extends StatefulWidget {
 }
 
 class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
+  int _selectedIndex = 1; // Analytics is selected by default
   int resolved = 0;
   int pending = 0;
   int rejected = 0;
@@ -21,10 +25,75 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   List<Widget> dashboardWidgets = [];
 
+  // Bottom navigation items
+  static const List<BottomNavigationBarItem> _bottomNavItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      label: 'Home',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.analytics),
+      label: 'Analytics',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.logout),
+      label: 'Logout',
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
     fetchComplaintStats();
+  }
+
+  // Handle bottom navigation item tap
+  void _onItemTapped(int index) {
+    if (index == 0) { // Home
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminDashboard()),
+      );
+    } else if (index == 2) { // Logout
+      _showLogoutDialog();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  // Show logout confirmation dialog
+  Future<void> _showLogoutDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                if (!mounted) return;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                );
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void fetchComplaintStats() async {
@@ -216,8 +285,18 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                   },
                 ),
               ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: _bottomNavItems,
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.teal,
+          unselectedItemColor: Colors.grey,
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
+          elevation: 10,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
 }
-
