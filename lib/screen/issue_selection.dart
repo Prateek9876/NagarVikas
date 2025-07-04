@@ -447,9 +447,11 @@ class _AppDrawerState extends State<AppDrawer> {
               buildDrawerItem(context, Icons.report_problem, widget.t('facing_issues'), FacingIssuesPage()),
               buildDrawerItem(context, Icons.info, widget.t('about'), AboutAppPage()),
               buildDrawerItem(context, Icons.headset_mic, widget.t('contact'), ContactUsPage()),
-              ListTile(
-                leading: Icon(Icons.share),
-                title: Text(widget.t('share_app')),
+              buildDrawerItem(
+                context,
+                Icons.share,
+                widget.t('share_app'),
+                null,
                 onTap: () {
                   Share.share(
                     'Check out this app: https://github.com/Prateek9876/NagarVikas',
@@ -457,19 +459,20 @@ class _AppDrawerState extends State<AppDrawer> {
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.games),
-                title: const Text('2048 Game'),
+              buildDrawerItem(
+                context,
+                Icons.games,
+                '2048 Game',
+                null,
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const FunGameScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const FunGameScreen()));
                 },
               ),
-
-              // Logout Option
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: Text(widget.t('logout')),
+              buildDrawerItem(
+                context,
+                Icons.logout,
+                widget.t('logout'),
+                null,
                 onTap: () {
                   showDialog(
                     context: context,
@@ -522,7 +525,6 @@ class _AppDrawerState extends State<AppDrawer> {
                       Color(0xFF0A66C2)),
                 ],
               ),
-              const SizedBox(height: 20),
               Divider(), // Divider before the footer
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -561,18 +563,23 @@ class _AppDrawerState extends State<AppDrawer> {
 
 // Reusable widget to build drawer items
 Widget buildDrawerItem(
-    BuildContext context, IconData icon, String title, Widget page) {
+    BuildContext context, IconData icon, String title, Widget? page, {VoidCallback? onTap}) {
   return Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (context) => page)),
+      onTap: onTap,
       splashColor: Colors.blue.withOpacity(0.5), // Ripple effect color
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Row(
           children: [
-            Icon(icon, color: Colors.black),
+            SizedBox(
+              width: 28, // or whatever width fits your icons best
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(icon, color: Colors.black),
+              ),
+            ),
             SizedBox(width: 10),
             Text(title, style: TextStyle(fontSize: 16, color: Colors.black)),
           ],
