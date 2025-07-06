@@ -28,13 +28,16 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   }
 
   Future<void> _fetchComplaintDetails() async {
-    final snapshot = await FirebaseDatabase.instance.ref('complaints/${widget.complaintId}').get();
+    final snapshot = await FirebaseDatabase.instance
+        .ref('complaints/${widget.complaintId}')
+        .get();
     if (snapshot.exists) {
       final data = Map<String, dynamic>.from(snapshot.value as Map);
 
       // Fetch user data
       String userId = data['user_id'] ?? '';
-      final userSnapshot = await FirebaseDatabase.instance.ref('users/$userId').get();
+      final userSnapshot =
+          await FirebaseDatabase.instance.ref('users/$userId').get();
       if (userSnapshot.exists) {
         final userData = Map<String, dynamic>.from(userSnapshot.value as Map);
         data['user_name'] = userData['name'] ?? 'Unknown';
@@ -74,7 +77,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   }
 
   void _updateStatus(String newStatus) {
-    FirebaseDatabase.instance.ref('complaints/${widget.complaintId}').update({"status": newStatus});
+    FirebaseDatabase.instance
+        .ref('complaints/${widget.complaintId}')
+        .update({"status": newStatus});
   }
 
   @override
@@ -126,22 +131,30 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                 _buildInfoSection("📍 Location", complaint!["location"]),
                 _buildInfoSection("🏙️ City", complaint!["city"]),
                 _buildInfoSection("🗺️ State", complaint!["state"]),
-                _buildInfoSection("📅 Date & Time", _formatTimestamp(complaint!["timestamp"])),
-                _buildInfoSection("👤 User", "${complaint!["user_name"]} (${complaint!["user_email"]})"),
-                _buildInfoSection("📝 Description", complaint!["description"] ?? "-"),
+                _buildInfoSection("📅 Date & Time",
+                    _formatTimestamp(complaint!["timestamp"])),
+                _buildInfoSection("👤 User",
+                    "${complaint!["user_name"]} (${complaint!["user_email"]})"),
+                _buildInfoSection(
+                    "📝 Description", complaint!["description"] ?? "-"),
                 const SizedBox(height: 12),
-                const Text("🔄 Update Status", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text("🔄 Update Status",
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: selectedStatus,
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
                     filled: true,
                     fillColor: Colors.grey.shade100,
                   ),
                   items: ["Pending", "In Progress", "Resolved"]
-                      .map((status) => DropdownMenuItem(value: status, child: Text(status)))
+                      .map((status) =>
+                          DropdownMenuItem(value: status, child: Text(status)))
                       .toList(),
                   onChanged: (newStatus) {
                     if (newStatus != null) {
@@ -167,15 +180,18 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text("Confirm Deletion"),
-                          content: const Text("Are you sure you want to delete this complaint?"),
+                          content: const Text(
+                              "Are you sure you want to delete this complaint?"),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context), // Close dialog
+                              onPressed: () =>
+                                  Navigator.pop(context), // Close dialog
                               child: const Text("No"),
                             ),
                             TextButton(
                               onPressed: () async {
-                                final navigator = Navigator.of(context); // ✅ capture the safe context *before* popping
+                                final navigator = Navigator.of(
+                                    context); // ✅ capture the safe context *before* popping
 
                                 Navigator.pop(context); // Close dialog
 
@@ -186,11 +202,14 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                                 if (!mounted) return;
                                 // ✅ Now use the saved navigator to push replacement
                                 navigator.pushReplacement(
-                                  MaterialPageRoute(builder: (context) => AdminDashboard()),
+                                  MaterialPageRoute(
+                                      builder: (context) => AdminDashboard()),
                                 );
-                                Fluttertoast.showToast(msg: "Deleted Successfully!");
+                                Fluttertoast.showToast(
+                                    msg: "Deleted Successfully!");
                               },
-                              child: const Text("Yes", style: TextStyle(color: Colors.red)),
+                              child: const Text("Yes",
+                                  style: TextStyle(color: Colors.red)),
                             ),
                           ],
                         ),
@@ -212,7 +231,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(title,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 4),
           Container(
             width: double.infinity,
@@ -255,7 +276,9 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
               ),
               child: IconButton(
                 icon: Icon(
-                  _videoController!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  _videoController!.value.isPlaying
+                      ? Icons.pause
+                      : Icons.play_arrow,
                   color: Colors.white,
                   size: 28,
                 ),
@@ -296,7 +319,8 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           ],
         );
       } else {
-        return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
+        return const SizedBox(
+            height: 200, child: Center(child: CircularProgressIndicator()));
       }
     }
 
