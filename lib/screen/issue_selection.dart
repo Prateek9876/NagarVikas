@@ -573,7 +573,15 @@ Widget buildDrawerItem(
   return Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: onTap,
+      onTap: onTap ??
+          (page != null
+              ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => page),
+                  );
+                }
+              : null),
       splashColor: Colors.blue.withOpacity(0.5), // Ripple effect color
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
