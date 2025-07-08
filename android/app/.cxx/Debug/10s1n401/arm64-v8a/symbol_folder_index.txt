@@ -1,0 +1,1 @@
+/home/pritam/Code/Flutter/NagarVikas/build/app/intermediates/cxx/Debug/10s1n401/obj/arm64-v8a
