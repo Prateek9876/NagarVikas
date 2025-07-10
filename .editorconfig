@@ -1,0 +1,23 @@
+# top-most EditorConfig file
+root = true
+
+[*]
+# Use 4 spaces for indentation
+indent_style = space
+indent_size = 4
+
+# Ensure files end with a newline
+insert_final_newline = true
+
+# Trim any trailing whitespace
+trim_trailing_whitespace = true
+
+# Use UTF-8 encoding
+charset = utf-8
+
+# Apply these settings to the following file types
+[*.{js,jsx,ts,tsx,css,scss,html,md,py,java,xml}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab
