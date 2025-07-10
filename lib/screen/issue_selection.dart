@@ -28,7 +28,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:NagarVikas/screen/fun_game_screen.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {

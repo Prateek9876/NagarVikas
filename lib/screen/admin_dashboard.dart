@@ -6,6 +6,8 @@ import 'dart:async';
 import './ComplaintDetailPage.dart';
 import 'login_page.dart';
 import 'package:NagarVikas/screen/analytics_dashboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert'; // JSON encoding/decoding
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -26,6 +28,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Map<String, dynamic>> filteredComplaints = [];
   TextEditingController searchController = TextEditingController();
   StreamSubscription? _complaintsSubscription;
+List<Map<String, dynamic>> notifications = [];
+Set<String> seenComplaintIds = {};
 
   // Bottom navigation items
   static const List<BottomNavigationBarItem> _bottomNavItems = [
@@ -42,12 +46,50 @@ class _AdminDashboardState extends State<AdminDashboard> {
       label: 'Logout',
     ),
   ];
+  void loadSeenComplaintIds() async {
+  final prefs = await SharedPreferences.getInstance();
+  final seenIds = prefs.getStringList('seenComplaintIds') ?? [];
+  setState(() {
+    seenComplaintIds = seenIds.toSet();
+  });
+}
+  void markComplaintAsSeen(String id) async {
+  final prefs = await SharedPreferences.getInstance();
+  final seenIds = prefs.getStringList('seenComplaintIds') ?? [];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchComplaints();
+  if (!seenIds.contains(id)) {
+    seenIds.add(id);
+    await prefs.setStringList('seenComplaintIds', seenIds);
   }
+
+  setState(() {
+    seenComplaintIds = seenIds.toSet(); // update local set also
+  });
+}
+Future<void> saveNotifications() async {
+  final prefs = await SharedPreferences.getInstance();
+  final encoded = jsonEncode(notifications);
+  await prefs.setString('notifications', encoded);
+}
+Future<void> loadNotifications() async {
+  final prefs = await SharedPreferences.getInstance();
+  final encoded = prefs.getString('notifications');
+  if (encoded != null) {
+    final decoded = jsonDecode(encoded) as List;
+    setState(() {
+      notifications = decoded.map((e) => Map<String, dynamic>.from(e)).toList();
+    });
+  }
+}
+
+ @override
+void initState() {
+  super.initState();
+  _fetchComplaints();
+  loadNotifications(); 
+  listenToNewComplaints();
+  loadSeenComplaintIds(); 
+}
 
   @override
   void dispose() {
@@ -55,7 +97,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
     searchController.dispose();
     super.dispose();
   }
+void listenToNewComplaints() {
+  FirebaseDatabase.instance
+      .ref('complaints')
+      .limitToLast(1)
+      .onChildAdded
+      .listen((event) async {
+    final data = event.snapshot.value as Map<dynamic, dynamic>?;
+    final complaintId = event.snapshot.key;
 
+    if (data == null || complaintId == null) return;
+
+    // Already seen? ignore
+    if (seenComplaintIds.contains(complaintId)) return;
+
+    final now = DateTime.now();
+    final formattedTime =
+        "${now.day}-${now.month}-${now.year} at ${now.hour}:${now.minute.toString().padLeft(2, '0')}";
+
+    final newNotification = {
+      'id': complaintId,
+      'title': data['issue_type'] ?? 'New Complaint',
+      'timestamp': formattedTime,
+      'seen': false,
+    };
+
+    setState((){
+      notifications.insert(0, newNotification);
+    });
+     await saveNotifications();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("🔔 New Complaint: ${newNotification['title']}"),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  });
+}
   Future<void> _fetchComplaints() async {
     DatabaseReference complaintsRef = FirebaseDatabase.instance.ref('complaints');
     DatabaseReference usersRef = FirebaseDatabase.instance.ref('users');
@@ -322,6 +400,109 @@ class _AdminDashboardState extends State<AdminDashboard> {
   backgroundColor: const Color.fromARGB(255, 4, 204, 240),
   iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
   actions: [
+IconButton(
+  icon: Stack(
+    children: [
+      const Icon(Icons.notifications),
+      if (notifications.any((n) => !n['seen']))
+        Positioned(
+          right: 0,
+          top: 0,
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '${notifications.where((n) => !n['seen']).length}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+    ],
+  ),
+  onPressed: () async {
+    setState(() {
+      for (var n in notifications) {
+        if (!n['seen']) {
+          markComplaintAsSeen(n['id']);
+          n['seen'] = true;
+        }
+      }
+    });
+    await saveNotifications(); // 🔐 Save seen status
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color.fromARGB(255, 198, 186, 190),
+        title: const Text("Notifications"),
+        content: SizedBox(
+          height: 300,
+          width: double.infinity,
+          child: notifications.isEmpty
+              ? const Center(child: Text("No notifications."))
+              : ListView.builder(
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    final noti = notifications[index];
+                    return Dismissible(
+                      key: Key(noti['id']),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.redAccent,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      onDismissed: (direction) async {
+                        setState(() {
+                          notifications.removeAt(index);
+                        });
+                        await saveNotifications(); // 💾 Save after dismiss
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Notification dismissed'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: ListTile(
+                        leading: const Icon(Icons.warning_amber),
+                        title: Text(noti['title']),
+                        subtitle: Text(noti['timestamp']),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              setState(() {
+                for (var n in notifications) {
+                  markComplaintAsSeen(n['id']);
+                }
+                notifications.clear();
+              });
+              await saveNotifications(); // 💾 Save after Clear All
+              Navigator.pop(context);
+            },
+            child: const Text(
+              "Clear All",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+),
     IconButton(
       icon: const Icon(Icons.logout),
       onPressed: () {
