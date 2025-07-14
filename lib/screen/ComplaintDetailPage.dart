@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:video_player/video_player.dart';
 import './admin_dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class ComplaintDetailPage extends StatefulWidget {
   final String complaintId;
@@ -73,8 +74,46 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
     super.dispose();
   }
 
-  void _updateStatus(String newStatus) {
-    FirebaseDatabase.instance.ref('complaints/${widget.complaintId}').update({"status": newStatus});
+  Future<void> _updateStatus(String newStatus) async {
+    final oldStatus = selectedStatus;
+    try {
+      // Update status in Firebase
+      await FirebaseDatabase.instance
+          .ref('complaints/${widget.complaintId}')
+          .update({"status": newStatus});
+
+      // Get user's OneSignal Player ID from Firebase
+      final userId = complaint!["user_id"];
+      if (userId != null) {
+        final userSnapshot = await FirebaseDatabase.instance
+            .ref('users/$userId/oneSignalPlayerId')
+            .get();
+            
+        final String? playerIds = userSnapshot.value as String?;
+        if (playerIds != null) {
+          // Send notification using OneSignal
+          await OneSignal.Notifications.postNotification(
+            OSCreateNotification(
+              playerIds: [playerIds],
+              heading: "Complaint Status Updated",
+              content: "Your complaint (${complaint!["issue_type"]}) has been updated from $oldStatus to $newStatus",
+              additionalData: {
+                "complaintId": widget.complaintId,
+                "status": newStatus,
+              }
+            )
+          );
+        }
+      }
+
+      setState(() {
+        selectedStatus = newStatus;
+      });
+
+      Fluttertoast.showToast(msg: "Status updated successfully");
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Failed to update status: $e");
+    }
   }
 
   @override

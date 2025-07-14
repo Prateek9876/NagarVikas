@@ -109,9 +109,35 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
     // Add OneSignal trigger for in-app messages
     OneSignal.InAppMessages.addTrigger("welcoming_you", "available");
 
-    // Save FCM Token to Firebase if user is logged in, and request notification permission if not already granted.
-    getTokenAndSave();
+    // Save FCM Token and OneSignal Player ID to Firebase
+    _saveUserTokens();
     requestNotificationPermission();
+  }
+
+  Future<void> _saveUserTokens() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("User not logged in.");
+      return;
+    }
+
+    // Get and save OneSignal Player ID
+    final deviceState = await OneSignal.User.pushSubscription;
+    final playerId = deviceState.id;
+    if (playerId != null) {
+      await FirebaseDatabase.instance
+          .ref('users/${user.uid}/oneSignalPlayerId')
+          .set(playerId);
+    }
+
+    // Get and save FCM token as before
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    if (token != null) {
+      await FirebaseDatabase.instance
+          .ref('users/${user.uid}/fcmToken')
+          .set(token);
+    }
   }
 
   // Requesting Firebase Messaging notification permissions
