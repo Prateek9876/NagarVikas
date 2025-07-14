@@ -1,3 +1,4 @@
+// admin_dashboard.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -19,6 +20,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int pendingComplaints = 0;
   int inProgressComplaints = 0;
   int resolvedComplaints = 0;
+  bool isLoading = true;
 
   List<Map<String, dynamic>> complaints = [];
   List<Map<String, dynamic>> filteredComplaints = [];
@@ -69,6 +71,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             totalComplaints = pendingComplaints = inProgressComplaints = resolvedComplaints = 0;
             complaints = [];
             filteredComplaints = [];
+            isLoading = false;
           });
         }
         return;
@@ -133,6 +136,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           resolvedComplaints = resolved;
           complaints = loadedComplaints;
           filteredComplaints = complaints;
+          isLoading = false;
         });
       }
     });
@@ -275,11 +279,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 'Logout',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text("Confirm Logout"),
+                    content: const Text("Are you sure you want to log out?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await FirebaseAuth.instance.signOut();
+                          if (!mounted) return;
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LoginPage()),
+                          );
+                        },
+                        child: const Text(
+                          "Logout",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
@@ -360,7 +387,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredComplaints.isEmpty
+                  ? const Center(child: Text("No complaints found."))
+                  : ListView.builder(
                 itemCount: filteredComplaints.length,
                 itemBuilder: (ctx, index) {
                   final complaint = filteredComplaints[index];
@@ -390,7 +421,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         complaint["issue_type"] ?? "Unknown",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      subtitle: Text("Status: ${complaint["status"]}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Status: ${complaint["status"]}"),
+                          const SizedBox(height: 4),
+                          Text("City: ${complaint["city"]}, State: ${complaint["state"]}"),
+                        ],
+                      ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () => Navigator.of(context).push(
                         _createSlideRoute(complaint),
@@ -399,7 +437,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   );
                 },
               ),
-            ),
+            )
           ],
         ),
       ),
@@ -419,4 +457,3 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
-

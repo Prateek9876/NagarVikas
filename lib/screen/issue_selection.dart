@@ -27,6 +27,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:NagarVikas/screen/fun_game_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 // Main Stateful Widget for Issue Selection Page
@@ -238,43 +239,28 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
                   // Each issue card has a ZoomIn animation for better user experience and smooth UI.
                   ZoomIn(
                       delay: Duration(milliseconds: 200),
-                      child: buildIssueCard(
-                          context,
-                          t('garbage'),
-                          "assets/garbage.png",
-                          const GarbagePage())),
+                      child: buildIssueCard(context, t('garbage'),
+                          "assets/garbage.png", const GarbagePage())),
                   ZoomIn(
                       delay: Duration(milliseconds: 400),
-                      child: buildIssueCard(
-                          context,
-                          t('water'),
-                          "assets/water.png",
-                          const WaterPage())),
+                      child: buildIssueCard(context, t('water'),
+                          "assets/water.png", const WaterPage())),
                   ZoomIn(
                       delay: Duration(milliseconds: 600),
                       child: buildIssueCard(context, t('road'),
                           "assets/road.png", const RoadPage())),
                   ZoomIn(
                       delay: Duration(milliseconds: 800),
-                      child: buildIssueCard(
-                          context,
-                          t('streetlight'),
-                          "assets/streetlight.png",
-                          const StreetLightPage())),
+                      child: buildIssueCard(context, t('streetlight'),
+                          "assets/streetlight.png", const StreetLightPage())),
                   ZoomIn(
                       delay: Duration(milliseconds: 1000),
-                      child: buildIssueCard(
-                          context,
-                          t('animals'),
-                          "assets/animals.png",
-                          const AnimalsPage())),
+                      child: buildIssueCard(context, t('animals'),
+                          "assets/animals.png", const AnimalsPage())),
                   ZoomIn(
                       delay: Duration(milliseconds: 1200),
-                      child: buildIssueCard(
-                          context,
-                          t('drainage'),
-                          "assets/drainage.png",
-                          const DrainagePage())),
+                      child: buildIssueCard(context, t('drainage'),
+                          "assets/drainage.png", const DrainagePage())),
                   ZoomIn(
                       delay: Duration(milliseconds: 1400),
                       child: buildIssueCard(context, t('other'),
@@ -352,7 +338,8 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -376,7 +363,8 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
 
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pop(context);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => nextPage));
     });
   }
 }
@@ -386,7 +374,11 @@ class AppDrawer extends StatefulWidget {
   final String language;
   final void Function(String) onLanguageChanged;
   final String Function(String) t;
-  const AppDrawer({super.key, required this.language, required this.onLanguageChanged, required this.t});
+  const AppDrawer(
+      {super.key,
+      required this.language,
+      required this.onLanguageChanged,
+      required this.t});
 
   @override
   _AppDrawerState createState() => _AppDrawerState();
@@ -425,13 +417,15 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
               // Language Switcher
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(Icons.language, color: Colors.black),
                     SizedBox(width: 8),
-                    Text("Language:", style: TextStyle(fontSize: 15, color: Colors.black)),
+                    Text("Language:",
+                        style: TextStyle(fontSize: 15, color: Colors.black)),
                     SizedBox(width: 8),
                     Expanded(
                       child: SingleChildScrollView(
@@ -439,22 +433,26 @@ class _AppDrawerState extends State<AppDrawer> {
                         child: Row(
                           children: [
                             ChoiceChip(
-                              label: Text('English', style: TextStyle(fontSize: 13)),
+                              label: Text('English',
+                                  style: TextStyle(fontSize: 13)),
                               selected: widget.language == 'en',
                               onSelected: (selected) {
                                 if (selected) widget.onLanguageChanged('en');
                               },
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
                               visualDensity: VisualDensity.compact,
                             ),
                             SizedBox(width: 6),
                             ChoiceChip(
-                              label: Text('हिन्दी', style: TextStyle(fontSize: 13)),
+                              label: Text('हिन्दी',
+                                  style: TextStyle(fontSize: 13)),
                               selected: widget.language == 'hi',
                               onSelected: (selected) {
                                 if (selected) widget.onLanguageChanged('hi');
                               },
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
                               visualDensity: VisualDensity.compact,
                             ),
                           ],
@@ -465,16 +463,25 @@ class _AppDrawerState extends State<AppDrawer> {
                 ),
               ),
               // Drawer Items (localized)
-              buildDrawerItem(context, Icons.person, widget.t('profile'), ProfilePage()),
-              buildDrawerItem(context, Icons.history, widget.t('my_complaints'), MyComplaintsScreen()),
-              buildDrawerItem(context, Icons.favorite, widget.t('user_feedback'), FeedbackPage()),
-              buildDrawerItem(context, Icons.card_giftcard, widget.t('refer_earn'), ReferAndEarnPage()),
-              buildDrawerItem(context, Icons.report_problem, widget.t('facing_issues'), FacingIssuesPage()),
-              buildDrawerItem(context, Icons.info, widget.t('about'), AboutAppPage()),
-              buildDrawerItem(context, Icons.headset_mic, widget.t('contact'), ContactUsPage()),
-              ListTile(
-                leading: Icon(Icons.share),
-                title: Text(widget.t('share_app')),
+              buildDrawerItem(
+                  context, Icons.person, widget.t('profile'), ProfilePage()),
+              buildDrawerItem(context, Icons.history, widget.t('my_complaints'),
+                  MyComplaintsScreen()),
+              buildDrawerItem(context, Icons.favorite,
+                  widget.t('user_feedback'), FeedbackPage()),
+              buildDrawerItem(context, Icons.card_giftcard,
+                  widget.t('refer_earn'), ReferAndEarnPage()),
+              buildDrawerItem(context, Icons.report_problem,
+                  widget.t('facing_issues'), FacingIssuesPage()),
+              buildDrawerItem(
+                  context, Icons.info, widget.t('about'), AboutAppPage()),
+              buildDrawerItem(context, Icons.headset_mic, widget.t('contact'),
+                  ContactUsPage()),
+              buildDrawerItem(
+                context,
+                Icons.share,
+                widget.t('share_app'),
+                null,
                 onTap: () {
                   Share.share(
                     'Check out this app: https://github.com/Prateek9876/NagarVikas',
@@ -482,9 +489,21 @@ class _AppDrawerState extends State<AppDrawer> {
                   );
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.logout),
-                title: Text(widget.t('logout')),
+              buildDrawerItem(
+                context,
+                Icons.games,
+                '2048 Game',
+                null,
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const FunGameScreen()));
+                },
+              ),
+              buildDrawerItem(
+                context,
+                Icons.logout,
+                widget.t('logout'),
+                null,
                 onTap: () {
                   showDialog(
                     context: context,
@@ -537,7 +556,6 @@ class _AppDrawerState extends State<AppDrawer> {
                       Color(0xFF0A66C2)),
                 ],
               ),
-              const SizedBox(height: 20),
               Divider(), // Divider before the footer
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -576,18 +594,32 @@ class _AppDrawerState extends State<AppDrawer> {
 
 // Reusable widget to build drawer items
 Widget buildDrawerItem(
-    BuildContext context, IconData icon, String title, Widget page) {
+    BuildContext context, IconData icon, String title, Widget? page,
+    {VoidCallback? onTap}) {
   return Material(
     color: Colors.transparent,
     child: InkWell(
-      onTap: () => Navigator.push(
-          context, MaterialPageRoute(builder: (context) => page)),
+      onTap: onTap ??
+          (page != null
+              ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => page),
+                  );
+                }
+              : null),
       splashColor: Colors.blue.withOpacity(0.5), // Ripple effect color
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Row(
           children: [
-            Icon(icon, color: Colors.black),
+            SizedBox(
+              width: 28, // or whatever width fits your icons best
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Icon(icon, color: Colors.black),
+              ),
+            ),
             SizedBox(width: 10),
             Text(title, style: TextStyle(fontSize: 16, color: Colors.black)),
           ],

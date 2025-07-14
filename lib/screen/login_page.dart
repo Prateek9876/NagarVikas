@@ -24,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool _obscurePassword = true;
+
   // ⏳ Loading state to show progress indicator
   bool isLoading = false;
 
@@ -216,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: "Password",
                     enabledBorder: OutlineInputBorder(
@@ -229,6 +231,18 @@ class _LoginPageState extends State<LoginPage> {
                           const BorderSide(color: Colors.blue, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    suffixIcon: IconButton(     //✅ This will show the eye icon on the right side.
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+
                   ),
                 ),
               ),

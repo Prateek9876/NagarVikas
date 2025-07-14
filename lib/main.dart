@@ -1,6 +1,7 @@
 // 📦 Importing necessary packages and screens
 import 'package:NagarVikas/service/ConnectivityService.dart';
 import 'package:NagarVikas/widgets/bottom_nav_bar.dart';
+import 'package:NagarVikas/widgets/exit_confirmation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -17,7 +18,6 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:NagarVikas/theme/theme_provider.dart';
-
 
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -90,7 +90,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: ConnectivityOverlay(child: const AuthCheckScreen()),
+      home: ExitConfirmationWrapper(
+        child: ConnectivityOverlay(child: const AuthCheckScreen()),
+      ),
     );
   }
 }
@@ -137,10 +139,9 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     bool? storedIsAdmin = prefs.getBool('isAdmin');
 
     setState(() {
-    isAdmin = storedIsAdmin ?? false;
-
+      isAdmin = storedIsAdmin ?? false;
     });
-    }
+  }
 
   // ✅ Build Method (Decides Which Screen to Show)
   @override

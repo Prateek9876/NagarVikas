@@ -73,8 +73,7 @@ dependencies:
   glassmorphism_ui: ^0.3.0 # Optional for glassmorphism effect
   fl_chart: ^0.66.0
   loading_animation_widget: ^1.2.0
-
-
+  flutter_local_notifications: ^19.3.0
 
 dev_dependencies:
   flutter_test:
@@ -97,23 +96,23 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-     - assets/mobileprofile.png
-     - assets/login.png
-     - assets/register.png
-     - assets/done.png
-     - assets/road.png
-     - assets/app_icon.png
-     - assets/garbage.png
-     - assets/newentry.png
-     - assets/water.png
-     - assets/drainage.png
-     - assets/streetlight.png
-     - assets/animals.png
-     - assets/selected.png
-     - assets/logo.gif
-     #- assets/nagarvikas-a1d4f-5333217f2ec9.JSON
-     - assets/anonymous.png
-     - assets/no_complaints.png
+    - assets/mobileprofile.png
+    - assets/login.png
+    - assets/register.png
+    - assets/done.png
+    - assets/road.png
+    - assets/app_icon.png
+    - assets/garbage.png
+    - assets/newentry.png
+    - assets/water.png
+    - assets/drainage.png
+    - assets/streetlight.png
+    - assets/animals.png
+    - assets/selected.png
+    - assets/logo.gif
+    # - assets/nagarvikas-a1d4f-5333217f2ec9.JSON
+    - assets/anonymous.png
+    - assets/no_complaints.png
        # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
