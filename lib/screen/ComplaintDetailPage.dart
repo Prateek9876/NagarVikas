@@ -4,6 +4,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:video_player/video_player.dart';
 import './admin_dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ComplaintDetailPage extends StatefulWidget {
   final String complaintId;
@@ -17,6 +20,8 @@ class ComplaintDetailPage extends StatefulWidget {
 class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   Map<String, dynamic>? complaint;
   late String selectedStatus;
+  String? adminNote;
+  final TextEditingController _adminNoteController = TextEditingController();
   VideoPlayerController? _videoController;
   bool _videoInitialized = false;
   bool _isMuted = true;
@@ -76,11 +81,41 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
     super.dispose();
   }
 
-  void _updateStatus(String newStatus) {
-    FirebaseDatabase.instance
-        .ref('complaints/${widget.complaintId}')
-        .update({"status": newStatus});
+  void _updateStatus(String newStatus) async {
+    final updates = {"status": newStatus};
+    
+    // Add admin note if provided
+    if (_adminNoteController.text.trim().isNotEmpty) {
+      updates["admin_note"] = _adminNoteController.text.trim();
+    }
+    
+    try {
+      await FirebaseDatabase.instance
+          .ref('complaints/${widget.complaintId}')
+          .update(updates);
+
+      // No need to manually send notification - Cloud Functions will handle it automatically
+      // when status changes are detected in the database
+
+      Fluttertoast.showToast(
+        msg: "Status updated successfully!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+      );
+      
+      // Clear the admin note field after successful update
+      _adminNoteController.clear();
+    } catch (error) {
+      Fluttertoast.showToast(
+        msg: "Failed to update status: ${error.toString()}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
   }
+
+  // Removed redundant notification method as Firebase Cloud Functions now handles this automatically
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +199,24 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                       });
                     }
                   },
+                ),
+                const SizedBox(height: 16),
+                const Text("📝 Admin Note (Optional)",
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _adminNoteController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Add a note for the user (optional)...",
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                  ),
                 ),
                 const SizedBox(height: 20),
 

@@ -155,6 +155,50 @@ class NotificationService {
     );
   }
 
+  Future<void> showStatusUpdateNotification({
+    required String issueTitle,
+    required String newStatus,
+    String? adminMessage,
+    String? complaintId,
+  }) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'complaint_channel',
+      'Complaint Notifications',
+      channelDescription: 'Notifications for complaint submissions and updates',
+      importance: Importance.high,
+      priority: Priority.high,
+      showWhen: true,
+      icon: '@mipmap/ic_launcher',
+      color: Color(0xFF2196F3),
+    );
+
+    const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+        DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics,
+    );
+
+    String notificationBody = "Your issue '$issueTitle' has been marked as $newStatus.";
+    if (adminMessage != null && adminMessage.isNotEmpty) {
+      notificationBody += "\n\nNote: $adminMessage";
+    }
+
+    await _flutterLocalNotificationsPlugin.show(
+      2, // Unique ID for status update notifications
+      'Issue Status Updated',
+      notificationBody,
+      platformChannelSpecifics,
+      payload: complaintId ?? 'status_updated',
+    );
+  }
+
   Future<void> cancelAllNotifications() async {
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
