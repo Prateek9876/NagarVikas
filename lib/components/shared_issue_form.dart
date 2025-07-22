@@ -1,6 +1,7 @@
 // lib/widgets/shared_issue_form.dart
 
 import 'dart:io';
+import 'package:NagarVikas/components/image_compression_util.dart';
 import 'package:NagarVikas/service/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -122,7 +123,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
-    _initializeServices(); 
+    _initializeServices();
     _descriptionController.addListener(() {
       setState(() {}); // rebuild when text changes
     });
@@ -135,7 +136,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
   Future<void> _requestPermissions() async {
     await Permission.microphone.request();
-    await Permission.notification.request(); 
+    await Permission.notification.request();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -210,12 +211,67 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
       return;
     }
 
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
+    try {
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const AlertDialog(
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 16),
+                Text("Compressing image..."),
+              ],
+            ),
+          ),
+        );
+
+        final originalFile = File(pickedFile.path);
+        final compressedFile = await ImageCompressionUtil.compressImage(
+          originalFile,
+          quality: 85,
+          maxWidth: 1920,
+          maxHeight: 1080,
+          maxFileSizeKB: 500,
+        );
+
+        Navigator.of(context).pop();
+
+        if (compressedFile != null) {
+          final imageInfo =
+              await ImageCompressionUtil.getImageInfo(compressedFile);
+          final fileSizeKB =
+              imageInfo['fileSizeKB']?.toStringAsFixed(1) ?? 'Unknown';
+
+          setState(() {
+            _selectedImage = compressedFile;
+          });
+
+          Fluttertoast.showToast(
+            msg: "Image compressed successfully! Size: ${fileSizeKB}KB",
+            toastLength: Toast.LENGTH_LONG,
+          );
+        } else {
+          setState(() {
+            _selectedImage = originalFile;
+          });
+
+          Fluttertoast.showToast(
+            msg: "Compression failed, using original image",
+          );
+        }
+      }
+    } catch (e) {
+      if (Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+      }
+
+      Fluttertoast.showToast(msg: "Failed to pick image: $e");
     }
   }
 
