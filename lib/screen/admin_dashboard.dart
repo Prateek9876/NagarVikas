@@ -6,6 +6,7 @@ import 'dart:async';
 import './ComplaintDetailPage.dart';
 import 'login_page.dart';
 import 'package:NagarVikas/screen/analytics_dashboard.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -26,6 +27,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Map<String, dynamic>> filteredComplaints = [];
   TextEditingController searchController = TextEditingController();
   StreamSubscription? _complaintsSubscription;
+  List<Map<String, String>> _notifications = [];
+  int _unreadCount = 0;
 
   // Bottom navigation items
   static const List<BottomNavigationBarItem> _bottomNavItems = [
@@ -47,6 +50,36 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void initState() {
     super.initState();
     _fetchComplaints();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      String title = message.notification?.title ?? '';
+      String body = message.notification?.body ?? '';
+      String? complaintId = message.data['complaintId'];
+      setState(() {
+        _notifications.insert(0, {
+          'title': title,
+          'body': body,
+          'complaintId': complaintId ?? '',
+        });
+        _unreadCount++;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$title: $body'),
+          duration: Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'View',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ComplaintDetailPage(complaintId: complaintId ?? ''),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    });
   }
 
   @override
@@ -196,6 +229,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             TextButton(
               onPressed: () async {
+                await FirebaseMessaging.instance.unsubscribeFromTopic('admins');
                 await FirebaseAuth.instance.signOut();
                 if (!mounted) return;
                 Navigator.pushReplacement(
@@ -293,6 +327,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       TextButton(
                         onPressed: () async {
                           Navigator.of(context).pop();
+                          await FirebaseMessaging.instance.unsubscribeFromTopic('admins');
                           await FirebaseAuth.instance.signOut();
                           if (!mounted) return;
                           Navigator.pushReplacement(
@@ -322,6 +357,83 @@ class _AdminDashboardState extends State<AdminDashboard> {
   backgroundColor: const Color.fromARGB(255, 4, 204, 240),
   iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
   actions: [
+    Stack(
+      children: [
+        IconButton(
+          icon: Icon(Icons.notifications),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text('Notifications'),
+                content: Container(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _notifications.length,
+                    itemBuilder: (c, i) {
+                      var notif = _notifications[i];
+                      return ListTile(
+                        title: Text(notif['title'] ?? ''),
+                        subtitle: Text(notif['body'] ?? ''),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ComplaintDetailPage(
+                                complaintId: notif['complaintId'] ?? '',
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    child: Text('Clear'),
+                    onPressed: () {
+                      setState(() {
+                        _notifications.clear();
+                        _unreadCount = 0;
+                      });
+                      Navigator.pop(ctx);
+                    },
+                  ),
+                ],
+              ),
+            );
+            setState(() { _unreadCount = 0; });
+          },
+        ),
+        if (_unreadCount > 0)
+          Positioned(
+            right: 11,
+            top: 11,
+            child: Container(
+              padding: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              constraints: BoxConstraints(
+                minWidth: 14,
+                minHeight: 14,
+              ),
+              child: Text(
+                '$_unreadCount',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+      ],
+    ),
     IconButton(
       icon: const Icon(Icons.logout),
       onPressed: () {

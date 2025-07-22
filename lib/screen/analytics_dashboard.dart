@@ -5,6 +5,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:NagarVikas/widgets/bar_chart_widget.dart';
 import 'package:NagarVikas/widgets/pie_chart_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'admin_dashboard.dart';
 import 'login_page.dart';
 
@@ -78,6 +79,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             ),
             TextButton(
               onPressed: () async {
+                await FirebaseMessaging.instance.unsubscribeFromTopic('admins');
                 await FirebaseAuth.instance.signOut();
                 if (!mounted) return;
                 Navigator.pushReplacement(

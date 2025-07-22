@@ -7,6 +7,7 @@ import 'package:NagarVikas/screen/register_screen.dart';
 import 'package:NagarVikas/screen/admin_dashboard.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 // 🧩 Stateful widget for login page
 class LoginPage extends StatefulWidget {
@@ -124,6 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                 if (pinController.text == "2004") {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.setBool("isAdmin", true);
+                  await FirebaseMessaging.instance.subscribeToTopic('admins');
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,

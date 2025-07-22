@@ -222,3 +222,37 @@ exports.handleTokenRefresh = functions.database
       return null;
     }
   });
+
+exports.newComplaintNotification = functions.database
+  .ref('/complaints/{complaintId}')
+  .onCreate(async (snap, context) => {
+    const data = snap.val();
+    const userId = data.user_id;
+    if (!userId) {
+      console.error('No user_id in new complaint');
+      return null;
+    }
+    const userSnapshot = await admin.database().ref(`/users/${userId}`).once('value');
+    const userData = userSnapshot.val();
+    const userName = userData?.name || 'Anonymous';
+    const category = data.issue_type || 'Unknown';
+    const preview = (data.description || '').substring(0, 50) + (data.description?.length > 50 ? '...' : '');
+    const payload = {
+      notification: {
+        title: 'New Complaint Received',
+        body: `${userName} filed a ${category} complaint: ${preview}`,
+      },
+      data: {
+        complaintId: context.params.complaintId,
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+      }
+    };
+    try {
+      const response = await admin.messaging().sendToTopic('admins', payload);
+      console.log('Successfully sent to topic:', response);
+      return response;
+    } catch (error) {
+      console.error('Error sending to topic:', error);
+      return null;
+    }
+  });
