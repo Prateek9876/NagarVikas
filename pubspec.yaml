@@ -53,7 +53,7 @@ dependencies:
   googleapis_auth: ^1.6.0
   firebase_database: ^11.3.3
   dio: ^5.8.0+1
-  intl: ^0.20.2
+  intl: ^0.19.0
   firebase_messaging: ^15.2.4
   onesignal_flutter: ^5.3.0
   overlay_support: ^2.1.0
