@@ -141,6 +141,20 @@ class _LoginPageState extends State<LoginPage> {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   await prefs.setBool("isAdmin", true);
                   Navigator.pop(context);
+                  // Show local notifications for admin if any
+                  final adminNotifications = await LocalStatusStorage.getAdminNotifications();
+                  if (adminNotifications.isNotEmpty) {
+                    for (var i = 0; i <adminNotifications.length; i++) {
+                      final n = adminNotifications[i];
+                      await NotificationService().showNotification(
+                        id: i + 500, // avoid collision with other IDs
+                        title: 'New Complaint Filed',
+                        body: n['message'] ?? 'A new complaint has been filed.',
+                        payload: n['complaint_id'] ?? '',
+                      );
+                    }
+                    await LocalStatusStorage.clearAdminNotifications();
+                  }
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => AdminDashboard()),

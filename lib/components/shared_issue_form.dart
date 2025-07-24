@@ -17,6 +17,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../screen/done_screen.dart';
+import '../service/local_status_storage.dart';
 
 class SharedIssueForm extends StatefulWidget {
   final String issueType;
@@ -212,7 +213,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
       Fluttertoast.showToast(msg: "Remove the video to upload image.");
       return;
     }
-  
+
       final pickedFile =
           await ImagePicker().pickImage(source: ImageSource.gallery);
 
@@ -220,7 +221,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
       setState(() {
         _selectedImage = File(pickedFile.path);
       });
-      
+
       }}
 
   Future<void> _pickVideo() async {
@@ -324,6 +325,17 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
         issueType: widget.issueType,
         complaintId: ref.key,
       );
+
+      // Save local notification for admin
+      final adminNotification = {
+        "complaint_id": ref.key,
+        "issue_type": widget.issueType,
+        "city": _selectedCity,
+        "state": _selectedState,
+        "timestamp": DateTime.now().toIso8601String(),
+        "message": "New complaint filed: ${widget.issueType} in $_selectedCity, $_selectedState."
+      };
+      await LocalStatusStorage.saveAdminNotification(adminNotification);
 
       Fluttertoast.showToast(msg: "Submitted Successfully");
 
