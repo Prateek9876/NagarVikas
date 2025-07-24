@@ -334,7 +334,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const Text(
               "Admin Dashboard",
             ),
-            Text(" Manage complaints & track issues",
+            Text("Manage complaints & track issues",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
