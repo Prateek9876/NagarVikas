@@ -9,7 +9,7 @@ android {
     namespace = "com.example.nagarsur"
     // Required for video_player plugin which needs SDK 35+ (Comment by VJLIVE)
     compileSdk = 35
-    ndkVersion '29.0.13599879' //for run app locally
+    ndkVersion '27.0.12077973 ' //for run app locally
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
