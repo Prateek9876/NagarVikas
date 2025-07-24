@@ -112,7 +112,7 @@ flutter:
     - assets/animals.png
     - assets/selected.png
     - assets/logo.gif
-    - .env
+    - assets/.env
     # - assets/nagarvikas-a1d4f-5333217f2ec9.JSON
     - assets/anonymous.png
     - assets/no_complaints.png

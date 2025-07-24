@@ -19,6 +19,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:NagarVikas/theme/theme_provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -27,35 +28,39 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
- 
-  // ✅ OneSignal push notification setup
-  OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
-  OneSignal.Notifications.requestPermission(true);
 
-  // ✅ Set up notification opened handler
-  OneSignal.Notifications.addClickListener((event) {
-    print("Notification Clicked: ${event.notification.body}");
-  });
+  // Load environment variables
+  await dotenv.load(fileName: "assets/.env");
 
-  // ✅ Firebase initialization for Web and Mobile
+  // OneSignal initialization (wrap in !kIsWeb)
+  if (!kIsWeb) {
+    OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
+    OneSignal.Notifications.requestPermission(true);
+    OneSignal.Notifications.addClickListener((event) {
+      print("Notification Clicked: ${event.notification.body}");
+    });
+  }
+
+  // Firebase initialization for Web and Mobile
   if (kIsWeb) {
     await Firebase.initializeApp(
       options: FirebaseOptions(
-        apiKey: "AIzaSyCjaGsLVhHmVGva75FLj6PiCv_Z74wGap4",
-        authDomain: "nagarvikas-a1d4f.firebaseapp.com",
-        projectId: "nagarvikas-a1d4f",
-        storageBucket: "nagarvikas-a1d4f.firebasestorage.app",
-        messagingSenderId: "847955234719",
-        appId: "1:847955234719:web:ac2b6da7a3a0715adfb7aa",
-        measurementId: "G-ZZMV642TW3",
+        apiKey: dotenv.env['API_KEY']!,
+        authDomain: dotenv.env['AUTH_DOMAIN']!,
+        projectId: dotenv.env['PROJECT_ID']!,
+        storageBucket: dotenv.env['STORAGE_BUCKET']!,
+        messagingSenderId: dotenv.env['MESSAGING_SENDER_ID']!,
+        appId: dotenv.env['APP_ID']!,
+        measurementId: dotenv.env['MEASUREMENT_ID'],
+        databaseURL: dotenv.env['DATABASE_URL'],
       ),
     );
   } else {
-    await Firebase.initializeApp(); // This might fail if no default options
+    await Firebase.initializeApp();
   }
- // ✅ Register background handler
+
+  // ✅ Register background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Run the app
@@ -155,7 +160,8 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
     if (user == null) {
       return const WelcomeScreen();
     } else {
-      if (isAdmin && user!.email?.contains("gov") == true) {
+      // Redirect to AdminDashboard if email contains 'gov'
+      if (user!.email?.contains("gov") == true) {
         return AdminDashboard();
       } else {
         return const BottomNavBar();

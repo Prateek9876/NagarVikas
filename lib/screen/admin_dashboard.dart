@@ -165,6 +165,63 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  // Get status color and icon
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'in progress':
+        return Colors.blue;
+      case 'resolved':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Icons.hourglass_empty;
+      case 'in progress':
+        return Icons.work_outline;
+      case 'resolved':
+        return Icons.check_circle_outline;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  // Get issue type emoji
+  String _getIssueEmoji(String issueType) {
+    switch (issueType.toLowerCase()) {
+      case 'road':
+      case 'roads':
+        return '🛣️';
+      case 'water':
+      case 'water supply':
+        return '💧';
+      case 'electricity':
+      case 'power':
+        return '⚡';
+      case 'garbage':
+      case 'waste':
+        return '🗑️';
+      case 'drainage':
+        return '🚰';
+      case 'street light':
+      case 'lighting':
+        return '💡';
+      case 'park':
+      case 'garden':
+        return '🌳';
+      case 'traffic':
+        return '🚦';
+      default:
+        return '📋';
+    }
+  }
+
   // Handle bottom navigation item tap
   void _onItemTapped(int index) {
     if (index == 1) { // Analytics
@@ -314,50 +371,49 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
       backgroundColor: const Color(0xFFF0F9FF),
-  appBar: AppBar(
-  title: const Text(
-    "Admin Dashboard",
-    style: TextStyle(color: Color.fromARGB(255, 10, 10, 10)),
-  ),
-  backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-  iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
-  actions: [
-    IconButton(
-      icon: const Icon(Icons.logout),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text("Confirm Logout"),
-            content: const Text("Are you sure you want to log out?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await FirebaseAuth.instance.signOut();
-                  if (!mounted) return;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                  );
-                },
-                child: const Text(
-                  "Logout",
-                  style: TextStyle(color: Colors.red),
+      appBar: AppBar(
+        title: const Text(
+          "Admin Dashboard",
+          style: TextStyle(color: Color.fromARGB(255, 10, 10, 10)),
+        ),
+        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+        iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text("Confirm Logout"),
+                  content: const Text("Are you sure you want to log out?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await FirebaseAuth.instance.signOut();
+                        if (!mounted) return;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        );
-      },
-    ),
-  ],
-),
-
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -395,43 +451,281 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 itemCount: filteredComplaints.length,
                 itemBuilder: (ctx, index) {
                   final complaint = filteredComplaints[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 3,
+                  final statusColor = _getStatusColor(complaint["status"]);
+                  final statusIcon = _getStatusIcon(complaint["status"]);
+                  final issueEmoji = _getIssueEmoji(complaint["issue_type"]);
+                  
+                  return Container(
                     margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(12),
-                      leading: complaint["media_type"] == "image"
-                          ? ClipOval(
-                              child: Image.network(
-                                complaint["media_url"],
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.broken_image, size: 40),
-                              ),
-                            )
-                          : const CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.grey,
-                              child: Icon(Icons.videocam, color: Colors.white),
-                            ),
-                      title: Text(
-                        complaint["issue_type"] ?? "Unknown",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Status: ${complaint["status"]}"),
-                          const SizedBox(height: 4),
-                          Text("City: ${complaint["city"]}, State: ${complaint["state"]}"),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white,
+                          statusColor.withOpacity(0.05),
                         ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => Navigator.of(context).push(
-                        _createSlideRoute(complaint),
+                      boxShadow: [
+                        BoxShadow(
+                          color: statusColor.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: statusColor.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => Navigator.of(context).push(
+                          _createSlideRoute(complaint),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Header Row
+                              Row(
+                                children: [
+                                  // Media/Image Section
+                                  Container(
+                                    width: 70,
+                                    height: 70,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          statusColor.withOpacity(0.1),
+                                          statusColor.withOpacity(0.2),
+                                        ],
+                                      ),
+                                      border: Border.all(
+                                        color: statusColor.withOpacity(0.3),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: complaint["media_type"] == "image"
+                                        ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(10),
+                                            child: Image.network(
+                                              complaint["media_url"],
+                                              width: 70,
+                                              height: 70,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
+                                                  Icon(
+                                                    Icons.broken_image,
+                                                    size: 30,
+                                                    color: statusColor,
+                                                  ),
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.videocam,
+                                            color: statusColor,
+                                            size: 30,
+                                          ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  
+                                  // Main Content
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Issue Type with Emoji
+                                        Row(
+                                          children: [
+                                            Text(
+                                              issueEmoji,
+                                              style: const TextStyle(fontSize: 20),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                complaint["issue_type"] ?? "Unknown",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                  color: Color(0xFF2C3E50),
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        
+                                        // Location with GPS Emoji
+                                        Row(
+                                          children: [
+                                            const Text("📍", style: TextStyle(fontSize: 14)),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                "${complaint["city"]}, ${complaint["state"]}",
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.grey[600],
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        
+                                        // Date and Time with Clock Emoji
+                                        Row(
+                                          children: [
+                                            const Text("🕐", style: TextStyle(fontSize: 12)),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              "${complaint["date"]} at ${complaint["time"]}",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[500],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  
+                                  // Status Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: statusColor,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: statusColor.withOpacity(0.3),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          statusIcon,
+                                          color: Colors.white,
+                                          size: 14,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          complaint["status"],
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              
+                              const SizedBox(height: 12),
+                              
+                              // Description with subtle background
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Text("📝", style: TextStyle(fontSize: 14)),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          "Description",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      complaint["description"] ?? "No description",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                        height: 1.3,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              
+                              const SizedBox(height: 8),
+                              
+                              // Bottom Row with User Info and Arrow
+                              Row(
+                                children: [
+                                  // User Info
+                                  Row(
+                                    children: [
+                                      const Text("👤", style: TextStyle(fontSize: 12)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        complaint["user_name"] ?? "Unknown",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  // Arrow with subtle animation hint
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: statusColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 12,
+                                      color: statusColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   );
