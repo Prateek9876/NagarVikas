@@ -344,8 +344,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
         elevation: 10.0,
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         iconTheme: const IconThemeData(color: Colors.white),
-
-
         actions: [
           // Add more icons here as needed
           PopupMenuButton<String>(
