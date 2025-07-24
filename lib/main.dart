@@ -1,4 +1,3 @@
-// 📦 Importing necessary packages and screens
 import 'package:NagarVikas/service/ConnectivityService.dart';
 import 'package:NagarVikas/widgets/bottom_nav_bar.dart';
 import 'package:NagarVikas/widgets/exit_confirmation.dart';
@@ -29,7 +28,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
- 
+
   // ✅ OneSignal push notification setup
   OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
   OneSignal.Notifications.requestPermission(true);

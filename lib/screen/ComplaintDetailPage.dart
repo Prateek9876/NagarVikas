@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:video_player/video_player.dart';
+import '../service/local_status_storage.dart';
 import './admin_dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -76,11 +77,28 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
     super.dispose();
   }
 
-  void _updateStatus(String newStatus) {
-    FirebaseDatabase.instance
-        .ref('complaints/${widget.complaintId}')
-        .update({"status": newStatus});
-  }
+
+void _updateStatus(String newStatus) async {
+  if (complaint == null) return;
+  final oldStatus = complaint!["status"];
+  if (oldStatus == newStatus) return;
+
+  // Update in Firebase
+  await FirebaseDatabase.instance
+      .ref('complaints/${widget.complaintId}')
+      .update({"status": newStatus});
+
+  // Save notification locally for the user (simulate local for demo)
+  final userId = complaint!["user_id"] ?? "";
+  final notification = {
+    "complaint_id": widget.complaintId,
+    "user_id": userId,
+    "new_status": newStatus,
+    "timestamp": DateTime.now().toIso8601String(),
+    "message": "Your complaint status has been updated to $newStatus."
+  };
+  await LocalStatusStorage.saveNotification(notification);
+}
 
   @override
   Widget build(BuildContext context) {
