@@ -255,6 +255,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
       final controller = VideoPlayerController.file(file);
       await controller.initialize();
       if (controller.value.duration.inSeconds > 10) {
+        controller.dispose();
         Fluttertoast.showToast(msg: "Video must be under 10s");
         return;
       }
