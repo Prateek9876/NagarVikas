@@ -1,0 +1,2 @@
+C:/Users/root/Desktop/NagarVikas/android/app/.cxx/RelWithDebInfo/xz686iv5/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/root/Desktop/NagarVikas/android/app/.cxx/RelWithDebInfo/xz686iv5/x86_64/CMakeFiles/rebuild_cache.dir
