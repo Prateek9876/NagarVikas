@@ -6,17 +6,18 @@ class WaterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Water Issue"),
+        title: Text(loc.get('water') ?? 'Water Issue'),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         foregroundColor: Colors.black,
         elevation: 1,
       ),
-      body: const SharedIssueForm(
-        issueType: "Water",
-        headingText: "Water supply issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+      body: SharedIssueForm(
+        issueType: loc.get('water') ?? 'Water',
+        headingText: loc.get('water') != null ? '${loc.get('water')} supply issue selected' : 'Water supply issue selected',
+        infoText: loc.get('infoText') ?? 'Please give accurate and correct information for a faster solution.',
         imageAsset: "assets/selected.png",
       ),
     );

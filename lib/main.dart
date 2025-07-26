@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'NagarVikas',
+      title: AppLocalizations.of(context).get('appTitle') ?? 'NagarVikas',
       theme: ThemeData(
         textTheme: GoogleFonts.nunitoTextTheme(),
         colorScheme: ColorScheme.fromSeed(
@@ -91,6 +91,16 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('hi'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
       home: ExitConfirmationWrapper(
         child: ConnectivityOverlay(child: const AuthCheckScreen()),
       ),

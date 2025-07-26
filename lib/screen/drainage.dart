@@ -6,17 +6,18 @@ class DrainagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Drainage Issue"),
+        title: Text(loc.get('drainage') ?? 'Drainage Issue'),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         foregroundColor: Colors.black,
         elevation: 1,
       ),
-      body: const SharedIssueForm(
-        issueType: "Drainage Issue",
-        headingText: "Drainage issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+      body: SharedIssueForm(
+        issueType: loc.get('drainage') ?? 'Drainage Issue',
+        headingText: loc.get('drainage') != null ? '${loc.get('drainage')} issue selected' : 'Drainage issue selected',
+        infoText: loc.get('infoText') ?? 'Please give accurate and correct information for a faster solution.',
         imageAsset: "assets/selected.png",
       ),
     );
