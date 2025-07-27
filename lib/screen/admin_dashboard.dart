@@ -14,7 +14,8 @@ class AdminDashboard extends StatefulWidget {
   _AdminDashboardState createState() => _AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class _AdminDashboardState extends State<AdminDashboard>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0; // Home is selected by default
   int totalComplaints = 0;
   int pendingComplaints = 0;
@@ -26,6 +27,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Map<String, dynamic>> filteredComplaints = [];
   TextEditingController searchController = TextEditingController();
   StreamSubscription? _complaintsSubscription;
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   // Bottom navigation items
   static const List<BottomNavigationBarItem> _bottomNavItems = [
@@ -47,12 +50,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void initState() {
     super.initState();
     _fetchComplaints();
+
+    _fadeController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
+    );
   }
 
   @override
   void dispose() {
     _complaintsSubscription?.cancel();
     searchController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -77,6 +87,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             filteredComplaints = [];
             isLoading = false;
           });
+          _fadeController.forward();
         }
         return;
       }
@@ -473,7 +484,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : filteredComplaints.isEmpty
-                      ? const Center(child: Text("No complaints found."))
+                      ? FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset("assets/no-compliants-found.png",width: 300,height: 300,),
+                              const SizedBox(height: 16),
+                              const Text(
+                                "No complaints found.",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                       : ListView.builder(
                           itemCount: filteredComplaints.length,
                           itemBuilder: (ctx, index) {
