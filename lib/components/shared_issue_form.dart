@@ -129,6 +129,9 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     _descriptionController.addListener(() {
       setState(() {}); // rebuild when text changes
     });
+    _locationController.addListener(() {
+      setState(() {});
+    });
   }
 
   Future<void> _initializeServices() async {
@@ -348,15 +351,19 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String hint) => InputDecoration(
+  InputDecoration _inputDecoration(String hint, {required bool isFilled}) => InputDecoration(
         hintText: hint,
         filled: true,
         fillColor: const Color.fromARGB(255, 251, 250, 250),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        border: OutlineInputBorder(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none),
+            borderSide: BorderSide(color: isFilled ? Colors.grey[400]! : Colors.red, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: isFilled ? Colors.blue : Colors.red, width: 2),
+        ),
       );
 
   @override
@@ -392,7 +399,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                 _selectedState = value;
                 _selectedCity = null;
               }),
-              decoration: _inputDecoration("State"),
+              decoration: _inputDecoration("State", isFilled: _selectedState != null),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
@@ -405,14 +412,14 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                       .toList()
                   : [],
               onChanged: (value) => setState(() => _selectedCity = value),
-              decoration: _inputDecoration("City"),
+              decoration: _inputDecoration("City", isFilled: _selectedCity != null),
             ),
             const SizedBox(height: 10),
 
             TextField(
               controller: _locationController,
               decoration:
-                  _inputDecoration("Reveal the Secret Location")
+                  _inputDecoration("Reveal the Secret Location", isFilled: _locationController.text.trim().isNotEmpty)
                       .copyWith(
                 suffixIcon: IconButton(
                     icon: const Icon(Icons.my_location),
@@ -430,7 +437,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                       maxLength}) =>
                   null,
               decoration:
-                  _inputDecoration("Describe the Strange Occurence or Speak a spell").copyWith(
+                  _inputDecoration("Describe the Strange Occurence or Speak a spell", isFilled: _descriptionController.text.trim().isNotEmpty).copyWith(
                 suffixIcon: IconButton(
                   icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
                   onPressed: _isListening ? _stopListening : _startListening,

@@ -58,18 +58,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> _fetchComplaints() async {
-    DatabaseReference complaintsRef = FirebaseDatabase.instance.ref('complaints');
+    DatabaseReference complaintsRef =
+        FirebaseDatabase.instance.ref('complaints');
     DatabaseReference usersRef = FirebaseDatabase.instance.ref('users');
 
-    _complaintsSubscription = complaintsRef.onValue.listen((complaintEvent) async {
+    _complaintsSubscription =
+        complaintsRef.onValue.listen((complaintEvent) async {
       if (!mounted) return;
 
-      final complaintData = complaintEvent.snapshot.value as Map<dynamic, dynamic>?;
+      final complaintData =
+          complaintEvent.snapshot.value as Map<dynamic, dynamic>?;
 
       if (complaintData == null) {
         if (mounted) {
           setState(() {
-            totalComplaints = pendingComplaints = inProgressComplaints = resolvedComplaints = 0;
+            totalComplaints = pendingComplaints =
+                inProgressComplaints = resolvedComplaints = 0;
             complaints = [];
             filteredComplaints = [];
             isLoading = false;
@@ -105,7 +109,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           time = "${dateTime.hour}:${dateTime.minute}";
         }
 
-        String? mediaUrl = complaint["media_url"] ?? complaint["image_url"] ?? "";
+        String? mediaUrl =
+            complaint["media_url"] ?? complaint["image_url"] ?? "";
         String mediaType = (complaint["media_type"] ??
                 (complaint["image_url"] != null ? "image" : "video"))
             .toString()
@@ -121,7 +126,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
           "date": date,
           "time": time,
           "status": status,
-          "media_url": (mediaUrl ?? '').isEmpty ? 'https://picsum.photos/250?image=9' : mediaUrl,
+          "media_url": (mediaUrl ?? '').isEmpty
+              ? 'https://picsum.photos/250?image=9'
+              : mediaUrl,
           "media_type": mediaType,
           "user_id": userId,
           "user_name": userData?["name"] ?? "Unknown",
@@ -160,7 +167,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.easeInOut;
-        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
@@ -168,12 +176,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // Handle bottom navigation item tap
   void _onItemTapped(int index) {
-    if (index == 1) { // Analytics
+    if (index == 1) {
+      // Analytics
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AnalyticsDashboard()),
       );
-    } else if (index == 2) { // Logout
+    } else if (index == 2) {
+      // Logout
       _showLogoutDialog();
     } else {
       setState(() {
@@ -298,7 +308,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           if (!mounted) return;
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (_) => const LoginPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const LoginPage()),
                           );
                         },
                         child: Text(
@@ -316,45 +327,117 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       backgroundColor: const Color(0xFFF0F9FF),
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context).get('adminDashboard'), // Localized string
-          style: TextStyle(color: Color.fromARGB(255, 10, 10, 10)),
+        titleTextStyle: TextStyle(
+            color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Admin Dashboard",
+            ),
+            Text("Manage complaints & track issues",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ))
+          ],
         ),
+        elevation: 10.0,
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-        iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
-                  content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
+          // Add more icons here as needed
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Colors.white),
+            onSelected: (value) async {
+              if (value == 'logout') {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    TextButton(
-                      onPressed: () async {
-                        Navigator.of(context).pop();
-                        await FirebaseAuth.instance.signOut();
-                        if (!mounted) return;
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
-                        );
-                      },
-                      child: Text(
-                        AppLocalizations.of(context).get('logout'), // Localized string
-                        style: TextStyle(color: Colors.red),
+                    title: Column(
+                      children: [
+                        Icon(Icons.logout_rounded,
+                            size: 40,
+                            color: const Color.fromARGB(255, 4, 204, 240)),
+                        SizedBox(height: 8),
+                        Text(
+                          "Confirm Logout",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                    content: Text(
+                      "Are you sure you want to log out?",
+                      style: TextStyle(color: Colors.black87, fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                    actionsAlignment: MainAxisAlignment.spaceEvenly,
+                    actions: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 4, 204, 240),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text("Cancel",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w700)),
                       ),
-                    ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 4, 204, 240),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          await FirebaseAuth.instance.signOut();
+                          if (!context.mounted) return;
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const LoginPage()),
+                          );
+                        },
+                        child: Text("Logout",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              // Add other menu item handlers here (e.g., profile, settings, etc.)
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout_rounded,
+                        color: const Color.fromARGB(255, 4, 204, 240)),
+                    SizedBox(width: 8),
+                    Text('Logout'),
                   ],
                 ),
-              );
-            },
+              ),
+              // Add more menu items here if you want
+            ],
           ),
         ],
       ),
@@ -380,7 +463,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   prefixIcon: Icon(Icons.search),
                   hintText: AppLocalizations.of(context).get('searchComplaints'), // Localized string
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 onChanged: _searchComplaints,
               ),
@@ -390,53 +474,61 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: isLoading
                   ? Center(child: CircularProgressIndicator())
                   : filteredComplaints.isEmpty
-                  ? Center(child: Text(AppLocalizations.of(context).get('noComplaintsFound'))) // Localized string
-                  : ListView.builder(
-                itemCount: filteredComplaints.length,
-                itemBuilder: (ctx, index) {
-                  final complaint = filteredComplaints[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 3,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(12),
-                      leading: complaint["media_type"] == "image"
-                          ? ClipOval(
-                              child: Image.network(
-                                complaint["media_url"],
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.broken_image, size: 40),
+
+                      ? const Center(child: Text("No complaints found."))
+                      : ListView.builder(
+                          itemCount: filteredComplaints.length,
+                          itemBuilder: (ctx, index) {
+                            final complaint = filteredComplaints[index];
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              elevation: 3,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(12),
+                                leading: complaint["media_type"] == "image"
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          complaint["media_url"],
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(Icons.broken_image,
+                                                      size: 40),
+                                        ),
+                                      )
+                                    : const CircleAvatar(
+                                        radius: 30,
+                                        backgroundColor: Colors.grey,
+                                        child: Icon(Icons.videocam,
+                                            color: Colors.white),
+                                      ),
+                                title: Text(
+                                  complaint["issue_type"] ?? "Unknown",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Status: ${complaint["status"]}"),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                        "City: ${complaint["city"]}, State: ${complaint["state"]}"),
+                                  ],
+                                ),
+                                trailing: const Icon(Icons.arrow_forward_ios,
+                                    size: 16),
+                                onTap: () => Navigator.of(context).push(
+                                  _createSlideRoute(complaint),
+                                ),
                               ),
-                            )
-                          : const CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.grey,
-                              child: Icon(Icons.videocam, color: Colors.white),
-                            ),
-                      title: Text(
-                        complaint["issue_type"] ?? "Unknown",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("${AppLocalizations.of(context).get('status')}: ${complaint["status"]}"), // Localized string
-                          const SizedBox(height: 4),
-                          Text("${AppLocalizations.of(context).get('city')}: ${complaint["city"]}, ${AppLocalizations.of(context).get('state')}: ${complaint["state"]}"), // Localized string
-                        ],
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => Navigator.of(context).push(
-                        _createSlideRoute(complaint),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                            );
+                          },
+                        ),
             )
           ],
         ),
