@@ -115,6 +115,7 @@ flutter:
     # - assets/nagarvikas-a1d4f-5333217f2ec9.JSON
     - assets/anonymous.png
     - assets/no_complaints.png
+    - assets/no-compliants-found.png
        # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
