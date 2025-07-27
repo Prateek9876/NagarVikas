@@ -5,7 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import 'complaint_detail_page.dart';
 import 'login_page.dart';
-import 'package:nagarvikas/screen/analytics_dashboard.dart'; 
+import 'package:nagarvikas/screen/analytics_dashboard.dart';
+
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -27,7 +28,8 @@ class AdminDashboardState extends State<AdminDashboard> {
   StreamSubscription? _complaintsSubscription;
 
   // Bottom navigation items
-  List<BottomNavigationBarItem> _bottomNavItems(BuildContext context) { // Modified to accept context
+  List<BottomNavigationBarItem> _bottomNavItems(BuildContext context) {
+    // Modified to accept context
     return [
       BottomNavigationBarItem(
         icon: Icon(Icons.home),
@@ -35,7 +37,8 @@ class AdminDashboardState extends State<AdminDashboard> {
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.analytics),
-        label: AppLocalizations.of(context).get('analytics'), // Localized string
+        label:
+            AppLocalizations.of(context).get('analytics'), // Localized string
       ),
       BottomNavigationBarItem(
         icon: Icon(Icons.logout),
@@ -198,12 +201,15 @@ class AdminDashboardState extends State<AdminDashboard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
-          content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
+          title: Text(AppLocalizations.of(context)
+              .get('confirmLogout')), // Localized string
+          content: Text(AppLocalizations.of(context)
+              .get('areYouSureLogout')), // Localized string
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
+              child: Text(AppLocalizations.of(context)
+                  .get('cancel')), // Localized string
             ),
             TextButton(
               onPressed: () async {
@@ -252,7 +258,8 @@ class AdminDashboardState extends State<AdminDashboard> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    AppLocalizations.of(context).get('adminPanel'), // Localized string
+                    AppLocalizations.of(context)
+                        .get('adminPanel'), // Localized string
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -274,7 +281,8 @@ class AdminDashboardState extends State<AdminDashboard> {
             ListTile(
               leading: Icon(Icons.analytics, color: Colors.teal),
               title: Text(
-                AppLocalizations.of(context).get('analytics'), // Localized string
+                AppLocalizations.of(context)
+                    .get('analytics'), // Localized string
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
@@ -294,12 +302,15 @@ class AdminDashboardState extends State<AdminDashboard> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
-                    title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
-                    content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
+                    title: Text(AppLocalizations.of(context)
+                        .get('confirmLogout')), // Localized string
+                    content: Text(AppLocalizations.of(context)
+                        .get('areYouSureLogout')), // Localized string
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
+                        child: Text(AppLocalizations.of(context)
+                            .get('cancel')), // Localized string
                       ),
                       TextButton(
                         onPressed: () async {
@@ -313,7 +324,8 @@ class AdminDashboardState extends State<AdminDashboard> {
                           );
                         },
                         child: Text(
-                          AppLocalizations.of(context).get('logout'), // Localized string
+                          AppLocalizations.of(context)
+                              .get('logout'), // Localized string
                           style: TextStyle(color: Colors.red),
                         ),
                       ),
@@ -328,7 +340,8 @@ class AdminDashboardState extends State<AdminDashboard> {
       backgroundColor: const Color(0xFFF0F9FF),
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context).get('adminDashboard'), // Localized string
+          AppLocalizations.of(context)
+              .get('adminDashboard'), // Localized string
           style: TextStyle(color: Color.fromARGB(255, 10, 10, 10)),
         ),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
@@ -340,12 +353,15 @@ class AdminDashboardState extends State<AdminDashboard> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
-                  content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
+                  title: Text(AppLocalizations.of(context)
+                      .get('confirmLogout')), // Localized string
+                  content: Text(AppLocalizations.of(context)
+                      .get('areYouSureLogout')), // Localized string
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
+                      child: Text(AppLocalizations.of(context)
+                          .get('cancel')), // Localized string
                     ),
                     TextButton(
                       onPressed: () async {
@@ -358,7 +374,8 @@ class AdminDashboardState extends State<AdminDashboard> {
                         );
                       },
                       child: Text(
-                        AppLocalizations.of(context).get('logout'), // Localized string
+                        AppLocalizations.of(context)
+                            .get('logout'), // Localized string
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -387,9 +404,11 @@ class AdminDashboardState extends State<AdminDashboard> {
               ),
               child: TextField(
                 controller: searchController,
-                decoration: InputDecoration( // Changed to InputDecoration
+                decoration: InputDecoration(
+                  // Changed to InputDecoration
                   prefixIcon: Icon(Icons.search),
-                  hintText: AppLocalizations.of(context).get('searchComplaints'), // Localized string
+                  hintText: AppLocalizations.of(context)
+                      .get('searchComplaints'), // Localized string
                   border: InputBorder.none,
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -402,53 +421,63 @@ class AdminDashboardState extends State<AdminDashboard> {
               child: isLoading
                   ? Center(child: CircularProgressIndicator())
                   : filteredComplaints.isEmpty
-                  ? Center(child: Text(AppLocalizations.of(context).get('noComplaintsFound'))) // Localized string
-                  : ListView.builder(
-                itemCount: filteredComplaints.length,
-                itemBuilder: (ctx, index) {
-                  final complaint = filteredComplaints[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 3,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(12),
-                      leading: complaint["media_type"] == "image"
-                          ? ClipOval(
-                              child: Image.network(
-                                complaint["media_url"],
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.broken_image, size: 40),
+                      ? Center(
+                          child: Text(AppLocalizations.of(context)
+                              .get('noComplaintsFound'))) // Localized string
+                      : ListView.builder(
+                          itemCount: filteredComplaints.length,
+                          itemBuilder: (ctx, index) {
+                            final complaint = filteredComplaints[index];
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              elevation: 3,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(12),
+                                leading: complaint["media_type"] == "image"
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          complaint["media_url"],
+                                          width: 60,
+                                          height: 60,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(Icons.broken_image,
+                                                      size: 40),
+                                        ),
+                                      )
+                                    : const CircleAvatar(
+                                        radius: 30,
+                                        backgroundColor: Colors.grey,
+                                        child: Icon(Icons.videocam,
+                                            color: Colors.white),
+                                      ),
+                                title: Text(
+                                  complaint["issue_type"] ?? "Unknown",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        "${AppLocalizations.of(context).get('status')}: ${complaint["status"]}"), // Localized string
+                                    const SizedBox(height: 4),
+                                    Text(
+                                        "${AppLocalizations.of(context).get('city')}: ${complaint["city"]}, ${AppLocalizations.of(context).get('state')}: ${complaint["state"]}"), // Localized string
+                                  ],
+                                ),
+                                trailing: const Icon(Icons.arrow_forward_ios,
+                                    size: 16),
+                                onTap: () => Navigator.of(context).push(
+                                  _createSlideRoute(complaint),
+                                ),
                               ),
-                            )
-                          : const CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.grey,
-                              child: Icon(Icons.videocam, color: Colors.white),
-                            ),
-                      title: Text(
-                        complaint["issue_type"] ?? "Unknown",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("${AppLocalizations.of(context).get('status')}: ${complaint["status"]}"), // Localized string
-                          const SizedBox(height: 4),
-                          Text("${AppLocalizations.of(context).get('city')}: ${complaint["city"]}, ${AppLocalizations.of(context).get('state')}: ${complaint["state"]}"), // Localized string
-                        ],
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => Navigator.of(context).push(
-                        _createSlideRoute(complaint),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                            );
+                          },
+                        ),
             )
           ],
         ),
