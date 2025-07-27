@@ -14,7 +14,6 @@ import 'package:NagarVikas/screen/logo.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,7 +31,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
 
   prefs = await SharedPreferences.getInstance();
 
