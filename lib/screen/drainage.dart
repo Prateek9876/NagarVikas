@@ -18,7 +18,7 @@ class DrainagePage extends StatelessWidget {
       body: SharedIssueForm(
         issueType: loc.get('drainageIssueType'), // Localized string
         headingText: loc.get('drainageIssueSelected'), // Localized string
-        infoText: loc.get('infoText'), // Already localized
+        infoText: loc.get('provideAccurateInfo'), // Already localized
         imageAsset: "assets/selected.png",
       ),
     );

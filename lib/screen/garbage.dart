@@ -19,8 +19,7 @@ class GarbagePage extends StatelessWidget {
       body: SharedIssueForm(
         issueType: loc.get('garbage'), // Localized string
         headingText: loc.get('garbageLiftingIssueSelected'), // Localized string
-        infoText:
-            loc.get('infoText'), // Already localized in app_localizations.dart
+        infoText: loc.get('provideAccurateInfo'), // Already localized in app_localizations.dart
         imageAsset: "assets/selected.png",
       ),
     );

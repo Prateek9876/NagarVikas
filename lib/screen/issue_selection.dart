@@ -243,7 +243,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
                       delay: Duration(milliseconds: 800),
                       child: buildIssueCard(
                           context,
-                          AppLocalizations.of(context).get('streetlight'),
+                          AppLocalizations.of(context).get('streetLights'),
                           "assets/streetlight.png",
                           const StreetLightPage())),
                   ZoomIn(
@@ -468,10 +468,10 @@ class AppDrawerState extends State<AppDrawer> {
               // Drawer Items (localized)
               buildDrawerItem(
                   context, Icons.person, widget.t('profile'), ProfilePage()),
-              buildDrawerItem(context, Icons.history, widget.t('Spell Records'),
+              buildDrawerItem(context, Icons.history, widget.t('spellRecords'),
                   MyComplaintsScreen()),
               buildDrawerItem(context, Icons.favorite,
-                  widget.t('user_feedback'), FeedbackPage()),
+                  widget.t('userfeedback'), FeedbackPage()),
               buildDrawerItem(context, Icons.card_giftcard,
                   widget.t('referearn'), ReferAndEarnPage()),
               buildDrawerItem(context, Icons.report_problem,

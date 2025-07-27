@@ -247,6 +247,8 @@ class AppLocalizations {
       "shareapp": "Share App",
       "followus": "Follow Us",
       "offer": "offer",
+      "userfeedback": "User Feedback",
+      "spellRecords": "Spell Records"
     },
     'hi': {
       'appTitle': 'नगर विकास',
@@ -464,6 +466,8 @@ class AppLocalizations {
       "shareapp": "ऐप साझा करें",
       "followus": "हमारा अनुसरण करें",
       "offer": "ऑफ़र",
+      "userfeedback": "उपयोगकर्ता प्रतिक्रिया",
+      "spellRecords": "स्पेल रिकॉर्ड्स"
     },
   };
 

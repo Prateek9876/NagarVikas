@@ -22,7 +22,7 @@ class AnimalsPage extends StatelessWidget {
         headingText: AppLocalizations.of(context)
             .get('strayAnimalsHeadingText'), // Localized string
         infoText: AppLocalizations.of(context)
-            .get('infoText'), // Reusing existing localized string
+            .get('provideAccurateInfo'), // Reusing existing localized string
         imageAsset: "assets/selected.png",
       ),
     );
