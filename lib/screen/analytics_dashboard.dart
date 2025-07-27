@@ -1,3 +1,4 @@
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,20 +27,22 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   List<Widget> dashboardWidgets = [];
 
   // Bottom navigation items
-  static const List<BottomNavigationBarItem> _bottomNavItems = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.analytics),
-      label: 'Analytics',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.logout),
-      label: 'Logout',
-    ),
-  ];
+  List<BottomNavigationBarItem> _bottomNavItems(BuildContext context) {
+    return [
+      BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: AppLocalizations.of(context).get('home'),
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.analytics),
+        label: AppLocalizations.of(context).get('analytics'),
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.logout),
+        label: AppLocalizations.of(context).get('logout'),
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -49,12 +52,14 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   // Handle bottom navigation item tap
   void _onItemTapped(int index) {
-    if (index == 0) { // Home
+    if (index == 0) {
+      // Home
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminDashboard()),
       );
-    } else if (index == 2) { // Logout
+    } else if (index == 2) {
+      // Logout
       _showLogoutDialog();
     } else {
       setState(() {
@@ -69,12 +74,12 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Logout'),
-          content: const Text('Are you sure you want to log out?'),
+          title: Text(AppLocalizations.of(context).get('confirmLogout')),
+          content: Text(AppLocalizations.of(context).get('areYouSureLogout')),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).get('cancel')),
             ),
             TextButton(
               onPressed: () async {
@@ -85,8 +90,8 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                   MaterialPageRoute(builder: (_) => const LoginPage()),
                 );
               },
-              child: const Text(
-                'Logout',
+              child: Text(
+                AppLocalizations.of(context).get('logout'),
                 style: TextStyle(color: Colors.red),
               ),
             ),
@@ -105,7 +110,8 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       final data = snapshot.value as Map<dynamic, dynamic>;
       data.forEach((key, value) {
         final complaint = Map<String, dynamic>.from(value);
-        final status = (complaint['status'] ?? 'Pending').toString().toLowerCase();
+        final status =
+            (complaint['status'] ?? 'Pending').toString().toLowerCase();
         if (status == 'resolved') {
           res++;
         } else if (status == 'pending') {
@@ -135,10 +141,12 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     final total = resolved + pending + rejected;
 
     dashboardWidgets = [
-      _buildSectionHeader(Icons.insights, "Complaints Overview"),
+      _buildSectionHeader(Icons.insights,
+          AppLocalizations.of(context).get('complaintsOverview')),
       PieChartWidget(resolved: resolved, pending: pending, rejected: rejected),
       const SizedBox(height: 20),
-      _buildSectionHeader(Icons.bar_chart, "Monthly Complaint Trends"),
+      _buildSectionHeader(Icons.bar_chart,
+          AppLocalizations.of(context).get('monthlyComplaintTrends')),
       SizedBox(
         height: 200,
         child: BarChartWidget(
@@ -148,12 +156,18 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             rejected.toDouble(),
             total.toDouble(),
           ],
-          labels: ['Resolved', 'Pending', 'Rejected', 'Total'],
+          labels: [
+            AppLocalizations.of(context).get('resolved'),
+            AppLocalizations.of(context).get('pending'),
+            AppLocalizations.of(context).get('rejected'),
+            AppLocalizations.of(context).get('total'),
+          ],
           colors: [Colors.green, Colors.orange, Colors.red, Colors.blue],
         ),
       ),
       const SizedBox(height: 20),
-      _buildSectionHeader(Icons.data_usage, "Complaints Summary"),
+      _buildSectionHeader(Icons.data_usage,
+          AppLocalizations.of(context).get('complaintsSummary')),
       LayoutBuilder(
         builder: (context, constraints) {
           double screenWidth = constraints.maxWidth;
@@ -167,10 +181,14 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             runSpacing: spacing,
             alignment: WrapAlignment.center,
             children: [
-              _buildNeumorphicCard('Total', total, Colors.blue, Icons.all_inbox, cardWidth),
-              _buildNeumorphicCard('Resolved', resolved, Colors.green, Icons.check_circle, cardWidth),
-              _buildNeumorphicCard('Pending', pending, Colors.orange, Icons.timelapse, cardWidth),
-              _buildNeumorphicCard('Rejected', rejected, Colors.red, Icons.cancel, cardWidth),
+              _buildNeumorphicCard(AppLocalizations.of(context).get('total'),
+                  total, Colors.blue, Icons.all_inbox, cardWidth),
+              _buildNeumorphicCard(AppLocalizations.of(context).get('resolved'),
+                  resolved, Colors.green, Icons.check_circle, cardWidth),
+              _buildNeumorphicCard(AppLocalizations.of(context).get('pending'),
+                  pending, Colors.orange, Icons.timelapse, cardWidth),
+              _buildNeumorphicCard(AppLocalizations.of(context).get('rejected'),
+                  rejected, Colors.red, Icons.cancel, cardWidth),
             ],
           );
         },
@@ -245,12 +263,15 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: isDarkMode
-          ? ThemeData.dark().copyWith(scaffoldBackgroundColor: const Color(0xFF121212))
-          : ThemeData.light().copyWith(scaffoldBackgroundColor: const Color(0xFFF2F7FF)),
+          ? ThemeData.dark()
+              .copyWith(scaffoldBackgroundColor: const Color(0xFF121212))
+          : ThemeData.light()
+              .copyWith(scaffoldBackgroundColor: const Color(0xFFF2F7FF)),
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal,
-          title: Text("Analytics Dashboard", style: GoogleFonts.poppins()),
+          title: Text(AppLocalizations.of(context).get('analyticsDashboard'),
+              style: GoogleFonts.poppins()),
           actions: [
             IconButton(
               icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
@@ -286,7 +307,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                 ),
               ),
         bottomNavigationBar: BottomNavigationBar(
-          items: _bottomNavItems,
+          items: _bottomNavItems(context),
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.teal,
           unselectedItemColor: Colors.grey,

@@ -1,12 +1,11 @@
-// admin_dashboard.dart
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import './ComplaintDetailPage.dart';
 import 'login_page.dart';
-import 'package:NagarVikas/screen/analytics_dashboard.dart';
-
+import 'package:NagarVikas/screen/analytics_dashboard.dart'; 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -28,20 +27,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
   StreamSubscription? _complaintsSubscription;
 
   // Bottom navigation items
-  static const List<BottomNavigationBarItem> _bottomNavItems = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.analytics),
-      label: 'Analytics',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.logout),
-      label: 'Logout',
-    ),
-  ];
+  List<BottomNavigationBarItem> _bottomNavItems(BuildContext context) { // Modified to accept context
+    return [
+      BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: AppLocalizations.of(context).get('home'), // Localized string
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.analytics),
+        label: AppLocalizations.of(context).get('analytics'), // Localized string
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.logout),
+        label: AppLocalizations.of(context).get('logout'), // Localized string
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -187,12 +188,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Logout'),
-          content: const Text('Are you sure you want to log out?'),
+          title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
+          content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
             ),
             TextButton(
               onPressed: () async {
@@ -203,8 +204,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   MaterialPageRoute(builder: (_) => const LoginPage()),
                 );
               },
-              child: const Text(
-                'Logout',
+              child: Text(
+                AppLocalizations.of(context).get('logout'), // Localized string
                 style: TextStyle(color: Colors.red),
               ),
             ),
@@ -231,7 +232,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               padding: const EdgeInsets.only(top: 50, bottom: 20),
               width: double.infinity,
               child: Column(
-                children: const [
+                children: [
                   CircleAvatar(
                     radius: 40,
                     backgroundImage: NetworkImage(
@@ -241,7 +242,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'Admin Panel',
+                    AppLocalizations.of(context).get('adminPanel'), // Localized string
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -263,7 +264,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ListTile(
               leading: Icon(Icons.analytics, color: Colors.teal),
               title: Text(
-                'Analytics',
+                AppLocalizations.of(context).get('analytics'), // Localized string
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
@@ -276,19 +277,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ListTile(
               leading: Icon(Icons.logout, color: Colors.red),
               title: Text(
-                'Logout',
+                AppLocalizations.of(context).get('logout'), // Localized string
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
-                    title: const Text("Confirm Logout"),
-                    content: const Text("Are you sure you want to log out?"),
+                    title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
+                    content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text("Cancel"),
+                        child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
                       ),
                       TextButton(
                         onPressed: () async {
@@ -300,8 +301,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             MaterialPageRoute(builder: (_) => const LoginPage()),
                           );
                         },
-                        child: const Text(
-                          "Logout",
+                        child: Text(
+                          AppLocalizations.of(context).get('logout'), // Localized string
                           style: TextStyle(color: Colors.red),
                         ),
                       ),
@@ -314,50 +315,49 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
       backgroundColor: const Color(0xFFF0F9FF),
-  appBar: AppBar(
-  title: const Text(
-    "Admin Dashboard",
-    style: TextStyle(color: Color.fromARGB(255, 10, 10, 10)),
-  ),
-  backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-  iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
-  actions: [
-    IconButton(
-      icon: const Icon(Icons.logout),
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: const Text("Confirm Logout"),
-            content: const Text("Are you sure you want to log out?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await FirebaseAuth.instance.signOut();
-                  if (!mounted) return;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                  );
-                },
-                child: const Text(
-                  "Logout",
-                  style: TextStyle(color: Colors.red),
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context).get('adminDashboard'), // Localized string
+          style: TextStyle(color: Color.fromARGB(255, 10, 10, 10)),
+        ),
+        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+        iconTheme: const IconThemeData(color: Color.fromARGB(255, 13, 13, 13)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: Text(AppLocalizations.of(context).get('confirmLogout')), // Localized string
+                  content: Text(AppLocalizations.of(context).get('areYouSureLogout')), // Localized string
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(AppLocalizations.of(context).get('cancel')), // Localized string
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await FirebaseAuth.instance.signOut();
+                        if (!mounted) return;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                        );
+                      },
+                      child: Text(
+                        AppLocalizations.of(context).get('logout'), // Localized string
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-        );
-      },
-    ),
-  ],
-),
-
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -376,9 +376,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
               child: TextField(
                 controller: searchController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration( // Changed to InputDecoration
                   prefixIcon: Icon(Icons.search),
-                  hintText: "Search complaints...",
+                  hintText: AppLocalizations.of(context).get('searchComplaints'), // Localized string
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
@@ -388,9 +388,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 16),
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator())
                   : filteredComplaints.isEmpty
-                  ? const Center(child: Text("No complaints found."))
+                  ? Center(child: Text(AppLocalizations.of(context).get('noComplaintsFound'))) // Localized string
                   : ListView.builder(
                 itemCount: filteredComplaints.length,
                 itemBuilder: (ctx, index) {
@@ -424,9 +424,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Status: ${complaint["status"]}"),
+                          Text("${AppLocalizations.of(context).get('status')}: ${complaint["status"]}"), // Localized string
                           const SizedBox(height: 4),
-                          Text("City: ${complaint["city"]}, State: ${complaint["state"]}"),
+                          Text("${AppLocalizations.of(context).get('city')}: ${complaint["city"]}, ${AppLocalizations.of(context).get('state')}: ${complaint["state"]}"), // Localized string
                         ],
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -442,14 +442,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: _bottomNavItems,
+        items: _bottomNavItems(context), // Pass context to the function
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.teal,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Theme.of(context).brightness == Brightness.dark 
-            ? Colors.grey[900] 
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey[900]
             : Colors.white,
         elevation: 10,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
+import 'package:NagarVikas/localization/app_localizations.dart'; // Import the localization file
 
 /// DiscussionForum
 /// A real-time chat interface where users can post and view messages.
@@ -71,7 +72,7 @@ class _DiscussionForumState extends State<DiscussionForum> {
     return Scaffold(
       // 🧭 App bar
       appBar: AppBar(
-        title: Text("Discussion Forum"),
+        title: Text(AppLocalizations.of(context).get("discussionForum")), // Localized string
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
       ),
       body: Column(
@@ -82,7 +83,7 @@ class _DiscussionForumState extends State<DiscussionForum> {
               stream: _messagesRef.orderByChild("timestamp").onValue,
               builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
                 if (!snapshot.hasData || snapshot.data?.snapshot.value == null) {
-                  return Center(child: Text("No messages yet!"));  // 💤 Empty state
+                  return Center(child: Text(AppLocalizations.of(context).get("noMessagesYet")));  // Localized string
                 }
 
                 // 🔄 Convert snapshot to list of messages
@@ -120,7 +121,7 @@ class _DiscussionForumState extends State<DiscussionForum> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: "Type a message...",
+                      hintText: AppLocalizations.of(context).get("typeAMessage"), // Localized string
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

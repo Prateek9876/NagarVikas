@@ -1,3 +1,4 @@
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -236,10 +237,11 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 253, 254, 254),
       appBar: AppBar(
-        title: Text("Spell Records"),
+        title: Text(loc.get('spellRecords')),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
       ),
       body: _isLoading
@@ -252,7 +254,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
                       Image.asset('assets/no_complaints.png', height: 150),
                       SizedBox(height: 20),
                       Text(
-                        "No Complaints Raised Yet",
+                        loc.get('noComplaintsRaised'),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -273,7 +275,8 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
                               controller: searchController,
                               onChanged: (val) => _applyFilters(),
                               decoration: InputDecoration(
-                                hintText: 'Search complaints...',
+                                hintText: loc.get('searchComplaints') ??
+                                    'Search Complaints',
                                 prefixIcon: Icon(Icons.search),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),

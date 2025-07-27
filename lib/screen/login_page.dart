@@ -56,14 +56,15 @@ class _LoginPageState extends State<LoginPage> {
       // ✅ Check if email is verified
       if (user != null && !user.emailVerified) {
         Fluttertoast.showToast(
-            msg: "You need to verify your email before logging in.\n"
-        "Please check your Inbox/Spam folder.",
-            toastLength: Toast.LENGTH_LONG, // For longer duration
-            timeInSecForIosWeb: 3,          // Works on iOS/Web
-            gravity: ToastGravity.BOTTOM,   // Position
-            backgroundColor: const Color.fromARGB(255, 4, 4, 4),  // Optional styling
-            textColor: Colors.white,        // Optional styling
-            fontSize: 14.0,                 // Optional
+          msg: "You need to verify your email before logging in.\n"
+              "Please check your Inbox/Spam folder.",
+          toastLength: Toast.LENGTH_LONG, // For longer duration
+          timeInSecForIosWeb: 3, // Works on iOS/Web
+          gravity: ToastGravity.BOTTOM, // Position
+          backgroundColor:
+              const Color.fromARGB(255, 4, 4, 4), // Optional styling
+          textColor: Colors.white, // Optional styling
+          fontSize: 14.0, // Optional
         );
         await _auth.signOut();
         setState(() => isLoading = false);
@@ -130,7 +131,8 @@ class _LoginPageState extends State<LoginPage> {
             TextButton(
               onPressed: () async {
                 if (pinController.text == "2004") {
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
                   await prefs.setBool("isAdmin", true);
                   Navigator.pop(context);
                   Navigator.pushReplacement(
@@ -239,9 +241,12 @@ class _LoginPageState extends State<LoginPage> {
                           const BorderSide(color: Colors.blue, width: 2),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    suffixIcon: IconButton(     //✅ This will show the eye icon on the right side.
+                    suffixIcon: IconButton(
+                      //✅ This will show the eye icon on the right side.
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.grey,
                       ),
                       onPressed: () {
@@ -250,7 +255,6 @@ class _LoginPageState extends State<LoginPage> {
                         });
                       },
                     ),
-
                   ),
                 ),
               ),
@@ -285,8 +289,8 @@ class _LoginPageState extends State<LoginPage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 100, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -324,7 +328,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-     ),
-);
-}
+      ),
+    );
+  }
 }

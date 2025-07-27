@@ -1,4 +1,5 @@
 // 📦 Importing necessary packages and screens
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:NagarVikas/service/ConnectivityService.dart';
 import 'package:NagarVikas/widgets/bottom_nav_bar.dart';
 import 'package:NagarVikas/widgets/exit_confirmation.dart';
@@ -12,6 +13,8 @@ import 'package:flutter/foundation.dart';
 import 'package:NagarVikas/screen/logo.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +32,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
- 
+  await Hive.initFlutter();
+
+  prefs = await SharedPreferences.getInstance();
+
   // ✅ OneSignal push notification setup
   OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
   OneSignal.Notifications.requestPermission(true);
@@ -55,7 +61,7 @@ void main() async {
   } else {
     await Firebase.initializeApp(); // This might fail if no default options
   }
- // ✅ Register background handler
+  // ✅ Register background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Run the app
@@ -69,8 +75,35 @@ void main() async {
 }
 
 // ✅ Main Application Widget
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    final _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    state?.setLocale(newLocale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = Locale('en');
+  @override
+  void initState() {
+    AppLocalizations.load(_locale).then((localizations) {
+      _locale = localizations.locale;
+    });
+
+    super.initState();
+  }
+
+  void setLocale(Locale locale) {
+    setState(() {
+      AppLocalizations.save(locale);
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +124,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      locale: _locale,
       supportedLocales: const [
         Locale('en'),
         Locale('hi'),

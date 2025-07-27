@@ -1,3 +1,4 @@
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -48,10 +49,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       // 📌 App bar with title
       appBar: AppBar(
-        title: const Text("Profile"),
+        title: Text(loc.get('profile') ?? "Profile"),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240), // Cyan-colored app bar
       ),
 
@@ -70,9 +72,9 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 20),
 
             // ℹ️ Profile info rows (name, email, UID)
-            _buildProfileRow("Full Name", name),
-            _buildProfileRow("Email", email),
-            _buildProfileRow("User ID", userId),
+            _buildProfileRow(loc.get('fullName') ?? "Full Name", name),
+            _buildProfileRow(loc.get('email') ?? "Email", email),
+            _buildProfileRow(loc.get('userId') ?? "User ID", userId),
           ],
         ),
       ),

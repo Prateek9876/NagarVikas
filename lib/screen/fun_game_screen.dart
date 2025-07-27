@@ -1,3 +1,4 @@
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,20 +78,27 @@ class _FunGameScreenState extends State<FunGameScreen> {
             style:
                 textStyle.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
           ),
-          content: Text(AppLocalizations.of(context).get('outOfMoves') ?? 'Looks like you’re out of moves!', style: textStyle),
+          content: Text(
+              AppLocalizations.of(context).get('outOfMoves') ??
+                  'Looks like you’re out of moves!',
+              style: textStyle),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _restartGame();
               },
-              child: Text(AppLocalizations.of(context).get('playAgain') ?? 'Play Again', style: textStyle),
+              child: Text(
+                  AppLocalizations.of(context).get('playAgain') ?? 'Play Again',
+                  style: textStyle),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: Text(AppLocalizations.of(context).get('goToHome') ?? 'Go to Home', style: textStyle),
+              child: Text(
+                  AppLocalizations.of(context).get('goToHome') ?? 'Go to Home',
+                  style: textStyle),
             ),
           ],
         );

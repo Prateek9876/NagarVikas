@@ -1,3 +1,4 @@
+import 'package:NagarVikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// 📝 FeedbackPage
@@ -22,7 +23,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final loc = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.get('feedback') ?? 'Feedback'),
@@ -32,11 +32,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
         padding: const EdgeInsets.all(20.0),
         child: ListView(
           children: [
-            _buildTitleText(loc.get('feedbackHowFeel') ?? 'How do you feel about the app?'),
+            _buildTitleText(
+                loc.get('feedbackHowFeel') ?? 'How do you feel about the app?'),
             SizedBox(height: 20),
             _buildRatingBar(),
             SizedBox(height: 25),
-            _buildTitleText(loc.get('feedbackDescribe') ?? 'Describe your experience:'),
+            _buildTitleText(
+                loc.get('feedbackDescribe') ?? 'Describe your experience:'),
             SizedBox(height: 15),
             _buildFeedbackTextField(loc),
             SizedBox(height: 25),
@@ -83,7 +85,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   /// 📝 Multiline text field for user feedback input
-  Widget _buildFeedbackTextField() {
+  Widget _buildFeedbackTextField(AppLocalizations loc) {
     return TextField(
       controller: _feedbackController,
       maxLines: 5,
@@ -102,7 +104,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   /// ✅ Checkbox for user to indicate if they have suggestions
-  Widget _buildSuggestionsCheckbox() {
+  Widget _buildSuggestionsCheckbox(AppLocalizations loc) {
     return Row(
       children: [
         Checkbox(
@@ -115,7 +117,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
           activeColor: Colors.amber,
         ),
         Text(
-          loc.get('feedbackSuggestion') ?? 'Would you like to give any suggestion?',
+          loc.get('feedbackSuggestion') ??
+              'Would you like to give any suggestion?',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -127,7 +130,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   /// 📤 Submit button to process the feedback
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(AppLocalizations loc) {
     return ElevatedButton(
       onPressed: () {
         _submitFeedback(loc); // 🧾 Trigger submission logic
@@ -138,12 +141,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
-      child: Text(loc.get('feedbackSubmit') ?? 'Submit Feedback', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      child: Text(loc.get('feedbackSubmit') ?? 'Submit Feedback',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
 
   /// 🚀 Handles feedback submission and shows confirmation
-  void _submitFeedback() {
+  void _submitFeedback(AppLocalizations loc) {
     String feedback = _feedbackController.text;
     print('Rating: $_rating');
     print('Feedback: $feedback');
@@ -155,7 +159,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
       builder: (context) {
         return AlertDialog(
           title: Text(loc.get('feedbackThankYou') ?? 'Thank You!'),
-          content: Text(loc.get('feedbackSubmitted') ?? 'Your feedback has been submitted.'),
+          content: Text(loc.get('feedbackSubmitted') ??
+              'Your feedback has been submitted.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -165,7 +170,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             ),
           ],
         );
-     },
-);
-}
+      },
+    );
+  }
 }
