@@ -1,8 +1,8 @@
 // 📦 Importing necessary packages and screens
-import 'package:NagarVikas/localization/app_localizations.dart';
-import 'package:NagarVikas/service/ConnectivityService.dart';
-import 'package:NagarVikas/widgets/bottom_nav_bar.dart';
-import 'package:NagarVikas/widgets/exit_confirmation.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
+import 'package:nagarvikas/service/connectivity_service.dart';
+import 'package:nagarvikas/widgets/bottom_nav_bar.dart';
+import 'package:nagarvikas/widgets/exit_confirmation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -21,6 +21,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:nagarvikas/theme/theme_provider.dart';
+import 'dart:developer';
 
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {

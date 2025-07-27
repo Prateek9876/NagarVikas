@@ -1,4 +1,4 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReferAndEarnPage extends StatelessWidget {
@@ -32,7 +32,8 @@ class ReferAndEarnPage extends StatelessWidget {
             SizedBox(height: 10),
 
             Text(
-              loc.get("earnRewardsDescription")??"Earn rewards by referring your friends to NagarVikas. Share your referral code now!",
+              loc.get("earnRewardsDescription") ??
+                  "Earn rewards by referring your friends to NagarVikas. Share your referral code now!",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[700]),
             ),
@@ -64,16 +65,15 @@ class ReferAndEarnPage extends StatelessWidget {
                 // Show a confirmation message
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(
-                       loc.get("referralCodeCopied") ?? "Referral code copied! Share it with your friends."),
+                    content: Text(loc.get("referralCodeCopied") ??
+                        "Referral code copied! Share it with your friends."),
                     duration: Duration(seconds: 2),
                     backgroundColor: const Color.fromARGB(255, 7, 7, 7),
                   ),
                 );
               },
               icon: Icon(Icons.share, color: Colors.white),
-              label: Text(
-                  loc.get("shareReferralCode") ?? "Share Referral Code",
+              label: Text(loc.get("shareReferralCode") ?? "Share Referral Code",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),

@@ -1,11 +1,11 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import 'complaint_detail_page.dart';
 import 'login_page.dart';
-import 'package:NagarVikas/screen/analytics_dashboard.dart'; 
+import 'package:nagarvikas/screen/analytics_dashboard.dart'; 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -460,8 +460,6 @@ class AdminDashboardState extends State<AdminDashboard> {
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey[900]
         backgroundColor: Theme.of(context).brightness == Brightness.dark
             ? Colors.grey[900]
             : Colors.white,

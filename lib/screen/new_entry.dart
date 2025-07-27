@@ -1,4 +1,4 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../components/shared_issue_form.dart';
 
@@ -18,7 +18,8 @@ class NewEntryPage extends StatelessWidget {
       body: SharedIssueForm(
         issueType: loc.get("newIssue") ?? "New Issue",
         headingText: loc.get("enterNewIssue") ?? "Enter new issue",
-        infoText: loc.get("provideAccurateInfo") ?? "Please give accurate and correct information for a faster solution.",
+        infoText: loc.get("provideAccurateInfo") ??
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );

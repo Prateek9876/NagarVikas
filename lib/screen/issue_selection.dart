@@ -1,9 +1,9 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
-import 'package:NagarVikas/main.dart';
-import 'package:NagarVikas/screen/about.dart';
-import 'package:NagarVikas/screen/contact.dart';
-import 'package:NagarVikas/screen/facing_issues.dart';
-import 'package:NagarVikas/screen/login_page.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
+import 'package:nagarvikas/main.dart';
+import 'package:nagarvikas/screen/about.dart';
+import 'package:nagarvikas/screen/contact.dart';
+import 'package:nagarvikas/screen/facing_issues.dart';
+import 'package:nagarvikas/screen/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,13 +29,14 @@ import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:nagarvikas/screen/fun_game_screen.dart';
+import 'dart:developer';
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {
   const IssueSelectionPage({super.key});
 
   @override
-  IssueSelectionPageState createState() => IssueSelectionPageState();
+  State<IssueSelectionPage> createState() => _IssueSelectionPageState();
 }
 
 class _IssueSelectionPageState extends State<IssueSelectionPage> {
@@ -52,7 +53,6 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
 
     _showTermsAndConditionsDialogIfNeeded();
   }
-
 
   void _showTermsAndConditionsDialogIfNeeded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -412,10 +412,10 @@ class AppDrawerState extends State<AppDrawer> {
           Expanded(
             child: ListView(children: [
               // App title
-              const DrawerHeader(
+              DrawerHeader(
                 decoration:
                     BoxDecoration(color: Color.fromARGB(255, 4, 204, 240)),
-                child: Text("NagarVikas",
+                child: Text(widget.t('appTitle') ?? "NagarVikas",
                     style: TextStyle(fontSize: 24, color: Colors.black)),
               ),
               // Language Switcher
@@ -473,9 +473,9 @@ class AppDrawerState extends State<AppDrawer> {
               buildDrawerItem(context, Icons.favorite,
                   widget.t('user_feedback'), FeedbackPage()),
               buildDrawerItem(context, Icons.card_giftcard,
-                  widget.t('refer_earn'), ReferAndEarnPage()),
+                  widget.t('referearn'), ReferAndEarnPage()),
               buildDrawerItem(context, Icons.report_problem,
-                  widget.t('facing_issues'), FacingIssuesPage()),
+                  widget.t('facingissues'), FacingIssuesPage()),
               buildDrawerItem(
                   context, Icons.info, widget.t('about'), AboutAppPage()),
               buildDrawerItem(context, Icons.headset_mic, widget.t('contact'),
@@ -483,7 +483,7 @@ class AppDrawerState extends State<AppDrawer> {
               buildDrawerItem(
                 context,
                 Icons.share,
-                widget.t('share_app'),
+                widget.t('shareapp'),
                 null,
                 onTap: () {
                   // Share.share(
@@ -545,7 +545,7 @@ class AppDrawerState extends State<AppDrawer> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 15),
                 child: Text(
-                  widget.t('follow_us'),
+                  widget.t('followus'),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

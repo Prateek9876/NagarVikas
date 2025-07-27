@@ -136,7 +136,7 @@ class LoginPageState extends State<LoginPage> {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   await prefs.setBool("isAdmin", true);
-                  if(!context.mounted) return;
+                  if (!context.mounted) return;
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,

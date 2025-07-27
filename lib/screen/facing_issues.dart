@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FacingIssuesPage extends StatelessWidget {

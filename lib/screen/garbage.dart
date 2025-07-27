@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../components/shared_issue_form.dart';
-import 'package:NagarVikas/localization/app_localizations.dart'; // Import localization
+import 'package:nagarvikas/localization/app_localizations.dart'; // Import localization
 
 class GarbagePage extends StatelessWidget {
   const GarbagePage({super.key});
@@ -19,7 +19,8 @@ class GarbagePage extends StatelessWidget {
       body: SharedIssueForm(
         issueType: loc.get('garbage'), // Localized string
         headingText: loc.get('garbageLiftingIssueSelected'), // Localized string
-        infoText: loc.get('infoText'), // Already localized in app_localizations.dart
+        infoText:
+            loc.get('infoText'), // Already localized in app_localizations.dart
         imageAsset: "assets/selected.png",
       ),
     );

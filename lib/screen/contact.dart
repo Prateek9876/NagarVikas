@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:NagarVikas/localization/app_localizations.dart';
-
+import 'package:nagarvikas/localization/app_localizations.dart';
 
 class ContactUsPage extends StatelessWidget {
-  final String phoneNumber = "+917307858026";  // Replace with your phone number
+  final String phoneNumber = "+917307858026"; // Replace with your phone number
   final String email = "support@nagarvikas.com";
 
-  const ContactUsPage({super.key});  // Replace with your support email
+  const ContactUsPage({super.key}); // Replace with your support email
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +42,8 @@ class ContactUsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactTile({required IconData icon, required String text, required Function onTap}) {
+  Widget _buildContactTile(
+      {required IconData icon, required String text, required Function onTap}) {
     return GestureDetector(
       onTap: () => onTap(),
       child: Card(
@@ -80,7 +80,8 @@ class ContactUsPage extends StatelessWidget {
 
   // Function to launch the email client
   _launchEmailClient(BuildContext context) async {
-    final String subject = AppLocalizations.of(context).get("supportRequestNagarVikas");
+    final String subject =
+        AppLocalizations.of(context).get("supportRequestNagarVikas");
     final String body = AppLocalizations.of(context).get("emailBody");
 
     final Uri emailLaunchUri = Uri(
@@ -107,9 +108,9 @@ class ContactUsPage extends StatelessWidget {
         // Gmail fallback
         final fallbackUrl = Uri.parse(
           'https://mail.google.com/mail/?view=cm&fs=1'
-              '&to=${Uri.encodeComponent(email)}'
-              '&su=${Uri.encodeComponent(subject)}'
-              '&body=${Uri.encodeComponent(body)}',
+          '&to=${Uri.encodeComponent(email)}'
+          '&su=${Uri.encodeComponent(subject)}'
+          '&body=${Uri.encodeComponent(body)}',
         );
 
         if (await canLaunchUrl(fallbackUrl)) {

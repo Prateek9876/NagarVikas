@@ -230,15 +230,23 @@ class AppLocalizations {
       "waterIssue": "Water Issue",
       "waterSupplyIssueSelected": "Water supply issue selected",
       "termsAgreement":
-          "By using this app, you agree to the following terms:\n", // New
-      "reportTruthfully": "• Report issues truthfully and accurately.", // New
+          "By using this app, you agree to the following terms:\n",
+      "reportTruthfully": "• Report issues truthfully and accurately.",
       "consentNotifications":
-          "• Consent to receive notifications from the app.", // New
-      "noMisusePlatform":
-          "• Do not misuse the platform for false complaints.", // New
-      "dataUsedImproveServices":
-          "• Data may be used to improve services.", // New
+          "• Consent to receive notifications from the app.",
+      "noMisusePlatform": "• Do not misuse the platform for false complaints.",
+      "dataUsedImproveServices": "• Data may be used to improve services.",
       "agreeTapAccept": "If you agree, tap **Accept** to proceed.",
+      "strayAnimalsIssueTitle": "Stray Animals Issue",
+      "strayAnimalsIssueType": "Stray Animals",
+      "strayAnimalsHeadingText": "Stray animals issue selected",
+      "selectNuisance": "Select the nuisance you wish to vanish",
+      "callingMinistry": "Calling Ministry...",
+      "referearn": "Refer and Earn",
+      "facingissues": "Facing Issues",
+      "shareapp": "Share App",
+      "followus": "Follow Us",
+      "offer": "offer",
     },
     'hi': {
       'appTitle': 'नगर विकास',
@@ -446,6 +454,16 @@ class AppLocalizations {
           "• डेटा का उपयोग सेवाओं को बेहतर बनाने के लिए किया जा सकता है।",
       "agreeTapAccept":
           "यदि आप सहमत हैं, तो आगे बढ़ने के लिए **स्वीकार करें** पर टैप करें।",
+      "strayAnimalsIssueTitle": "आवारा पशु समस्या",
+      "strayAnimalsIssueType": "आवारा पशु",
+      "strayAnimalsHeadingText": "आवारा पशु समस्या चयनित",
+      "selectNuisance": "आप जिस परेशानी को समाप्त करना चाहते हैं उसे चुनें",
+      "callingMinistry": "मंत्रालय को कॉल कर रहे हैं...",
+      "referearn": "रेफर और कमाएं",
+      "facingissues": "सामना कर रहे मुद्दे",
+      "shareapp": "ऐप साझा करें",
+      "followus": "हमारा अनुसरण करें",
+      "offer": "ऑफ़र",
     },
   };
 

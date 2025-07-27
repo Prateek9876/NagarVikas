@@ -1,5 +1,6 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
-import 'package:flutter/material.dart'; 
+import 'package:nagarvikas/localization/app_localizations.dart';
+import 'package:flutter/material.dart';
+
 class AboutAppPage extends StatelessWidget {
   const AboutAppPage({super.key});
 
@@ -31,7 +32,8 @@ class AboutAppPage extends StatelessWidget {
               AppLocalizations.of(context).get('nagarVikasFeaturesAnswer'),
             ),
             _buildQuestionTile(
-              AppLocalizations.of(context).get('whoDevelopedNagarVikasQuestion'),
+              AppLocalizations.of(context)
+                  .get('whoDevelopedNagarVikasQuestion'),
               AppLocalizations.of(context).get('whoDevelopedNagarVikasAnswer'),
             ),
             _buildQuestionTile(

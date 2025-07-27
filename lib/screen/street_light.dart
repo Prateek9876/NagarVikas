@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../components/shared_issue_form.dart';
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 
 class StreetLightPage extends StatelessWidget {
   const StreetLightPage({super.key});

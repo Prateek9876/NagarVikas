@@ -1,6 +1,7 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart'; 
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 class DoneScreen extends StatelessWidget {
   const DoneScreen({super.key});
 
@@ -19,7 +20,8 @@ class DoneScreen extends StatelessWidget {
               Image.asset('assets/done.png', width: 350, height: 350), // Image
               SizedBox(height: 30),
               Text(
-                AppLocalizations.of(context).get("complaintRegistered"), // Localized string
+                AppLocalizations.of(context)
+                    .get("complaintRegistered"), // Localized string
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 26,
@@ -29,7 +31,8 @@ class DoneScreen extends StatelessWidget {
               ),
               SizedBox(height: 15),
               Text(
-                AppLocalizations.of(context).get("complaintRegisteredMessage"), // Localized string
+                AppLocalizations.of(context)
+                    .get("complaintRegisteredMessage"), // Localized string
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 18,
@@ -42,14 +45,16 @@ class DoneScreen extends StatelessWidget {
                   Navigator.pop(context); // Go back to the previous screen
                 },
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   textStyle: TextStyle(fontSize: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text(AppLocalizations.of(context).get("done")), // Localized string
+                child: Text(AppLocalizations.of(context)
+                    .get("done")), // Localized string
               ),
             ],
           ),
