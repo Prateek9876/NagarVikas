@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:NagarVikas/screen/issue_selection.dart';
-import 'package:NagarVikas/screen/register_screen.dart';
-import 'package:NagarVikas/screen/admin_dashboard.dart';
+import 'package:nagarvikas/screen/issue_selection.dart';
+import 'package:nagarvikas/screen/register_screen.dart';
+import 'package:nagarvikas/screen/admin_dashboard.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,11 +13,11 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
 // 🧠 Login page logic and UI state
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // 📝 Controllers for email and password input fields
@@ -79,10 +79,12 @@ class _LoginPageState extends State<LoginPage> {
         _showAdminPinDialog(email);
       } else {
         // 👉 Navigate to issue selection page for regular users
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => IssueSelectionPage()),
-        );
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => IssueSelectionPage()),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       Fluttertoast.showToast(
@@ -134,6 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   await prefs.setBool("isAdmin", true);
+                  if(!context.mounted) return;
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,

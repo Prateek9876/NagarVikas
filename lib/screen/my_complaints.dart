@@ -1,4 +1,5 @@
-import 'package:NagarVikas/localization/app_localizations.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -9,10 +10,10 @@ class MyComplaintsScreen extends StatefulWidget {
   const MyComplaintsScreen({super.key});
 
   @override
-  _MyComplaintsScreenState createState() => _MyComplaintsScreenState();
+  MyComplaintsScreenState createState() => MyComplaintsScreenState();
 }
 
-class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
+class MyComplaintsScreenState extends State<MyComplaintsScreen> {
   List<Map<String, dynamic>> complaints = [];
   List<Map<String, dynamic>> filteredComplaints = [];
   TextEditingController searchController = TextEditingController();
@@ -64,7 +65,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
             formattedTime = DateFormat('hh:mm a').format(dateTime);
           }
         } catch (e) {
-          print("Error parsing timestamp: $e");
+          log("Error parsing timestamp: $e");
         }
 
         loadedComplaints.add({
@@ -117,10 +118,10 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
               try {
                 if (imageUrl.isNotEmpty && imageUrl.contains('firebase')) {
                   await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-                  print('Image deleted: $imageUrl');
+                  log('Image deleted: $imageUrl');
                 }
               } catch (e) {
-                print('Error deleting image $imageUrl: $e');
+                log('Error deleting image $imageUrl: $e');
               }
             }
           }
@@ -131,10 +132,10 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
             try {
               if (imageUrl.isNotEmpty && imageUrl.contains('firebase')) {
                 await FirebaseStorage.instance.refFromURL(imageUrl).delete();
-                print('Single image deleted: $imageUrl');
+                log('Single image deleted: $imageUrl');
               }
             } catch (e) {
-              print('Error deleting single image $imageUrl: $e');
+              log('Error deleting single image $imageUrl: $e');
             }
           }
         }
@@ -143,23 +144,27 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
             .ref('complaints/$complaintKey')
             .remove();
 
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Complaint and associated images deleted successfully'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Complaint and associated images deleted successfully'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+            content: Text('Error deleting complaint: $e'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting complaint: $e'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-        ),
-      );
     }
   }
 
@@ -334,7 +339,7 @@ class _MyComplaintsScreenState extends State<MyComplaintsScreen> {
                                 borderRadius: BorderRadius.circular(15),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
+                                    color: Colors.grey.withAlpha((0.2 * 255).toInt()),
                                     spreadRadius: 2,
                                     blurRadius: 5,
                                   ),

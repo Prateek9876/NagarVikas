@@ -43,7 +43,7 @@ class ReferAndEarnPage extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               decoration: BoxDecoration(
-                color: Colors.deepPurpleAccent.withOpacity(0.1),
+                color: Colors.deepPurpleAccent.withAlpha((0.1 * 255).toInt()),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.deepPurpleAccent, width: 2),
               ),

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🐞 Bug Report
+    url: https://github.com/Prateek9876/NagarVikas/issues/new?assignees=&labels=bug&template=bug_report.yml&title=%5BBUG%5D+
+    about: Report a bug or unexpected behavior
+  - name: ✨ Feature Request
+    url: https://github.com/Prateek9876/NagarVikas/issues/new?assignees=&labels=enhancement&template=feature_request.yml&title=%5BFR%5D+
+    about: Suggest a new feature or improvement
+  - name: ❓ General Question
+    url: https://github.com/Prateek9876/NagarVikas/issues/new?assignees=&labels=question&template=general_inquiry.yml&title=%5BQUESTION%5D+
+    about: Ask a question about the project

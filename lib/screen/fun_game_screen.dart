@@ -13,7 +13,7 @@ class FunGameScreen extends StatefulWidget {
 
 class _FunGameScreenState extends State<FunGameScreen> {
   late GameModel game;
-  Offset _startSwipeOffset = Offset.zero;
+  Offset startSwipeOffset = Offset.zero;
   int highScore = 0;
   bool isDarkMode = false;
 
@@ -138,7 +138,7 @@ class _FunGameScreenState extends State<FunGameScreen> {
           ),
         ),
         child: GestureDetector(
-          onPanStart: (details) => _startSwipeOffset = details.localPosition,
+          onPanStart: (details) => startSwipeOffset = details.localPosition,
           onPanEnd: (details) {
             final dx = details.velocity.pixelsPerSecond.dx;
             final dy = details.velocity.pixelsPerSecond.dy;

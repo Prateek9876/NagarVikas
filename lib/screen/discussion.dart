@@ -11,10 +11,10 @@ class DiscussionForum extends StatefulWidget {
   const DiscussionForum({super.key});
 
   @override
-  _DiscussionForumState createState() => _DiscussionForumState();
+  DiscussionForumState createState() => DiscussionForumState();
 }
 
-class _DiscussionForumState extends State<DiscussionForum> {
+class DiscussionForumState extends State<DiscussionForum> {
   final TextEditingController _messageController = TextEditingController();  // 💬 Controls text input
   final DatabaseReference _messagesRef =
       FirebaseDatabase.instance.ref("discussion/");  // 🔗 Firebase DB ref

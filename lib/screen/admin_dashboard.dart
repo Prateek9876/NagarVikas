@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
-import './ComplaintDetailPage.dart';
+import 'complaint_detail_page.dart';
 import 'login_page.dart';
 import 'package:NagarVikas/screen/analytics_dashboard.dart'; 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
   @override
-  _AdminDashboardState createState() => _AdminDashboardState();
+  AdminDashboardState createState() => AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class AdminDashboardState extends State<AdminDashboard> {
   int _selectedIndex = 0; // Home is selected by default
   int totalComplaints = 0;
   int pendingComplaints = 0;
@@ -58,18 +58,22 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Future<void> _fetchComplaints() async {
-    DatabaseReference complaintsRef = FirebaseDatabase.instance.ref('complaints');
+    DatabaseReference complaintsRef =
+        FirebaseDatabase.instance.ref('complaints');
     DatabaseReference usersRef = FirebaseDatabase.instance.ref('users');
 
-    _complaintsSubscription = complaintsRef.onValue.listen((complaintEvent) async {
+    _complaintsSubscription =
+        complaintsRef.onValue.listen((complaintEvent) async {
       if (!mounted) return;
 
-      final complaintData = complaintEvent.snapshot.value as Map<dynamic, dynamic>?;
+      final complaintData =
+          complaintEvent.snapshot.value as Map<dynamic, dynamic>?;
 
       if (complaintData == null) {
         if (mounted) {
           setState(() {
-            totalComplaints = pendingComplaints = inProgressComplaints = resolvedComplaints = 0;
+            totalComplaints = pendingComplaints =
+                inProgressComplaints = resolvedComplaints = 0;
             complaints = [];
             filteredComplaints = [];
             isLoading = false;
@@ -105,7 +109,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           time = "${dateTime.hour}:${dateTime.minute}";
         }
 
-        String? mediaUrl = complaint["media_url"] ?? complaint["image_url"] ?? "";
+        String? mediaUrl =
+            complaint["media_url"] ?? complaint["image_url"] ?? "";
         String mediaType = (complaint["media_type"] ??
                 (complaint["image_url"] != null ? "image" : "video"))
             .toString()
@@ -121,7 +126,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
           "date": date,
           "time": time,
           "status": status,
-          "media_url": (mediaUrl ?? '').isEmpty ? 'https://picsum.photos/250?image=9' : mediaUrl,
+          "media_url": (mediaUrl ?? '').isEmpty
+              ? 'https://picsum.photos/250?image=9'
+              : mediaUrl,
           "media_type": mediaType,
           "user_id": userId,
           "user_name": userData?["name"] ?? "Unknown",
@@ -160,7 +167,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         const begin = Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.easeInOut;
-        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
@@ -168,12 +176,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // Handle bottom navigation item tap
   void _onItemTapped(int index) {
-    if (index == 1) { // Analytics
+    if (index == 1) {
+      // Analytics
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AnalyticsDashboard()),
       );
-    } else if (index == 2) { // Logout
+    } else if (index == 2) {
+      // Logout
       _showLogoutDialog();
     } else {
       setState(() {
@@ -198,7 +208,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             TextButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -295,10 +305,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () async {
                           Navigator.of(context).pop();
                           await FirebaseAuth.instance.signOut();
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (_) => const LoginPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const LoginPage()),
                           );
                         },
                         child: Text(
@@ -380,7 +391,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   prefixIcon: Icon(Icons.search),
                   hintText: AppLocalizations.of(context).get('searchComplaints'), // Localized string
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 onChanged: _searchComplaints,
               ),
@@ -448,6 +460,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey[900]
         backgroundColor: Theme.of(context).brightness == Brightness.dark
             ? Colors.grey[900]
             : Colors.white,

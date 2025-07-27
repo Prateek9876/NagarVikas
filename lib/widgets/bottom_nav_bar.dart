@@ -1,9 +1,9 @@
-import 'package:NagarVikas/screen/about.dart';
+import 'package:nagarvikas/screen/about.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:NagarVikas/screen/issue_selection.dart';
-import 'package:NagarVikas/screen/my_complaints.dart';
+import 'package:nagarvikas/screen/issue_selection.dart';
+import 'package:nagarvikas/screen/my_complaints.dart';
 import 'package:google_fonts/google_fonts.dart'; 
 
 class BottomNavBar extends StatefulWidget {
@@ -38,7 +38,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black.withOpacity(0.5) : Colors.grey.withOpacity(0.2),
+              color: isDark ? Colors.black.withAlpha((0.5 * 255).toInt()) : Colors.grey.withAlpha((0.2 * 255).toInt()),
               blurRadius: 20,
               offset: const Offset(0, 5),
             )
@@ -55,7 +55,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
               iconSize: 24,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               duration: const Duration(milliseconds: 400),
-              tabBackgroundColor: activeColor.withOpacity(0.15),
+              tabBackgroundColor: activeColor.withAlpha((0.15 * 255).toInt()),
               color: textColor,
               textStyle: GoogleFonts.urbanist(
                 fontWeight: FontWeight.w600,

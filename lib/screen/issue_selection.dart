@@ -28,15 +28,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:NagarVikas/screen/fun_game_screen.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nagarvikas/screen/fun_game_screen.dart';
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {
   const IssueSelectionPage({super.key});
 
   @override
-  _IssueSelectionPageState createState() => _IssueSelectionPageState();
+  IssueSelectionPageState createState() => IssueSelectionPageState();
 }
 
 class _IssueSelectionPageState extends State<IssueSelectionPage> {
@@ -53,6 +52,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
 
     _showTermsAndConditionsDialogIfNeeded();
   }
+
 
   void _showTermsAndConditionsDialogIfNeeded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -151,14 +151,14 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
   Future<void> getTokenAndSave() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print("User not logged in.");
+      log("User not logged in.");
       return;
     }
 
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     String? token = await messaging.getToken();
 
-    print("FCM Token: $token");
+    log("FCM Token: $token");
 
     DatabaseReference userRef =
         FirebaseDatabase.instance.ref("users/${user.uid}/fcmToken");
@@ -169,12 +169,12 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
     // Save the token only if it's different
     if (existingToken == null || existingToken != token) {
       await userRef.set(token).then((_) {
-        print("FCM Token saved successfully.");
+        log("FCM Token saved successfully.");
       }).catchError((error) {
-        print("Error saving FCM token: $error");
+        log("Error saving FCM token: $error");
       });
     } else {
-      print("Token already exists, no need to update.");
+      log("Token already exists, no need to update.");
     }
   }
 
@@ -300,7 +300,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withAlpha((0.1 * 255).toInt()),
                 blurRadius: 8,
                 spreadRadius: 2)
           ],
@@ -364,6 +364,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
     );
 
     Future.delayed(const Duration(seconds: 2), () {
+      if (!context.mounted) return; // Check if the widget is still mounted
       Navigator.pop(context);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => nextPage));
@@ -383,10 +384,10 @@ class AppDrawer extends StatefulWidget {
       required this.t});
 
   @override
-  _AppDrawerState createState() => _AppDrawerState();
+  AppDrawerState createState() => AppDrawerState();
 }
 
-class _AppDrawerState extends State<AppDrawer> {
+class AppDrawerState extends State<AppDrawer> {
   String _appVersion = "Loading...";
 
   @override
@@ -485,10 +486,15 @@ class _AppDrawerState extends State<AppDrawer> {
                 widget.t('share_app'),
                 null,
                 onTap: () {
-                  Share.share(
-                    'Check out this app: https://github.com/Prateek9876/NagarVikas',
+                  // Share.share(
+                  //   'Check out this app: https://github.com/Prateek9876/nagarvikas',
+                  //   subject: 'NagarVikas App',
+                  // ); // Deprecated
+                  SharePlus.instance.share(ShareParams(
+                    text:
+                        'Check out this app: https://github.com/Prateek9876/nagarvikas',
                     subject: 'NagarVikas App',
-                  );
+                  ));
                 },
               ),
               buildDrawerItem(
@@ -521,10 +527,12 @@ class _AppDrawerState extends State<AppDrawer> {
                           onPressed: () async {
                             final FirebaseAuth auth = FirebaseAuth.instance;
                             await auth.signOut();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const LoginPage()));
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const LoginPage()));
+                            }
                           },
                           child: Text(widget.t('yes')),
                         ),
@@ -610,7 +618,8 @@ Widget buildDrawerItem(
                   );
                 }
               : null),
-      splashColor: Colors.blue.withOpacity(0.5), // Ripple effect color
+      splashColor:
+          Colors.blue.withAlpha((0.5 * 255).toInt()), // Ripple effect color
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         child: Row(
