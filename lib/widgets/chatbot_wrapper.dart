@@ -296,10 +296,13 @@ class ChatbotWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine if a Drawer is open
+    final isDrawerOpen = Scaffold.maybeOf(context)?.isDrawerOpen ?? false;
     return Stack(
       children: [
         child,
-        const ChatbotFloatingButton(),
+        if (!isDrawerOpen)
+          const ChatbotFloatingButton(),
       ],
     );
   }
