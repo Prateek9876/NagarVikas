@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 /// 📝 FeedbackPage
@@ -6,10 +8,10 @@ class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
 
   @override
-  _FeedbackPageState createState() => _FeedbackPageState();
+  FeedbackPageState createState() => FeedbackPageState();
 }
 
-class _FeedbackPageState extends State<FeedbackPage> {
+class FeedbackPageState extends State<FeedbackPage> {
   // ⭐ User rating value (0.0 to 5.0)
   double _rating = 0.0;
 
@@ -143,9 +145,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
   /// 🚀 Handles feedback submission and shows confirmation
   void _submitFeedback() {
     String feedback = _feedbackController.text;
-    print('Rating: $_rating');
-    print('Feedback: $feedback');
-    print('Suggestions: $_suggestions');
+    log('Rating: $_rating');
+    log('Feedback: $feedback');
+    log('Suggestions: $_suggestions');
 
     // ✅ Show a thank-you dialog
     showDialog(

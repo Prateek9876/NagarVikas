@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:NagarVikas/widgets/bar_chart_widget.dart';
-import 'package:NagarVikas/widgets/pie_chart_widget.dart';
+import 'package:nagarvikas/widgets/bar_chart_widget.dart';
+import 'package:nagarvikas/widgets/pie_chart_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_dashboard.dart';
 import 'login_page.dart';
@@ -79,7 +79,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             TextButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginPage()),

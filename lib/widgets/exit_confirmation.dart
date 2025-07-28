@@ -40,15 +40,15 @@ class ExitConfirmationWrapper extends StatelessWidget {
   final Widget child;
 
   const ExitConfirmationWrapper({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
           final shouldExit = await ExitConfirmationService.onWillPop(context);
           if (shouldExit && context.mounted) {

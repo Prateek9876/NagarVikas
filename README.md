@@ -1,4 +1,5 @@
 OWNER OF THIS APP -- PRATEEK CHOURASIA
+FOUNDER OF - NextGen Soft Labs.
 
 Email- prateekchourasia9876@gmail.com
 

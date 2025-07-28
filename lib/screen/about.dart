@@ -32,7 +32,7 @@ class AboutAppPage extends StatelessWidget {
             ),
             _buildQuestionTile(
               'Who developed NagarVikas?',
-              'NagarVikas was developed by a passionate team aiming to improve civic engagement and urban infrastructure. We believe technology can solve problems more efficiently and make a positive impact on the community.',
+              'nagarvikas was developed by a passionate team aiming to improve civic engagement and urban infrastructure. We believe technology can solve problems more efficiently and make a positive impact on the community.',
             ),
             _buildQuestionTile(
               'How can I contact you?',
@@ -82,7 +82,7 @@ class _ExpandableTileState extends State<_ExpandableTile> {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha((0.2 * 255).toInt()),
             spreadRadius: 2,
             blurRadius: 5,
             offset: Offset(0, 3),
