@@ -4,6 +4,7 @@ import 'package:NagarVikas/screen/contact.dart';
 import 'package:NagarVikas/screen/facing_issues.dart';
 import 'package:NagarVikas/screen/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:NagarVikas/widgets/chatbot_wrapper.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'garbage.dart';
@@ -242,17 +243,18 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
   // Building the main issue selection grid with animated cards
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 253, 253, 253),
-      drawer: AppDrawer(
-        language: _language,
-        onLanguageChanged: (lang) {
-          setState(() {
-            _language = lang;
-          });
-        },
-        t: t,
-      ),
+    return ChatbotWrapper(
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 253, 253, 253),
+        drawer: AppDrawer(
+  language: _language,
+  onLanguageChanged: (lang) {
+    setState(() {
+      _language = lang;
+    });
+  },
+  t: t,
+),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -323,6 +325,7 @@ class _IssueSelectionPageState extends State<IssueSelectionPage> {
         },
         child: const Icon(Icons.forum, color: Colors.white),
       ),
+    ),
     );
   }
 
@@ -635,8 +638,8 @@ class _AppDrawerState extends State<AppDrawer> {
 
 // Reusable widget to build drawer items
 Widget buildDrawerItem(
-    BuildContext context, IconData icon, String title, Widget? page,
-    {VoidCallback? onTap}) {
+  BuildContext context, IconData icon, String title, Widget? page,
+  {VoidCallback? onTap}) {
   return Material(
     color: Colors.transparent,
     child: InkWell(

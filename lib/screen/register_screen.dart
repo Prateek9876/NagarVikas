@@ -110,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       Fluttertoast.showToast(msg: "Registration successful! Please verify your email before logging in.");
-      
+
       await _auth.signOut(); // Sign out the user after registration
       await Future.delayed(Duration(seconds: 2));
 
@@ -157,7 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  /// Builds the registration UI with animation, input fields, 
+  /// Builds the registration UI with animation, input fields,
   /// and buttons for registration and guest login.
   @override
   Widget build(BuildContext context) {
