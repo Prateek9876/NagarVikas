@@ -6,7 +6,7 @@ class ChatbotFloatingButton extends StatefulWidget {
   @override
   State<ChatbotFloatingButton> createState() => _ChatbotFloatingButtonState();
 }
-
+//chatbot floating button
 class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with SingleTickerProviderStateMixin {
   bool _isChatOpen = false;
   late AnimationController _controller;
