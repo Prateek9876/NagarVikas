@@ -424,7 +424,7 @@ class AppDrawer extends StatefulWidget {
       required this.language,
       required this.onLanguageChanged,
       required this.t});
-
+//sidebar enhanced
   @override
   _AppDrawerState createState() => _AppDrawerState();
 }
