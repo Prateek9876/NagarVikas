@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../model/game_model.dart';
+import '../models/game_model.dart';
 
 class FunGameScreen extends StatefulWidget {
   const FunGameScreen({super.key});
