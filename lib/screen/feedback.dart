@@ -24,26 +24,43 @@ class FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF9FAFB), // Soft background
       appBar: AppBar(
         title: Text('Feedback'),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black87),
+        titleTextStyle: TextStyle(
+          color: Colors.black87,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ListView(
-          children: [
-            _buildTitleText('How do you feel about the app?'),
-            SizedBox(height: 20), // 📏 Space between title and stars
-            _buildRatingBar(),
-            SizedBox(height: 25), // 📏 Space between rating and next title
-            _buildTitleText('Describe your experience:'),
-            SizedBox(height: 15), // 📏 Space before feedback field
-            _buildFeedbackTextField(),
-            SizedBox(height: 25), // 📏 Space before checkbox
-            _buildSuggestionsCheckbox(),
-            SizedBox(height: 30), // 📏 Space before submit button
-            _buildSubmitButton(),
-          ],
+      body: Center(
+        child: Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          elevation: 6,
+          margin: EdgeInsets.symmetric(horizontal: 0, vertical: 24),
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28),
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                _buildTitleText('How do you feel about the app?'),
+                SizedBox(height: 18),
+                _buildRatingBar(),
+                SizedBox(height: 28),
+                _buildTitleText('Describe your experience:'),
+                SizedBox(height: 12),
+                _buildFeedbackTextField(),
+                SizedBox(height: 20),
+                _buildSuggestionsCheckbox(),
+                SizedBox(height: 28),
+                _buildSubmitButton(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -64,19 +81,23 @@ class FeedbackPageState extends State<FeedbackPage> {
   /// ⭐ Builds a custom star rating bar (1–5)
   Widget _buildRatingBar() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(5, (index) {
-        return IconButton(
-          icon: Icon(
-            Icons.star,
-            color: _rating > index ? Colors.amber : Colors.grey,
-            size: 35,
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2.5),
+          child: IconButton(
+            icon: Icon(
+              _rating > index ? Icons.star_rounded : Icons.star_outline_rounded,
+              color: _rating > index ? Colors.amber[700] : Colors.grey[400],
+              size: 36,
+            ),
+            splashRadius: 24,
+            onPressed: () {
+              setState(() {
+                _rating = index + 1.0;
+              });
+            },
           ),
-          onPressed: () {
-            setState(() {
-              _rating = index + 1.0;
-            });
-          },
         );
       }),
     );
@@ -89,15 +110,24 @@ class FeedbackPageState extends State<FeedbackPage> {
       maxLines: 5,
       decoration: InputDecoration(
         filled: true,
-        fillColor: Colors.grey[200],
+        fillColor: Color(0xFFF5F6FA),
         hintText: 'Share your thoughts...',
-        hintStyle: TextStyle(color: Colors.black45),
+        hintStyle: TextStyle(color: Colors.black38),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Color(0xFF04CCF0), width: 1.2),
         ),
-        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Adjusted padding
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Color(0xFF04CCF0), width: 1.6),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 18),
       ),
-      style: TextStyle(color: Colors.black),
+      style: TextStyle(color: Colors.black87, fontSize: 16),
     );
   }
 
@@ -112,14 +142,19 @@ class FeedbackPageState extends State<FeedbackPage> {
               _suggestions = value ?? false;
             });
           },
-          activeColor: Colors.amber,
+          activeColor: Color(0xFF04CCF0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         ),
-        Text(
-          'Would you like to give any suggestion?',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black87,
+        Flexible(
+          child: Text(
+            'Would you like to give any suggestion?',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           ),
         ),
       ],
@@ -128,23 +163,28 @@ class FeedbackPageState extends State<FeedbackPage> {
 
   /// 📤 Submit button to process the feedback
   Widget _buildSubmitButton() {
-    return ElevatedButton(
-      onPressed: () {
-        _submitFeedback(); // 🧾 Trigger submission logic
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.amber,
-        padding: EdgeInsets.symmetric(vertical: 18), // Adjusted padding
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          _submitFeedback();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+          padding: EdgeInsets.symmetric(vertical: 18),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 2,
+          textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        child: Text('Submit Feedback', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
       ),
-      child: Text('Submit Feedback', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
 
   /// 🚀 Handles feedback submission and shows confirmation
   void _submitFeedback() {
     String feedback = _feedbackController.text;
+
     log('Rating: $_rating');
     log('Feedback: $feedback');
     log('Suggestions: $_suggestions');
