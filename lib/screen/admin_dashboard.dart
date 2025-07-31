@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import 'complaint_detail_page.dart';
+import 'favourite.dart';
 import 'login_page.dart';
 import 'package:nagarvikas/screen/analytics_dashboard.dart';
 
@@ -284,6 +285,19 @@ class AdminDashboardState extends State<AdminDashboard> {
             ),
             const Divider(thickness: 1),
             ListTile(
+              leading: Icon(Icons.favorite, color: Colors.red),
+              title: Text(
+                'Favorites',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => FavoritesPage(favoriteComplaints: favoriteComplaints),
+                ));
+              },
+            ),
+            const Divider(thickness: 1),
+            ListTile(
               leading: Icon(Icons.logout, color: Colors.red),
               title: Text(
                 'Logout',
@@ -478,6 +492,9 @@ class AdminDashboardState extends State<AdminDashboard> {
                           itemCount: filteredComplaints.length,
                           itemBuilder: (ctx, index) {
                             final complaint = filteredComplaints[index];
+                            final complaintId = complaint["id"] ?? complaint.hashCode.toString();
+                            final isFavorite = favoriteComplaints.any((fav) =>
+                            (fav["id"] ?? fav.hashCode.toString()) == complaintId);
                             return Card(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
@@ -518,8 +535,14 @@ class AdminDashboardState extends State<AdminDashboard> {
                                         "City: ${complaint["city"]}, State: ${complaint["state"]}"),
                                   ],
                                 ),
-                                trailing: const Icon(Icons.arrow_forward_ios,
-                                    size: 16),
+                                trailing: IconButton(
+                                  icon: Icon(
+                                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                                    color: isFavorite ? Colors.red : Colors.grey,
+                                    size: 24,
+                                  ),
+                                  onPressed: () => _toggleFavorite(complaint),
+                                ),
                                 onTap: () => Navigator.of(context).push(
                                   _createSlideRoute(complaint),
                                 ),
@@ -545,5 +568,38 @@ class AdminDashboardState extends State<AdminDashboard> {
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+
+  List<Map<String, dynamic>> favoriteComplaints = [];
+
+  void _toggleFavorite(Map<String, dynamic> complaint) {
+    setState(() {
+      final complaintId = complaint["id"] ?? complaint.hashCode.toString();
+      final existingIndex = favoriteComplaints.indexWhere((fav) =>
+      (fav["id"] ?? fav.hashCode.toString()) == complaintId);
+
+      if (existingIndex >= 0) {
+        // Remove from favorites
+        favoriteComplaints.removeAt(existingIndex);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Removed from favorites'),
+            backgroundColor: Colors.grey,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        // Add to favorites
+        favoriteComplaints.add(complaint);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added to favorites'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
   }
 }
