@@ -254,6 +254,24 @@ class AppLocalizations {
       'followus': 'Follow Us On',
       'get started': 'Get Started',
       'discussion': 'Discussion Forum',
+      "whatIsNagarVikasQuestion": "What is NagarVikas?",
+      "whatIsNagarVikasAnswer":
+          "NagarVikas is a civic issue complaint application designed to bridge the gap between citizens and municipal authorities. It allows citizens to easily report and track the resolution of civic issues like garbage disposal, potholes, water supply issues, and more.",
+      "whatDoWeDoQuestion": "What do we do?",
+      "whatDoWeDoAnswer":
+          "We provide an easy and convenient platform for reporting civic issues, enabling the authorities to act on them promptly. Our mission is to make urban living cleaner and more efficient by empowering citizens to take action on the problems they encounter.",
+      "whatDoWeOfferQuestion": "What do we offer?",
+      "whatDoWeOfferAnswer":
+          "Our app offers a variety of services, including issue reporting, live status tracking, and automated notifications. You can submit complaints about various civic problems, track the progress, and receive updates on the resolution.",
+      "nagarVikasFeaturesQuestion": "What are the features of NagarVikas?",
+      "nagarVikasFeaturesAnswer":
+          "• Easy complaint submission\n• Track complaint status in real time\n• Notifications and reminders for pending issues\n• User-friendly interface\n• Fast and reliable issue resolution system",
+      "whoDevelopedNagarVikasQuestion": "Who developed NagarVikas?",
+      "whoDevelopedNagarVikasAnswer":
+          "nagarvikas was developed by a passionate team aiming to improve civic engagement and urban infrastructure. We believe technology can solve problems more efficiently and make a positive impact on the community.",
+      "howToContactUsQuestion": "How can I contact you?",
+      "howToContactUsAnswer":
+          "For more information or support, feel free to reach out to us at support@nagarvikas.com. We value your feedback and are always here to help."
     },
     'hi': {
       'appTitle': 'नगर विकास',
@@ -478,6 +496,24 @@ class AppLocalizations {
       'logout_content': 'क्या आप वाकई लॉगआउट करना चाहते हैं?',
       'get_started': 'शुरू करें',
       'discussion': 'चर्चा मंच',
+      "whatIsNagarVikasQuestion": "नगरविकास क्या है?",
+      "whatIsNagarVikasAnswer":
+          "नगरविकास एक नागरिक समस्या शिकायत एप्लिकेशन है जिसे नागरिकों और नगरपालिकाओं के बीच की खाई को पाटने के लिए डिज़ाइन किया गया है। यह नागरिकों को कचरा निपटान, गड्ढे, पानी की आपूर्ति के मुद्दों और अधिक जैसी नागरिक समस्याओं की आसानी से रिपोर्ट करने और उनके समाधान को ट्रैक करने की अनुमति देता है।",
+      "whatDoWeDoQuestion": "हम क्या करते हैं?",
+      "whatDoWeDoAnswer":
+          "हम नागरिक मुद्दों की रिपोर्टिंग के लिए एक आसान और सुविधाजनक मंच प्रदान करते हैं, जिससे अधिकारियों को उन पर तुरंत कार्रवाई करने में मदद मिलती है। हमारा मिशन नागरिकों को उन समस्याओं पर कार्रवाई करने के लिए सशक्त बनाकर शहरी जीवन को स्वच्छ और अधिक कुशल बनाना है जिनका वे सामना करते हैं।",
+      "whatDoWeOfferQuestion": "हम क्या पेशकश करते हैं?",
+      "whatDoWeOfferAnswer":
+          "हमारा ऐप विभिन्न प्रकार की सेवाएँ प्रदान करता है, जिसमें समस्या रिपोर्टिंग, लाइव स्थिति ट्रैकिंग और स्वचालित सूचनाएं शामिल हैं। आप विभिन्न नागरिक समस्याओं के बारे में शिकायतें प्रस्तुत कर सकते हैं, प्रगति को ट्रैक कर सकते हैं और समाधान पर अपडेट प्राप्त कर सकते हैं।",
+      "nagarVikasFeaturesQuestion": "नगरविकास की क्या विशेषताएँ हैं?",
+      "nagarVikasFeaturesAnswer":
+          "• आसान शिकायत जमा करना\n• वास्तविक समय में शिकायत की स्थिति ट्रैक करें\n• लंबित मुद्दों के लिए सूचनाएं और अनुस्मारक\n• उपयोगकर्ता के अनुकूल इंटरफ़ेस\n• तेज और विश्वसनीय समस्या समाधान प्रणाली",
+      "whoDevelopedNagarVikasQuestion": "नगरविकास किसने विकसित किया?",
+      "whoDevelopedNagarVikasAnswer":
+          "नगरविकास को नागरिक जुड़ाव और शहरी बुनियादी ढांचे में सुधार के उद्देश्य से एक भावुक टीम द्वारा विकसित किया गया था। हमारा मानना है कि प्रौद्योगिकी समस्याओं को अधिक कुशलता से हल कर सकती है और समुदाय पर सकारात्मक प्रभाव डाल सकती है।",
+      "howToContactUsQuestion": "मैं आपसे कैसे संपर्क कर सकता हूँ?",
+      "howToContactUsAnswer":
+          "अधिक जानकारी या सहायता के लिए, support@nagarvikas.com पर हमसे संपर्क करने में संकोच न करें। हम आपकी प्रतिक्रिया को महत्व देते हैं और हमेशा मदद के लिए यहाँ हैं।"
     },
   };
 
