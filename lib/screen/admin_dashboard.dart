@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import 'complaint_detail_page.dart';
+import 'favourites.dart';
 import 'login_page.dart';
 import 'package:nagarvikas/screen/analytics_dashboard.dart';
 
@@ -58,95 +59,95 @@ class AdminDashboardState extends State<AdminDashboard> {
 
   Future<void> _fetchComplaints() async {
     DatabaseReference complaintsRef =
-        FirebaseDatabase.instance.ref('complaints');
+    FirebaseDatabase.instance.ref('complaints');
     DatabaseReference usersRef = FirebaseDatabase.instance.ref('users');
 
     _complaintsSubscription =
         complaintsRef.onValue.listen((complaintEvent) async {
-      if (!mounted) return;
+          if (!mounted) return;
 
-      final complaintData =
+          final complaintData =
           complaintEvent.snapshot.value as Map<dynamic, dynamic>?;
 
-      if (complaintData == null) {
-        if (mounted) {
-          setState(() {
-            totalComplaints = pendingComplaints =
-                inProgressComplaints = resolvedComplaints = 0;
-            complaints = [];
-            filteredComplaints = [];
-            isLoading = false;
-          });
-        }
-        return;
-      }
+          if (complaintData == null) {
+            if (mounted) {
+              setState(() {
+                totalComplaints = pendingComplaints =
+                    inProgressComplaints = resolvedComplaints = 0;
+                complaints = [];
+                filteredComplaints = [];
+                isLoading = false;
+              });
+            }
+            return;
+          }
 
-      List<Map<String, dynamic>> loadedComplaints = [];
-      int pending = 0, inProgress = 0, resolved = 0, total = 0;
+          List<Map<String, dynamic>> loadedComplaints = [];
+          int pending = 0, inProgress = 0, resolved = 0, total = 0;
 
-      for (var entry in complaintData.entries) {
-        final complaint = entry.value as Map<dynamic, dynamic>;
-        String userId = complaint["user_id"] ?? "Unknown";
+          for (var entry in complaintData.entries) {
+            final complaint = entry.value as Map<dynamic, dynamic>;
+            String userId = complaint["user_id"] ?? "Unknown";
 
-        DataSnapshot userSnapshot = await usersRef.child(userId).get();
-        Map<String, dynamic>? userData = userSnapshot.value != null
-            ? Map<String, dynamic>.from(userSnapshot.value as Map)
-            : null;
+            DataSnapshot userSnapshot = await usersRef.child(userId).get();
+            Map<String, dynamic>? userData = userSnapshot.value != null
+                ? Map<String, dynamic>.from(userSnapshot.value as Map)
+                : null;
 
-        String status = complaint["status"]?.toString() ?? "Pending";
-        if (status == "Pending") pending++;
-        if (status == "In Progress") inProgress++;
-        if (status == "Resolved") resolved++;
-        total++;
+            String status = complaint["status"]?.toString() ?? "Pending";
+            if (status == "Pending") pending++;
+            if (status == "In Progress") inProgress++;
+            if (status == "Resolved") resolved++;
+            total++;
 
-        String timestamp = complaint["timestamp"] ?? "Unknown";
-        String date = "Unknown", time = "Unknown";
+            String timestamp = complaint["timestamp"] ?? "Unknown";
+            String date = "Unknown", time = "Unknown";
 
-        if (timestamp != "Unknown") {
-          DateTime dateTime = DateTime.tryParse(timestamp) ?? DateTime.now();
-          date = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
-          time = "${dateTime.hour}:${dateTime.minute}";
-        }
+            if (timestamp != "Unknown") {
+              DateTime dateTime = DateTime.tryParse(timestamp) ?? DateTime.now();
+              date = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
+              time = "${dateTime.hour}:${dateTime.minute}";
+            }
 
-        String? mediaUrl =
-            complaint["media_url"] ?? complaint["image_url"] ?? "";
-        String mediaType = (complaint["media_type"] ??
+            String? mediaUrl =
+                complaint["media_url"] ?? complaint["image_url"] ?? "";
+            String mediaType = (complaint["media_type"] ??
                 (complaint["image_url"] != null ? "image" : "video"))
-            .toString()
-            .toLowerCase();
+                .toString()
+                .toLowerCase();
 
-        loadedComplaints.add({
-          "id": entry.key,
-          "issue_type": complaint["issue_type"] ?? "Unknown",
-          "city": complaint["city"] ?? "Unknown",
-          "state": complaint["state"] ?? "Unknown",
-          "location": complaint["location"] ?? "Unknown",
-          "description": complaint["description"] ?? "No description",
-          "date": date,
-          "time": time,
-          "status": status,
-          "media_url": (mediaUrl ?? '').isEmpty
-              ? 'https://picsum.photos/250?image=9'
-              : mediaUrl,
-          "media_type": mediaType,
-          "user_id": userId,
-          "user_name": userData?["name"] ?? "Unknown",
-          "user_email": userData?["email"] ?? "Unknown",
-        });
-      }
+            loadedComplaints.add({
+              "id": entry.key,
+              "issue_type": complaint["issue_type"] ?? "Unknown",
+              "city": complaint["city"] ?? "Unknown",
+              "state": complaint["state"] ?? "Unknown",
+              "location": complaint["location"] ?? "Unknown",
+              "description": complaint["description"] ?? "No description",
+              "date": date,
+              "time": time,
+              "status": status,
+              "media_url": (mediaUrl ?? '').isEmpty
+                  ? 'https://picsum.photos/250?image=9'
+                  : mediaUrl,
+              "media_type": mediaType,
+              "user_id": userId,
+              "user_name": userData?["name"] ?? "Unknown",
+              "user_email": userData?["email"] ?? "Unknown",
+            });
+          }
 
-      if (mounted) {
-        setState(() {
-          totalComplaints = total;
-          pendingComplaints = pending;
-          inProgressComplaints = inProgress;
-          resolvedComplaints = resolved;
-          complaints = loadedComplaints;
-          filteredComplaints = complaints;
-          isLoading = false;
+          if (mounted) {
+            setState(() {
+              totalComplaints = total;
+              pendingComplaints = pending;
+              inProgressComplaints = inProgress;
+              resolvedComplaints = resolved;
+              complaints = loadedComplaints;
+              filteredComplaints = complaints;
+              isLoading = false;
+            });
+          }
         });
-      }
-    });
   }
 
   void _searchComplaints(String query) {
@@ -167,7 +168,7 @@ class AdminDashboardState extends State<AdminDashboard> {
         const end = Offset.zero;
         const curve = Curves.easeInOut;
         final tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
@@ -284,6 +285,19 @@ class AdminDashboardState extends State<AdminDashboard> {
             ),
             const Divider(thickness: 1),
             ListTile(
+              leading: Icon(Icons.favorite, color: Colors.red),
+              title: Text(
+                'Favorites',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => FavoritesPage(favoriteComplaints: favoriteComplaints),
+                ));
+              },
+            ),
+            const Divider(thickness: 1),
+            ListTile(
               leading: Icon(Icons.logout, color: Colors.red),
               title: Text(
                 'Logout',
@@ -383,7 +397,7 @@ class AdminDashboardState extends State<AdminDashboard> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              const Color.fromARGB(255, 4, 204, 240),
+                          const Color.fromARGB(255, 4, 204, 240),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -397,7 +411,7 @@ class AdminDashboardState extends State<AdminDashboard> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              const Color.fromARGB(255, 4, 204, 240),
+                          const Color.fromARGB(255, 4, 204, 240),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -463,7 +477,7 @@ class AdminDashboardState extends State<AdminDashboard> {
                   hintText: "Search complaints...",
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 onChanged: _searchComplaints,
               ),
@@ -473,60 +487,78 @@ class AdminDashboardState extends State<AdminDashboard> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : filteredComplaints.isEmpty
-                      ? const Center(child: Text("No complaints found."))
-                      : ListView.builder(
-                          itemCount: filteredComplaints.length,
-                          itemBuilder: (ctx, index) {
-                            final complaint = filteredComplaints[index];
-                            return Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              elevation: 3,
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(12),
-                                leading: complaint["media_type"] == "image"
-                                    ? ClipOval(
-                                        child: Image.network(
-                                          complaint["media_url"],
-                                          width: 60,
-                                          height: 60,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  const Icon(Icons.broken_image,
-                                                      size: 40),
-                                        ),
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Colors.grey,
-                                        child: Icon(Icons.videocam,
-                                            color: Colors.white),
-                                      ),
-                                title: Text(
-                                  complaint["issue_type"] ?? "Unknown",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Status: ${complaint["status"]}"),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                        "City: ${complaint["city"]}, State: ${complaint["state"]}"),
-                                  ],
-                                ),
-                                trailing: const Icon(Icons.arrow_forward_ios,
-                                    size: 16),
-                                onTap: () => Navigator.of(context).push(
-                                  _createSlideRoute(complaint),
-                                ),
-                              ),
-                            );
-                          },
+                  ? const Center(child: Text("No complaints found."))
+                  : ListView.builder(
+                itemCount: filteredComplaints.length,
+                itemBuilder: (ctx, index) {
+                  final complaint = filteredComplaints[index];
+                  final complaintId = complaint["id"] ?? complaint.hashCode.toString();
+                  final isFavorite = favoriteComplaints.any((fav) =>
+                  (fav["id"] ?? fav.hashCode.toString()) == complaintId);
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    elevation: 3,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(12),
+                      leading: complaint["media_type"] == "image"
+                          ? ClipOval(
+                        child: Image.network(
+                          complaint["media_url"],
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder:
+                              (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image,
+                              size: 40),
                         ),
+                      )
+                          : const CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.grey,
+                        child: Icon(Icons.videocam,
+                            color: Colors.white),
+                      ),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              complaint["issue_type"] ?? "Unknown",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: isFavorite ? Colors.red : Colors.grey,
+                              size: 24,
+                            ),
+                            onPressed: () => _toggleFavorite(complaint),
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Status: ${complaint["status"]}"),
+                          const SizedBox(height: 4),
+                          Text(
+                              "City: ${complaint["city"]}, State: ${complaint["state"]}"),
+                        ],
+                      ),
+                      onTap: () => Navigator.of(context).push(
+                        _createSlideRoute(complaint),
+                      ),
+                    ),
+                  );
+                },
+              ),
             )
           ],
         ),
@@ -545,5 +577,38 @@ class AdminDashboardState extends State<AdminDashboard> {
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+
+  List<Map<String, dynamic>> favoriteComplaints = [];
+
+  void _toggleFavorite(Map<String, dynamic> complaint) {
+    setState(() {
+      final complaintId = complaint["id"] ?? complaint.hashCode.toString();
+      final existingIndex = favoriteComplaints.indexWhere((fav) =>
+      (fav["id"] ?? fav.hashCode.toString()) == complaintId);
+
+      if (existingIndex >= 0) {
+        // Remove from favorites
+        favoriteComplaints.removeAt(existingIndex);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Removed from favorites'),
+            backgroundColor: Colors.grey,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        // Add to favorites
+        favoriteComplaints.add(complaint);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added to favorites'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
   }
 }
