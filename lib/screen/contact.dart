@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 
 class ContactUsPage extends StatelessWidget {
-  final String phoneNumber = "+917307858026";  // Replace with your phone number
+  final String phoneNumber = "+917307858026"; // Replace with your phone number
   final String email = "support@nagarvikas.com";
 
-  const ContactUsPage({super.key});  // Replace with your support email
+  const ContactUsPage({super.key}); // Replace with your support email
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Contact Us"),
+        title: Text(AppLocalizations.of(context).get("contactUs")),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
       ),
       body: Padding(
@@ -20,20 +21,20 @@ class ContactUsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'If you have any questions or need assistance, feel free to contact us:',
+              AppLocalizations.of(context).get("contactUsDescription"),
               style: TextStyle(fontSize: 18, color: Colors.black87),
             ),
             SizedBox(height: 20),
             _buildContactTile(
               icon: Icons.phone,
               text: phoneNumber,
-              onTap: () => _launchPhoneDialer(),
+              onTap: () => _launchPhoneDialer(context),
             ),
             SizedBox(height: 20),
             _buildContactTile(
               icon: Icons.email,
               text: email,
-              onTap: () => _launchEmailClient(),
+              onTap: () => _launchEmailClient(context),
             ),
           ],
         ),
@@ -41,7 +42,8 @@ class ContactUsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactTile({required IconData icon, required String text, required Function onTap}) {
+  Widget _buildContactTile(
+      {required IconData icon, required String text, required Function onTap}) {
     return GestureDetector(
       onTap: () => onTap(),
       child: Card(
@@ -66,20 +68,21 @@ class ContactUsPage extends StatelessWidget {
   }
 
   // Function to launch the phone dialer
-  _launchPhoneDialer() async {
+  _launchPhoneDialer(BuildContext context) async {
     final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
 
     if (await canLaunchUrl(phoneUri)) {
       await launchUrl(phoneUri);
     } else {
-      throw 'Could not launch $phoneUri';
+      throw AppLocalizations.of(context).get("couldNotLaunch") + ' $phoneUri';
     }
   }
 
   // Function to launch the email client
-  _launchEmailClient() async {
-    final String subject = 'Support Request - Nagar Vikas';
-    final String body = 'Hi team,\n\nI need help with ';
+  _launchEmailClient(BuildContext context) async {
+    final String subject =
+        AppLocalizations.of(context).get("supportRequestNagarVikas");
+    final String body = AppLocalizations.of(context).get("emailBody");
 
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
@@ -105,15 +108,15 @@ class ContactUsPage extends StatelessWidget {
         // Gmail fallback
         final fallbackUrl = Uri.parse(
           'https://mail.google.com/mail/?view=cm&fs=1'
-              '&to=${Uri.encodeComponent(email)}'
-              '&su=${Uri.encodeComponent(subject)}'
-              '&body=${Uri.encodeComponent(body)}',
+          '&to=${Uri.encodeComponent(email)}'
+          '&su=${Uri.encodeComponent(subject)}'
+          '&body=${Uri.encodeComponent(body)}',
         );
 
         if (await canLaunchUrl(fallbackUrl)) {
           await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
         } else {
-          throw 'No email app or Gmail available.';
+          throw AppLocalizations.of(context).get("noEmailAppOrGmailAvailable");
         }
       }
     } catch (e) {

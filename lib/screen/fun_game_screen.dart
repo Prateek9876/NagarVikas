@@ -1,3 +1,4 @@
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -73,24 +74,31 @@ class _FunGameScreenState extends State<FunGameScreen> {
         return AlertDialog(
           backgroundColor: isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
           title: Text(
-            'Game Over!',
+            AppLocalizations.of(context).get('gameOver') ?? 'Game Over!',
             style:
                 textStyle.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
           ),
-          content: Text('Looks like you’re out of moves!', style: textStyle),
+          content: Text(
+              AppLocalizations.of(context).get('outOfMoves') ??
+                  'Looks like you’re out of moves!',
+              style: textStyle),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _restartGame();
               },
-              child: Text('Play Again', style: textStyle),
+              child: Text(
+                  AppLocalizations.of(context).get('playAgain') ?? 'Play Again',
+                  style: textStyle),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              child: Text('Go to Home', style: textStyle),
+              child: Text(
+                  AppLocalizations.of(context).get('goToHome') ?? 'Go to Home',
+                  style: textStyle),
             ),
           ],
         );
@@ -101,11 +109,12 @@ class _FunGameScreenState extends State<FunGameScreen> {
   @override
   Widget build(BuildContext context) {
     final textColor = isDarkMode ? Colors.white : Colors.black;
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 81, 190, 240),
-        title: Text('2048',
+        title: Text(loc.get('funGame') ?? '2048',
             style: GoogleFonts.urbanist(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
@@ -144,7 +153,7 @@ class _FunGameScreenState extends State<FunGameScreen> {
             children: [
               const SizedBox(height: 16),
               Text(
-                'Score: ${game.score}',
+                '${loc.get('score') ?? 'Score'}: ${game.score}',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -153,7 +162,7 @@ class _FunGameScreenState extends State<FunGameScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'High Score: $highScore',
+                '${loc.get('highScore') ?? 'High Score'}: $highScore',
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   color: textColor,
@@ -165,8 +174,8 @@ class _FunGameScreenState extends State<FunGameScreen> {
                   await prefs.remove('highScore');
                   setState(() => highScore = 0);
                 },
-                child: const Text('Reset High Score',
-                    style: TextStyle(color: Colors.redAccent)),
+                child: Text(loc.get('resetHighScore') ?? 'Reset High Score',
+                    style: const TextStyle(color: Colors.redAccent)),
               ),
               const SizedBox(height: 12),
               Expanded(

@@ -1,6 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:nagarvikas/localization/app_localizations.dart'; // Import the localization file
 
 /// DiscussionForum
 /// A real-time chat interface where users can post and view messages.
@@ -14,16 +15,18 @@ class DiscussionForum extends StatefulWidget {
 }
 
 class DiscussionForumState extends State<DiscussionForum> {
-  final TextEditingController _messageController = TextEditingController();  // 💬 Controls text input
+  final TextEditingController _messageController =
+      TextEditingController(); // 💬 Controls text input
   final DatabaseReference _messagesRef =
-      FirebaseDatabase.instance.ref("discussion/");  // 🔗 Firebase DB ref
-  final ScrollController _scrollController = ScrollController();  // 📜 Scroll controller for ListView
+      FirebaseDatabase.instance.ref("discussion/"); // 🔗 Firebase DB ref
+  final ScrollController _scrollController =
+      ScrollController(); // 📜 Scroll controller for ListView
   String? userId;
 
   @override
   void initState() {
     super.initState();
-    userId = FirebaseAuth.instance.currentUser?.uid;  // 🔐 Get current user ID
+    userId = FirebaseAuth.instance.currentUser?.uid; // 🔐 Get current user ID
   }
 
   /// 📤 Sends a message to Firebase Realtime Database
@@ -31,12 +34,12 @@ class DiscussionForumState extends State<DiscussionForum> {
     if (_messageController.text.trim().isEmpty) return;
 
     _messagesRef.push().set({
-      "message": _messageController.text.trim(),  // ✍️ Message text
-      "senderId": userId,                         // 👤 Sender ID
-      "timestamp": ServerValue.timestamp,         // 🕒 Server-side timestamp
+      "message": _messageController.text.trim(), // ✍️ Message text
+      "senderId": userId, // 👤 Sender ID
+      "timestamp": ServerValue.timestamp, // 🕒 Server-side timestamp
     });
 
-    _messageController.clear();  // 🔄 Clear input
+    _messageController.clear(); // 🔄 Clear input
     Future.delayed(Duration(milliseconds: 300), () {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
@@ -59,7 +62,7 @@ class DiscussionForumState extends State<DiscussionForum> {
           ),
         ),
         child: Text(
-          messageData["message"],  // 📝 Display message
+          messageData["message"], // 📝 Display message
           style: TextStyle(color: isMe ? Colors.white : Colors.black),
         ),
       ),
@@ -71,7 +74,8 @@ class DiscussionForumState extends State<DiscussionForum> {
     return Scaffold(
       // 🧭 App bar
       appBar: AppBar(
-        title: Text("Discussion Forum"),
+        title: Text(AppLocalizations.of(context)
+            .get("discussionForum")), // Localized string
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
       ),
       body: Column(
@@ -81,8 +85,11 @@ class DiscussionForumState extends State<DiscussionForum> {
             child: StreamBuilder(
               stream: _messagesRef.orderByChild("timestamp").onValue,
               builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-                if (!snapshot.hasData || snapshot.data?.snapshot.value == null) {
-                  return Center(child: Text("No messages yet!"));  // 💤 Empty state
+                if (!snapshot.hasData ||
+                    snapshot.data?.snapshot.value == null) {
+                  return Center(
+                      child: Text(AppLocalizations.of(context)
+                          .get("noMessagesYet"))); // Localized string
                 }
 
                 // 🔄 Convert snapshot to list of messages
@@ -95,7 +102,8 @@ class DiscussionForumState extends State<DiscussionForum> {
                     .toList();
 
                 // 🕒 Sort by timestamp (ascending)
-                messagesList.sort((a, b) => a["timestamp"].compareTo(b["timestamp"]));
+                messagesList
+                    .sort((a, b) => a["timestamp"].compareTo(b["timestamp"]));
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -103,7 +111,7 @@ class DiscussionForumState extends State<DiscussionForum> {
                   itemBuilder: (context, index) {
                     final message = messagesList[index];
                     bool isMe = message["senderId"] == userId;
-                    return _buildMessage(message, isMe);  // 🧱 Render message
+                    return _buildMessage(message, isMe); // 🧱 Render message
                   },
                 );
               },
@@ -120,7 +128,8 @@ class DiscussionForumState extends State<DiscussionForum> {
                   child: TextField(
                     controller: _messageController,
                     decoration: InputDecoration(
-                      hintText: "Type a message...",
+                      hintText: AppLocalizations.of(context)
+                          .get("typeAMessage"), // Localized string
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -140,7 +149,7 @@ class DiscussionForumState extends State<DiscussionForum> {
             ),
           ),
         ],
-     ),
-);
-}
+      ),
+    );
+  }
 }

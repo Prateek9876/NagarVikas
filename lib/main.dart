@@ -1,6 +1,5 @@
 // 📦 Importing necessary packages and screens
-import 'dart:developer';
-
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:nagarvikas/service/connectivity_service.dart';
 import 'package:nagarvikas/widgets/bottom_nav_bar.dart';
 import 'package:nagarvikas/widgets/exit_confirmation.dart';
@@ -13,6 +12,8 @@ import 'package:nagarvikas/screen/login_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nagarvikas/screen/logo.dart';
 import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,6 +21,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:nagarvikas/theme/theme_provider.dart';
+import 'dart:developer';
 
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -30,6 +32,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
+
+  prefs = await SharedPreferences.getInstance();
 
   // ✅ OneSignal push notification setup
   OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
@@ -57,6 +61,7 @@ void main() async {
     await Firebase.initializeApp(); // This might fail if no default options
   }
   // ✅ Register background handler
+  // ✅ Register background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Run the app
@@ -70,15 +75,42 @@ void main() async {
 }
 
 // ✅ Main Application Widget
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    final _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
+    state?.setLocale(newLocale);
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale _locale = Locale('en');
+  @override
+  void initState() {
+    AppLocalizations.load(_locale).then((localizations) {
+      _locale = localizations.locale;
+    });
+
+    super.initState();
+  }
+
+  void setLocale(Locale locale) {
+    setState(() {
+      AppLocalizations.save(locale);
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'nagarvikas',
+      title: AppLocalizations.of(context).get('appTitle') ?? 'NagarVikas',
       theme: ThemeData(
         textTheme: GoogleFonts.nunitoTextTheme(),
         colorScheme: ColorScheme.fromSeed(
@@ -92,6 +124,17 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      locale: _locale,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('hi'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
       home: ExitConfirmationWrapper(
         child: ConnectivityOverlay(child: const AuthCheckScreen()),
       ),

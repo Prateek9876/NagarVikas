@@ -1,6 +1,5 @@
-// Importing necessary Flutter and plugin packages
-import 'dart:developer';
-
+import 'package:nagarvikas/localization/app_localizations.dart';
+import 'package:nagarvikas/main.dart';
 import 'package:nagarvikas/screen/about.dart';
 import 'package:nagarvikas/screen/contact.dart';
 import 'package:nagarvikas/screen/facing_issues.dart';
@@ -31,80 +30,17 @@ import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:nagarvikas/screen/fun_game_screen.dart';
+import 'dart:developer';
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {
   const IssueSelectionPage({super.key});
 
   @override
-  IssueSelectionPageState createState() => IssueSelectionPageState();
+  State<IssueSelectionPage> createState() => _IssueSelectionPageState();
 }
 
-class IssueSelectionPageState extends State<IssueSelectionPage> {
-  String _language = 'en'; // 'en' for English, 'hi' for Hindi
-
-  // Translation map for all visible strings in this file
-  static const Map<String, Map<String, String>> _localizedStrings = {
-    'en': {
-      'title': 'What type of issue are you facing?',
-      'garbage': 'No garbage lifting in my area.',
-      'water': 'No water supply in my area.',
-      'road': 'Road damage in my area.',
-      'streetlight': 'Streetlights not working in my area.',
-      'animals': 'Stray animals issue in my area.',
-      'drainage': 'Blocked drainage in my area.',
-      'other': 'Facing any other issue.',
-      'processing': 'Processing...\nTaking you to the complaint page',
-      'profile': 'Profile',
-      'my_complaints': 'My Complaints',
-      'user_feedback': 'User Feedback',
-      'refer_earn': 'Refer and Earn',
-      'facing_issues': 'Facing Issues in App',
-      'about': 'About App',
-      'contact': 'Contact Us',
-      'share_app': 'Share App',
-      'logout': 'Logout',
-      'logout_title': 'Logout',
-      'logout_content': 'Are you sure you want to logout?',
-      'cancel': 'Cancel',
-      'yes': 'Yes',
-      'follow_us': 'Follow Us On',
-      'version': 'Version',
-      'get_started': 'Get Started',
-      'discussion': 'Discussion Forum',
-    },
-    'hi': {
-      'title': 'आप किस प्रकार की समस्या का सामना कर रहे हैं?',
-      'garbage': 'मेरे क्षेत्र में कचरा नहीं उठाया जा रहा है।',
-      'water': 'मेरे क्षेत्र में पानी की आपूर्ति नहीं है।',
-      'road': 'मेरे क्षेत्र में सड़क क्षतिग्रस्त है।',
-      'streetlight': 'मेरे क्षेत्र में स्ट्रीटलाइट काम नहीं कर रही हैं।',
-      'animals': 'मेरे क्षेत्र में आवारा जानवरों की समस्या है।',
-      'drainage': 'मेरे क्षेत्र में नाली जाम है।',
-      'other': 'कोई अन्य समस्या का सामना कर रहे हैं।',
-      'processing': 'प्रोसेसिंग...\nआपको शिकायत पृष्ठ पर ले जाया जा रहा है',
-      'profile': 'प्रोफ़ाइल',
-      'my_complaints': 'मेरी शिकायतें',
-      'user_feedback': 'उपयोगकर्ता प्रतिक्रिया',
-      'refer_earn': 'रेफर और कमाएँ',
-      'facing_issues': 'ऐप में समस्या आ रही है',
-      'about': 'ऐप के बारे में',
-      'contact': 'संपर्क करें',
-      'share_app': 'ऐप साझा करें',
-      'logout': 'लॉगआउट',
-      'logout_title': 'लॉगआउट',
-      'logout_content': 'क्या आप वाकई लॉगआउट करना चाहते हैं?',
-      'cancel': 'रद्द करें',
-      'yes': 'हाँ',
-      'follow_us': 'हमें फॉलो करें',
-      'version': 'संस्करण',
-      'get_started': 'शुरू करें',
-      'discussion': 'चर्चा मंच',
-    },
-  };
-
-  String t(String key) => _localizedStrings[_language]![key] ?? key;
-
+class _IssueSelectionPageState extends State<IssueSelectionPage> {
   @override
   void initState() {
     super.initState();
@@ -125,66 +61,64 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
 
     if (!hasAccepted) {
       await Future.delayed(Duration(milliseconds: 300));
-      if (mounted) {
-        // Check if the widget is still mounted before showing the dialog
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text(
-                "Terms & Conditions",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "By using this app, you agree to the following terms:\n",
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text("• Report issues truthfully and accurately."),
-                    Text("• Consent to receive notifications from the app."),
-                    Text("• Do not misuse the platform for false complaints."),
-                    Text("• Data may be used to improve services."),
-                    SizedBox(height: 10),
-                    Text(
-                      "If you agree, tap **Accept** to proceed.",
-                      style: TextStyle(fontStyle: FontStyle.italic),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              "Terms & Conditions",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context).get("termsAndConditions"),
+                    style: TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Decline"),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
+                  Text(AppLocalizations.of(context).get("reportTruthfully")),
+                  Text(
+                      AppLocalizations.of(context).get("consentNotifications")),
+                  Text(AppLocalizations.of(context).get("noMisusePlatform")),
+                  Text(AppLocalizations.of(context)
+                      .get("dataUsedImproveServices")),
+                  SizedBox(height: 10),
+                  Text(
+                    AppLocalizations.of(context).get("agreeTapAccept"),
+                    style: TextStyle(fontStyle: FontStyle.italic),
                   ),
-                  onPressed: () async {
-                    await prefs.setBool('hasAcceptedTerms', true);
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text("Accept"),
+                ],
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                 ),
-              ],
-            );
-          },
-        );
-      }
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Decline"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () async {
+                  await prefs.setBool('hasAcceptedTerms', true);
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Accept"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -252,13 +186,13 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
       child: Scaffold(
         backgroundColor: const Color.fromARGB(255, 253, 253, 253),
         drawer: AppDrawer(
-          language: _language,
+          language: AppLocalizations.of(context).locale.languageCode,
           onLanguageChanged: (lang) {
             setState(() {
-              _language = lang;
+              MyApp.setLocale(context, Locale(lang));
             });
           },
-          t: t,
+          t: AppLocalizations.of(context).get,
         ),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -266,7 +200,8 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
           title: FadeInDown(
             duration: Duration(milliseconds: 1000),
             child: Text(
-              t('Select the nuisance you wish to vanish 🪄'),
+              AppLocalizations.of(context).get('selectNuisance') ??
+                  'Select Nuisance',
               style: const TextStyle(
                   color: Colors.black, fontSize: 16, fontWeight: FontWeight.w900),
             ),
@@ -287,32 +222,53 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
                     // Each issue card has a ZoomIn animation for better user experience and smooth UI.
                     ZoomIn(
                         delay: Duration(milliseconds: 200),
-                        child: buildIssueCard(context, t('garbage'),
-                            "assets/garbage.png", const GarbagePage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('garbage'),
+                            "assets/garbage.png",
+                            const GarbagePage())),
                     ZoomIn(
                         delay: Duration(milliseconds: 400),
-                        child: buildIssueCard(context, t('water'),
-                            "assets/water.png", const WaterPage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('water'),
+                            "assets/water.png",
+                            const WaterPage())),
                     ZoomIn(
                         delay: Duration(milliseconds: 600),
-                        child: buildIssueCard(context, t('road'),
-                            "assets/road.png", const RoadPage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('road'),
+                            "assets/road.png",
+                            const RoadPage())),
                     ZoomIn(
                         delay: Duration(milliseconds: 800),
-                        child: buildIssueCard(context, t('streetlight'),
-                            "assets/streetlight.png", const StreetLightPage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('streetLights'),
+                            "assets/streetlight.png",
+                            const StreetLightPage())),
                     ZoomIn(
                         delay: Duration(milliseconds: 1000),
-                        child: buildIssueCard(context, t('animals'),
-                            "assets/animals.png", const AnimalsPage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('animals'),
+                            "assets/animals.png",
+                            const AnimalsPage())),
                     ZoomIn(
                         delay: Duration(milliseconds: 1200),
-                        child: buildIssueCard(context, t('drainage'),
-                            "assets/drainage.png", const DrainagePage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('drainage'),
+                            "assets/drainage.png",
+                            const DrainagePage())),
                     ZoomIn(
                         delay: Duration(milliseconds: 1400),
-                        child: buildIssueCard(context, t('other'),
-                            "assets/newentry.png", const NewEntryPage())),
+                        child: buildIssueCard(
+                            context,
+                            AppLocalizations.of(context).get('other'),
+                            "assets/newentry.png",
+                            const NewEntryPage())),
                   ],
                 ),
               ),
@@ -399,7 +355,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  t('Calling... \nThe Ministry of Magic 🔮'),
+                  AppLocalizations.of(context).get('callingMinistry'),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
                 ),
@@ -430,6 +386,7 @@ class AppDrawer extends StatefulWidget {
         required this.onLanguageChanged,
         required this.t});
 //sidebar enhanced
+
   @override
   _AppDrawerState createState() => _AppDrawerState();
 }
@@ -562,15 +519,15 @@ class _AppDrawerState extends State<AppDrawer> {
                   buildDrawerItem(
                       context, Icons.person, widget.t('profile'), ProfilePage()),
                   buildDrawerItem(context, Icons.history, widget.t('Spell Records'), MyComplaintsScreen()),
-                  buildDrawerItem(context, Icons.favorite, widget.t('user_feedback'), FeedbackPage()),
-                  buildDrawerItem(context, Icons.card_giftcard, widget.t('refer_earn'), ReferAndEarnPage()),
-                  buildDrawerItem(context, Icons.report_problem, widget.t('facing_issues'), FacingIssuesPage()),
+                  buildDrawerItem(context, Icons.favorite, widget.t('userfeedback'), FeedbackPage()),
+                  buildDrawerItem(context, Icons.card_giftcard, widget.t('referearn'), ReferAndEarnPage()),
+                  buildDrawerItem(context, Icons.report_problem, widget.t('facingissues'), FacingIssuesPage()),
                   buildDrawerItem(context, Icons.info, widget.t('about'), AboutAppPage()),
                   buildDrawerItem(context, Icons.headset_mic, widget.t('contact'), ContactUsPage()),
                   buildDrawerItem(
                     context,
                     Icons.share,
-                    widget.t('share_app'),
+                    widget.t('shareapp'),
                     null,
                     onTap: () {
                       Share.share(

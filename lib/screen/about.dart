@@ -1,3 +1,4 @@
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class AboutAppPage extends StatelessWidget {
@@ -7,7 +8,7 @@ class AboutAppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('About the App'),
+        title: Text(AppLocalizations.of(context).get('aboutAppTitle')),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
       ),
       body: Padding(
@@ -15,28 +16,29 @@ class AboutAppPage extends StatelessWidget {
         child: ListView(
           children: [
             _buildQuestionTile(
-              'What is NagarVikas?',
-              'NagarVikas is a civic issue complaint application designed to bridge the gap between citizens and municipal authorities. It allows citizens to easily report and track the resolution of civic issues like garbage disposal, potholes, water supply issues, and more.',
+              AppLocalizations.of(context).get('whatIsNagarVikasQuestion'),
+              AppLocalizations.of(context).get('whatIsNagarVikasAnswer'),
             ),
             _buildQuestionTile(
-              'What do we do?',
-              'We provide an easy and convenient platform for reporting civic issues, enabling the authorities to act on them promptly. Our mission is to make urban living cleaner and more efficient by empowering citizens to take action on the problems they encounter.',
+              AppLocalizations.of(context).get('whatDoWeDoQuestion'),
+              AppLocalizations.of(context).get('whatDoWeDoAnswer'),
             ),
             _buildQuestionTile(
-              'What do we offer?',
-              'Our app offers a variety of services, including issue reporting, live status tracking, and automated notifications. You can submit complaints about various civic problems, track the progress, and receive updates on the resolution.',
+              AppLocalizations.of(context).get('whatDoWeOfferQuestion'),
+              AppLocalizations.of(context).get('whatDoWeOfferAnswer'),
             ),
             _buildQuestionTile(
-              'What are the features of NagarVikas?',
-              '• Easy complaint submission\n• Track complaint status in real time\n• Notifications and reminders for pending issues\n• User-friendly interface\n• Fast and reliable issue resolution system',
+              AppLocalizations.of(context).get('nagarVikasFeaturesQuestion'),
+              AppLocalizations.of(context).get('nagarVikasFeaturesAnswer'),
             ),
             _buildQuestionTile(
-              'Who developed NagarVikas?',
-              'nagarvikas was developed by a passionate team aiming to improve civic engagement and urban infrastructure. We believe technology can solve problems more efficiently and make a positive impact on the community.',
+              AppLocalizations.of(context)
+                  .get('whoDevelopedNagarVikasQuestion'),
+              AppLocalizations.of(context).get('whoDevelopedNagarVikasAnswer'),
             ),
             _buildQuestionTile(
-              'How can I contact you?',
-              'For more information or support, feel free to reach out to us at support@nagarvikas.com. We value your feedback and are always here to help.',
+              AppLocalizations.of(context).get('howToContactUsQuestion'),
+              AppLocalizations.of(context).get('howToContactUsAnswer'),
             ),
           ],
         ),

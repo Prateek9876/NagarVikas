@@ -5,6 +5,7 @@ import '../service/local_status_storage.dart';
 import '../service/notification_service.dart';
 import './admin_dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nagarvikas/localization/app_localizations.dart';
 
 class ComplaintDetailPage extends StatefulWidget {
   final String complaintId;
@@ -50,7 +51,8 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
 
       setState(() {
         complaint = data;
-        selectedStatus = data["status"] ?? "Pending";
+        selectedStatus =
+            data["status"] ?? AppLocalizations.of(context).get("pending");
       });
       _initMedia(data);
     }
@@ -114,7 +116,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   @override
   Widget build(BuildContext context) {
     if (complaint == null) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -126,7 +128,8 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(complaint!["issue_type"] ?? "Complaint"),
+        title: Text(complaint!["issue_type"] ??
+            AppLocalizations.of(context).get("complaint")),
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -157,17 +160,23 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                   child: _buildMediaPreview(mediaType, mediaUrl),
                 ),
                 const SizedBox(height: 20),
-                _buildInfoSection("📍 Location", complaint!["location"]),
-                _buildInfoSection("🏙️ City", complaint!["city"]),
-                _buildInfoSection("🗺️ State", complaint!["state"]),
-                _buildInfoSection("📅 Date & Time",
+                _buildInfoSection(AppLocalizations.of(context).get("location"),
+                    complaint!["location"]),
+                _buildInfoSection(AppLocalizations.of(context).get("cityTitle"),
+                    complaint!["city"]),
+                _buildInfoSection(
+                    AppLocalizations.of(context).get("stateTitle"),
+                    complaint!["state"]),
+                _buildInfoSection(
+                    AppLocalizations.of(context).get("dateAndTime"),
                     _formatTimestamp(complaint!["timestamp"])),
-                _buildInfoSection("👤 User",
+                _buildInfoSection(AppLocalizations.of(context).get("user"),
                     "${complaint!["user_name"]} (${complaint!["user_email"]})"),
                 _buildInfoSection(
-                    "📝 Description", complaint!["description"] ?? "-"),
+                    AppLocalizations.of(context).get("description"),
+                    complaint!["description"] ?? "-"),
                 const SizedBox(height: 12),
-                const Text("🔄 Update Status",
+                Text(AppLocalizations.of(context).get("updateStatus"),
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 8),
@@ -181,7 +190,11 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                     filled: true,
                     fillColor: Colors.grey.shade100,
                   ),
-                  items: ["Pending", "In Progress", "Resolved"]
+                  items: [
+                    AppLocalizations.of(context).get("pending"),
+                    AppLocalizations.of(context).get("inProgress"),
+                    AppLocalizations.of(context).get("resolved")
+                  ]
                       .map((status) =>
                           DropdownMenuItem(value: status, child: Text(status)))
                       .toList(),
@@ -203,19 +216,21 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                       foregroundColor: Colors.red,
                     ),
                     icon: const Icon(Icons.delete_outline),
-                    label: const Text("Delete"),
+                    label: Text(AppLocalizations.of(context).get("delete")),
                     onPressed: () {
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text("Confirm Deletion"),
-                          content: const Text(
-                              "Are you sure you want to delete this complaint?"),
+                          title: Text(AppLocalizations.of(context)
+                              .get("confirmDeletion")),
+                          content: Text(AppLocalizations.of(context)
+                              .get("areYouSureDeleteComplaint")),
                           actions: [
                             TextButton(
                               onPressed: () =>
                                   Navigator.pop(context), // Close dialog
-                              child: const Text("No"),
+                              child:
+                                  Text(AppLocalizations.of(context).get("no")),
                             ),
                             TextButton(
                               onPressed: () async {
@@ -235,9 +250,11 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
                                       builder: (context) => AdminDashboard()),
                                 );
                                 Fluttertoast.showToast(
-                                    msg: "Deleted Successfully!");
+                                    msg: AppLocalizations.of(context)
+                                        .get("deletedSuccessfully"));
                               },
-                              child: const Text("Yes",
+                              child: Text(
+                                  AppLocalizations.of(context).get("yes"),
                                   style: TextStyle(color: Colors.red)),
                             ),
                           ],

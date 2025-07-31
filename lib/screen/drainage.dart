@@ -1,3 +1,4 @@
+import 'package:nagarvikas/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../components/shared_issue_form.dart';
 
@@ -6,17 +7,18 @@ class DrainagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Drainage Issue"),
+        title: Text(loc.get('drainageIssue')), // Localized string
         backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         foregroundColor: Colors.black,
         elevation: 1,
       ),
-      body: const SharedIssueForm(
-        issueType: "Drainage Issue",
-        headingText: "Drainage issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+      body: SharedIssueForm(
+        issueType: loc.get('drainageIssueType'), // Localized string
+        headingText: loc.get('drainageIssueSelected'), // Localized string
+        infoText: loc.get('provideAccurateInfo'), // Already localized
         imageAsset: "assets/selected.png",
       ),
     );
