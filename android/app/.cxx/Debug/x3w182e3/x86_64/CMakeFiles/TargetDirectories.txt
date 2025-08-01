@@ -1,0 +1,2 @@
+/Users/garyxd/Desktop/development/NagarVikas/android/app/.cxx/Debug/x3w182e3/x86_64/CMakeFiles/edit_cache.dir
+/Users/garyxd/Desktop/development/NagarVikas/android/app/.cxx/Debug/x3w182e3/x86_64/CMakeFiles/rebuild_cache.dir
