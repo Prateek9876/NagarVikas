@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
-import './ComplaintDetailPage.dart';
+import 'complaint_detail_page.dart';
 import 'login_page.dart';
-import 'package:NagarVikas/screen/analytics_dashboard.dart';
+import 'package:nagarvikas/screen/analytics_dashboard.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
   @override
-  _AdminDashboardState createState() => _AdminDashboardState();
+  AdminDashboardState createState() => AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard>
     with SingleTickerProviderStateMixin {
+
   int _selectedIndex = 0; // Home is selected by default
   int totalComplaints = 0;
   int pendingComplaints = 0;
@@ -218,7 +219,7 @@ class _AdminDashboardState extends State<AdminDashboard>
             TextButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -315,7 +316,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                         onPressed: () async {
                           Navigator.of(context).pop();
                           await FirebaseAuth.instance.signOut();
-                          if (!mounted) return;
+                          if (!context.mounted) return;
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -551,6 +552,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                                   _createSlideRoute(complaint),
                                 ),
                               ),
+
                             );
                           },
                         ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -14,10 +16,10 @@ class LogoWidget extends StatefulWidget {
   const LogoWidget({super.key});
 
   @override
-  _LogoWidgetState createState() => _LogoWidgetState();
+  LogoWidgetState createState() => LogoWidgetState();
 }
 
-class _LogoWidgetState extends State<LogoWidget>
+class LogoWidgetState extends State<LogoWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeIn;
@@ -48,7 +50,7 @@ class _LogoWidgetState extends State<LogoWidget>
 
     // Simulating a delay before redirection (Replace this with actual navigation)
     Future.delayed(Duration(seconds: 3), () {
-      print("Redirecting to next screen...");
+      log("Redirecting to next screen...");
       // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NextScreen()));
     });
   }

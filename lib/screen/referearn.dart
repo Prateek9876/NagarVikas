@@ -28,7 +28,7 @@ class ReferAndEarnPage extends StatelessWidget {
             SizedBox(height: 10),
 
             Text(
-              "Earn rewards by referring your friends to NagarVikas. Share your referral code now!",
+              "Earn rewards by referring your friends to nagarvikas. Share your referral code now!",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[700]),
             ),
@@ -39,7 +39,7 @@ class ReferAndEarnPage extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               decoration: BoxDecoration(
-                color: Colors.deepPurpleAccent.withOpacity(0.1),
+                color: Colors.deepPurpleAccent.withAlpha((0.1 * 255).toInt()),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.deepPurpleAccent, width: 2),
               ),

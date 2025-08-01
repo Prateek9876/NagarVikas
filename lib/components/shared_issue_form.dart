@@ -1,9 +1,7 @@
 // lib/widgets/shared_issue_form.dart
 
 import 'dart:io';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:NagarVikas/service/notification_service.dart';
+import 'package:nagarvikas/service/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:geocoding/geocoding.dart';
@@ -17,6 +15,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../screen/done_screen.dart';
+import '../service/local_status_storage.dart';
 
 class SharedIssueForm extends StatefulWidget {
   final String issueType;
@@ -120,7 +119,6 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Siliguri', 'Asansol'],
   };
 
-
   @override
   void initState() {
     super.initState();
@@ -128,6 +126,9 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     _initializeServices();
     _descriptionController.addListener(() {
       setState(() {}); // rebuild when text changes
+    });
+    _locationController.addListener(() {
+      setState(() {});
     });
   }
 
@@ -162,6 +163,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(
+          // ignore: deprecated_member_use
           desiredAccuracy: LocationAccuracy.high);
       final placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -212,16 +214,16 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
       Fluttertoast.showToast(msg: "Remove the video to upload image.");
       return;
     }
-  
-      final pickedFile =
-          await ImagePicker().pickImage(source: ImageSource.gallery);
 
-      if (pickedFile != null) {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
       });
-      
-      }}
+    }
+  }
 
   Future<void> _pickVideo() async {
     if (_selectedImage != null) {
@@ -320,15 +322,25 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
         'status': 'Pending',
       });
 
+      // Save notification in local storage for admin
+      await LocalStatusStorage.saveAdminNotification({
+        'message': 'A new complaint (ID: ${ref.key}) has been submitted and is pending review.',
+        'timestamp': DateTime.now().toIso8601String(),
+        'complaint_id': ref.key,
+        'status': 'Pending',
+        'issue_type': widget.issueType,
+      });
+
       await _notificationService.showComplaintSubmittedNotification(
         issueType: widget.issueType,
         complaintId: ref.key,
       );
 
       Fluttertoast.showToast(msg: "Submitted Successfully");
-
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const DoneScreen()));
+      if (mounted) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => const DoneScreen()));
+      }
     } catch (e) {
       Fluttertoast.showToast(msg: "Submission failed: $e");
 
@@ -348,15 +360,23 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String hint) => InputDecoration(
+  InputDecoration _inputDecoration(String hint, {required bool isFilled}) =>
+      InputDecoration(
         hintText: hint,
         filled: true,
         fillColor: const Color.fromARGB(255, 251, 250, 250),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+              color: isFilled ? Colors.grey[400]! : Colors.red, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide:
+              BorderSide(color: isFilled ? Colors.blue : Colors.red, width: 2),
+        ),
       );
 
   @override
@@ -382,58 +402,75 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
             ZoomIn(child: Image.asset(widget.imageAsset, height: 200)),
             const SizedBox(height: 20),
 
-            DropdownButtonFormField<String>(
-              value: _selectedState,
-              hint: const Text("Select the Wizarding Region"),
-              items: _states.keys
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                  .toList(),
-              onChanged: (value) => setState(() {
-                _selectedState = value;
-                _selectedCity = null;
-              }),
-              decoration: _inputDecoration("State"),
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: _selectedCity,
-              hint: const Text("Select the Nearest Magical District"),
-              items: _selectedState != null
-                  ? _states[_selectedState]!
-                      .map((city) =>
-                          DropdownMenuItem(value: city, child: Text(city)))
-                      .toList()
-                  : [],
-              onChanged: (value) => setState(() => _selectedCity = value),
-              decoration: _inputDecoration("City"),
-            ),
-            const SizedBox(height: 10),
-
-            TextField(
-              controller: _locationController,
-              decoration:
-                  _inputDecoration("Reveal the Secret Location")
-                      .copyWith(
-                suffixIcon: IconButton(
-                    icon: const Icon(Icons.my_location),
-                    onPressed: _getCurrentLocation),
+            Padding(
+              padding: const EdgeInsets.only(
+                  top: 0.0, bottom: 4.0, right: 4.0, left: 4.0),
+              child: DropdownButtonFormField<String>(
+                value: _selectedState,
+                hint: const Text("Select the Wizarding Region"),
+                items: _states.keys
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .toList(),
+                onChanged: (value) => setState(() {
+                  _selectedState = value;
+                  _selectedCity = null;
+                }),
+                decoration:
+                    _inputDecoration("State", isFilled: _selectedState != null),
               ),
             ),
             const SizedBox(height: 10),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 3,
-              maxLength: 250,
-              buildCounter: (_,
-                      {required currentLength,
-                      required isFocused,
-                      maxLength}) =>
-                  null,
-              decoration:
-                  _inputDecoration("Describe the Strange Occurence or Speak a spell").copyWith(
-                suffixIcon: IconButton(
-                  icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-                  onPressed: _isListening ? _stopListening : _startListening,
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: DropdownButtonFormField<String>(
+                value: _selectedCity,
+                hint: const Text("Select the Nearest Magical District"),
+                items: _selectedState != null
+                    ? _states[_selectedState]!
+                        .map((city) =>
+                            DropdownMenuItem(value: city, child: Text(city)))
+                        .toList()
+                    : [],
+                onChanged: (value) => setState(() => _selectedCity = value),
+                decoration:
+                    _inputDecoration("City", isFilled: _selectedCity != null),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: TextField(
+                controller: _locationController,
+                decoration: _inputDecoration("Reveal the Secret Location",
+                        isFilled: _locationController.text.trim().isNotEmpty)
+                    .copyWith(
+                  suffixIcon: IconButton(
+                      icon: const Icon(Icons.my_location),
+                      onPressed: _getCurrentLocation),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: TextField(
+                controller: _descriptionController,
+                maxLines: 3,
+                maxLength: 250,
+                buildCounter: (_,
+                        {required currentLength,
+                        required isFocused,
+                        maxLength}) =>
+                    null,
+                decoration: _inputDecoration(
+                        "Describe the Strange Occurence or Speak a spell",
+                        isFilled: _descriptionController.text.trim().isNotEmpty)
+                    .copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+                    onPressed: _isListening ? _stopListening : _startListening,
+                  ),
                 ),
               ),
             ),
@@ -463,10 +500,14 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             // Upload Image button
-            _buildUploadButton("Reveal a Magical Proof 📷", Icons.image,
-                _selectedImage != null, _pickImage),
+            Padding(
+              padding:
+                  const EdgeInsets.only(bottom: 4.0, left: 4.0, right: 4.0),
+              child: _buildUploadButton("Reveal a Magical Proof 📷",
+                  Icons.image, _selectedImage != null, _pickImage),
+            ),
             const SizedBox(height: 8),
 
 // Show selected image preview
@@ -492,7 +533,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                   ),
                 ],
               ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
 
 // Centered "or" text with dividers
             Row(
@@ -566,7 +607,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                   ),
                 ],
               ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             FadeInUp(
               child: ElevatedButton(
                 onPressed: (!_canSubmit || _isUploading) ? null : _submitForm,
