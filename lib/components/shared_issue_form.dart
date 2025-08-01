@@ -181,13 +181,14 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text("Remove ${isVideo ? 'video' : 'image'}?"),
         content:
             Text("Do you want to remove the ${isVideo ? 'video' : 'image'}?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("No"),
+            child: const Text("No", style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -202,7 +203,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                 }
               });
             },
-            child: const Text("Yes"),
+            child: const Text("Yes", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -324,7 +325,8 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
       // Save notification in local storage for admin
       await LocalStatusStorage.saveAdminNotification({
-        'message': 'A new complaint (ID: ${ref.key}) has been submitted and is pending review.',
+        'message':
+            'A new complaint (ID: ${ref.key}) has been submitted and is pending review.',
         'timestamp': DateTime.now().toIso8601String(),
         'complaint_id': ref.key,
         'status': 'Pending',
@@ -363,265 +365,616 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
   InputDecoration _inputDecoration(String hint, {required bool isFilled}) =>
       InputDecoration(
         hintText: hint,
+        hintStyle: TextStyle(
+          color: Colors.grey[600],
+          fontSize: 14,
+        ),
         filled: true,
-        fillColor: const Color.fromARGB(255, 251, 250, 250),
+        fillColor: Colors.grey[50],
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-              color: isFilled ? Colors.grey[400]! : Colors.red, width: 1),
+            color: isFilled ? const Color(0xFF4CAF50) : Colors.grey[300]!,
+            width: 1.5,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide:
-              BorderSide(color: isFilled ? Colors.blue : Colors.red, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: isFilled ? const Color(0xFF4CAF50) : const Color(0xFF2196F3),
+            width: 2,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
       );
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFF8F9FA),
+            Color(0xFFFFFFFF),
+          ],
+        ),
+      ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header Section
             FadeInDown(
+              duration: const Duration(milliseconds: 800),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.headingText,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: Color(0xFF1A1A1A),
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.infoText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Image Section
+            ZoomIn(
               duration: const Duration(milliseconds: 1000),
-              child: Text(widget.headingText,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18)),
-            ),
-            const SizedBox(height: 8),
-            Text(widget.infoText,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 20),
-            ZoomIn(child: Image.asset(widget.imageAsset, height: 200)),
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.only(
-                  top: 0.0, bottom: 4.0, right: 4.0, left: 4.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedState,
-                hint: const Text("Select the Wizarding Region"),
-                items: _states.keys
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (value) => setState(() {
-                  _selectedState = value;
-                  _selectedCity = null;
-                }),
-                decoration:
-                    _inputDecoration("State", isFilled: _selectedState != null),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedCity,
-                hint: const Text("Select the Nearest Magical District"),
-                items: _selectedState != null
-                    ? _states[_selectedState]!
-                        .map((city) =>
-                            DropdownMenuItem(value: city, child: Text(city)))
-                        .toList()
-                    : [],
-                onChanged: (value) => setState(() => _selectedCity = value),
-                decoration:
-                    _inputDecoration("City", isFilled: _selectedCity != null),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: TextField(
-                controller: _locationController,
-                decoration: _inputDecoration("Reveal the Secret Location",
-                        isFilled: _locationController.text.trim().isNotEmpty)
-                    .copyWith(
-                  suffixIcon: IconButton(
-                      icon: const Icon(Icons.my_location),
-                      onPressed: _getCurrentLocation),
+              child: Container(
+                width: double.infinity,
+                height: 220,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 15,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: TextField(
-                controller: _descriptionController,
-                maxLines: 3,
-                maxLength: 250,
-                buildCounter: (_,
-                        {required currentLength,
-                        required isFocused,
-                        maxLength}) =>
-                    null,
-                decoration: _inputDecoration(
-                        "Describe the Strange Occurence or Speak a spell",
-                        isFilled: _descriptionController.text.trim().isNotEmpty)
-                    .copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-                    onPressed: _isListening ? _stopListening : _startListening,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset(
+                    widget.imageAsset,
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  "${_remainingCharacters.clamp(0, 250)} characters remaining",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _remainingCharacters <= 0
-                        ? Colors.red
-                        : Colors.grey[600],
-                    fontWeight: _remainingCharacters <= 0
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Upload image or video",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Upload Image button
-            Padding(
-              padding:
-                  const EdgeInsets.only(bottom: 4.0, left: 4.0, right: 4.0),
-              child: _buildUploadButton("Reveal a Magical Proof 📷",
-                  Icons.image, _selectedImage != null, _pickImage),
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 32),
 
-// Show selected image preview
-            if (_selectedImage != null)
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(_selectedImage!,
-                        height: 160, fit: BoxFit.cover),
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                      onTap: () => _confirmMediaRemoval(isVideo: false),
-                      child: const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.black,
-                        child: Icon(Icons.close, color: Colors.red, size: 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            const SizedBox(height: 4),
-
-// Centered "or" text with dividers
-            Row(
-              children: const [
-                Expanded(child: Divider(thickness: 1)),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text("or",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                ),
-                Expanded(child: Divider(thickness: 1)),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-// Upload Video button
-            _buildUploadButton("Upload Video (max 10s)", Icons.videocam,
-                _selectedVideo != null, _pickVideo),
-            const SizedBox(height: 8),
-
-            if (_videoController != null &&
-                _videoController!.value.isInitialized)
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 180,
-                    child: AspectRatio(
-                      aspectRatio: _videoController!.value.aspectRatio,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: VideoPlayer(_videoController!),
-                      ),
-                    ),
-                  ),
-                  // Play/Pause Button
-                  Positioned.fill(
-                    child: Center(
-                      child: IconButton(
-                        icon: Icon(
-                          _videoController!.value.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _videoController!.value.isPlaying
-                                ? _videoController!.pause()
-                                : _videoController!.play();
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-
-                  // Close Button
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () => _confirmMediaRemoval(isVideo: true),
-                      child: const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.black,
-                        child: Icon(Icons.close, color: Colors.red, size: 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            const SizedBox(height: 16),
+            // Form Section
             FadeInUp(
-              child: ElevatedButton(
-                onPressed: (!_canSubmit || _isUploading) ? null : _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: !_canSubmit ? Colors.grey : Colors.black,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+              duration: const Duration(milliseconds: 1000),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: _isUploading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Send via Owl Post",
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Location Section Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF4CAF50).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Color(0xFF4CAF50),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          "Location Details",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // State Dropdown
+                    DropdownButtonFormField<String>(
+                      value: _selectedState,
+                      hint: const Text("Select the Wizarding Region"),
+                      items: _states.keys
+                          .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                          .toList(),
+                      onChanged: (value) => setState(() {
+                        _selectedState = value;
+                        _selectedCity = null;
+                      }),
+                      decoration: _inputDecoration("State", isFilled: _selectedState != null),
+                      dropdownColor: Colors.white,
+                      style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // City Dropdown
+                    DropdownButtonFormField<String>(
+                      value: _selectedCity,
+                      hint: const Text("Select the Nearest Magical District"),
+                      items: _selectedState != null
+                          ? _states[_selectedState]!
+                              .map((city) =>
+                                  DropdownMenuItem(value: city, child: Text(city)))
+                              .toList()
+                          : [],
+                      onChanged: (value) => setState(() => _selectedCity = value),
+                      decoration: _inputDecoration("City", isFilled: _selectedCity != null),
+                      dropdownColor: Colors.white,
+                      style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Location Input
+                    TextField(
+                      controller: _locationController,
+                      style: const TextStyle(fontSize: 16),
+                      decoration: _inputDecoration("Reveal the Secret Location",
+                              isFilled: _locationController.text.trim().isNotEmpty)
+                          .copyWith(
+                        suffixIcon: Container(
+                          margin: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2196F3),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.my_location, color: Colors.white),
+                            onPressed: _getCurrentLocation,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Description Section Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF9C27B0).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.description,
+                            color: Color(0xFF9C27B0),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          "Description",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Description Input
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 4,
+                      maxLength: 250,
+                      style: const TextStyle(fontSize: 16, height: 1.4),
+                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                      decoration: _inputDecoration(
+                              "Describe the Strange Occurence or Speak a spell",
+                              isFilled: _descriptionController.text.trim().isNotEmpty)
+                          .copyWith(
+                        suffixIcon: Container(
+                          margin: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: _isListening ? Colors.red : const Color(0xFF9C27B0),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            icon: Icon(
+                              _isListening ? Icons.mic : Icons.mic_none,
+                              color: Colors.white,
+                            ),
+                            onPressed: _isListening ? _stopListening : _startListening,
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    // Character counter
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, right: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _remainingCharacters <= 0
+                                  ? Colors.red.withOpacity(0.1)
+                                  : Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "${_remainingCharacters.clamp(0, 250)} characters remaining",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: _remainingCharacters <= 0
+                                    ? Colors.red
+                                    : Colors.grey[600],
+                                fontWeight: _remainingCharacters <= 0
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Media Section Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF9800).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.photo_camera,
+                            color: Color(0xFFFF9800),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          "Upload Media",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1A1A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Upload Image button
+                    _buildUploadButton(
+                      "Reveal a Magical Proof 📷",
+                      Icons.image,
+                      _selectedImage != null,
+                      _pickImage,
+                      const Color(0xFF4CAF50),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Show selected image preview
+                    if (_selectedImage != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors.black87,
+                                  builder: (_) => GestureDetector(
+                                    onTap: () => Navigator.pop(context),
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      color: Colors.black,
+                                      alignment: Alignment.center,
+                                      child: InteractiveViewer(
+                                        child: Image.file(
+                                          _selectedImage!,
+                                          width: MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context).size.height,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.file(
+                                  _selectedImage!,
+                                  height: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 12,
+                              right: 12,
+                              child: GestureDetector(
+                                onTap: () => _confirmMediaRemoval(isVideo: false),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Centered "or" text with dividers
+                    Row(
+                      children: [
+                        Expanded(child: Divider(thickness: 1, color: Colors.grey[300])),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            "or",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                        Expanded(child: Divider(thickness: 1, color: Colors.grey[300])),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Upload Video button
+                    _buildUploadButton(
+                      "Upload Video (max 10s)",
+                      Icons.videocam,
+                      _selectedVideo != null,
+                      _pickVideo,
+                      const Color(0xFF2196F3),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Show selected video preview
+                    if (_videoController != null && _videoController!.value.isInitialized)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: SizedBox(
+                                height: 200,
+                                width: double.infinity,
+                                child: AspectRatio(
+                                  aspectRatio: _videoController!.value.aspectRatio,
+                                  child: VideoPlayer(_videoController!),
+                                ),
+                              ),
+                            ),
+                            // Play/Pause Button
+                            Positioned.fill(
+                              child: Center(
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _videoController!.value.isPlaying
+                                            ? _videoController!.pause()
+                                            : _videoController!.play();
+                                      });
+                                    },
+                                    child: Icon(
+                                      _videoController!.value.isPlaying
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      color: Colors.white,
+                                      size: 32,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Close Button
+                            Positioned(
+                              top: 12,
+                              right: 12,
+                              child: GestureDetector(
+                                onTap: () => _confirmMediaRemoval(isVideo: true),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.7),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 32),
+
+            // Submit Button
+            FadeInUp(
+              duration: const Duration(milliseconds: 1200),
+              child: Container(
+                width: double.infinity,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: _canSubmit && !_isUploading
+                      ? const LinearGradient(
+                          colors: [Color(0xFF1A1A1A), Color(0xFF333333)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  color: !_canSubmit || _isUploading ? Colors.grey[400] : null,
+                  boxShadow: _canSubmit && !_isUploading
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF1A1A1A).withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: ElevatedButton(
+                  onPressed: (!_canSubmit || _isUploading) ? null : _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: _isUploading
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              "Sending...",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        )
+                      : const Text(
+                          "Send via Owl Post",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -629,22 +982,51 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
   }
 
   Widget _buildUploadButton(
-      String label, IconData icon, bool filled, VoidCallback onTap) {
+    String label,
+    IconData icon,
+    bool filled,
+    VoidCallback onTap,
+    Color color,
+  ) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 253, 253, 253),
-          borderRadius: BorderRadius.circular(8),
-          border: filled ? null : Border.all(color: Colors.grey),
+          color: filled ? color.withOpacity(0.1) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: filled ? color : Colors.grey[300]!,
+            width: filled ? 2 : 1,
+          ),
         ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, color: Colors.black54),
-          const SizedBox(width: 10),
-          Text(filled ? "Change" : label,
-              style: const TextStyle(color: Colors.black54))
-        ]),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: filled ? color : Colors.grey[400],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              filled ? "Change" : label,
+              style: TextStyle(
+                color: filled ? color : Colors.grey[700],
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
