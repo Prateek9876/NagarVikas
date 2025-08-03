@@ -14,7 +14,7 @@ class AdminDashboard extends StatefulWidget {
   AdminDashboardState createState() => AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard>
+class AdminDashboardState extends State<AdminDashboard>
     with SingleTickerProviderStateMixin {
 
   int _selectedIndex = 0; // Home is selected by default
