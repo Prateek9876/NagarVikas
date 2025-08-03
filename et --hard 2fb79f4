@@ -1,0 +1,36 @@
+[33m764e5c3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmy-feature[m[33m, [m[1;31morigin/my-feature[m[33m)[m HEAD@{0}: reset: moving to HEAD@{1}
+[33m764e5c3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmy-feature[m[33m, [m[1;31morigin/my-feature[m[33m)[m HEAD@{1}: reset: moving to HEAD@{1}
+[33m764e5c3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmy-feature[m[33m, [m[1;31morigin/my-feature[m[33m)[m HEAD@{2}: rebase (finish): returning to refs/heads/my-feature
+[33m764e5c3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmy-feature[m[33m, [m[1;31morigin/my-feature[m[33m)[m HEAD@{3}: rebase (continue): Reslove issue #153 & #159
+[33m021f899[m HEAD@{4}: rebase (continue): #153 & #159
+[33m165dcb1[m HEAD@{5}: pull --rebase origin my-feature (start): checkout 165dcb19d57dbb26898e3c977aa0ef16d32e6af9
+[33me8edc9c[m HEAD@{6}: rebase (abort): returning to refs/heads/my-feature
+[33m165dcb1[m HEAD@{7}: pull --rebase origin my-feature (start): checkout 165dcb19d57dbb26898e3c977aa0ef16d32e6af9
+[33me8edc9c[m HEAD@{8}: commit: Reslove issue #153 & #159
+[33m2fb79f4[m HEAD@{9}: rebase (abort): returning to refs/heads/my-feature
+[33m165dcb1[m HEAD@{10}: pull --rebase origin my-feature (start): checkout 165dcb19d57dbb26898e3c977aa0ef16d32e6af9
+[33m2fb79f4[m HEAD@{11}: commit: #153 & #159
+[33m5c94a51[m HEAD@{12}: checkout: moving from main to my-feature
+[33m9e16891[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{13}: checkout: moving from my-feature to main
+[33m5c94a51[m HEAD@{14}: rebase (finish): returning to refs/heads/my-feature
+[33m5c94a51[m HEAD@{15}: rebase (pick): Update UI of No Complaints Data Found
+[33m1936fd9[m HEAD@{16}: rebase (pick): Resolve jdk version
+[33mb8f92e6[m HEAD@{17}: rebase (pick): Resolve merge conflicts from main
+[33mfdd5c86[m HEAD@{18}: rebase (pick): Progress on Admin Dashboard UI update
+[33mee375a4[m HEAD@{19}: rebase (continue): Improve UI of Admin Dashboard appbar
+[33m9e16891[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{20}: rebase (start): checkout main
+[33m8587526[m HEAD@{21}: checkout: moving from main to my-feature
+[33m9e16891[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{22}: pull origin main: Fast-forward
+[33m7a6b78d[m[33m ([m[1;33mtag: [m[1;33mv4.0.0[m[33m)[m HEAD@{23}: checkout: moving from my-feature to main
+[33m8587526[m HEAD@{24}: pull --no-stat -v --progress origin main: Merge made by the 'ort' strategy.
+[33m69cac00[m HEAD@{25}: reset: moving to HEAD
+[33m69cac00[m HEAD@{26}: commit: Update UI of No Complaints Data Found
+[33mf43f8b8[m HEAD@{27}: pull origin my-feature: Merge made by the 'ort' strategy.
+[33m69682dc[m HEAD@{28}: commit: Resolve jdk version
+[33me830685[m HEAD@{29}: commit: Resolve merge conflicts from main
+[33m67a7738[m HEAD@{30}: checkout: moving from main to my-feature
+[33m7a6b78d[m[33m ([m[1;33mtag: [m[1;33mv4.0.0[m[33m)[m HEAD@{31}: checkout: moving from my-feature to main
+[33m67a7738[m HEAD@{32}: commit: Progress on Admin Dashboard UI update
+[33me25f165[m HEAD@{33}: commit: Improve UI of Admin Dashboard appbar
+[33m7a6b78d[m[33m ([m[1;33mtag: [m[1;33mv4.0.0[m[33m)[m HEAD@{34}: checkout: moving from main to my-feature
+[33m7a6b78d[m[33m ([m[1;33mtag: [m[1;33mv4.0.0[m[33m)[m HEAD@{35}: clone: from https://github.com/Prateek9876/NagarVikas.git
