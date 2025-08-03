@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
-import './ComplaintDetailPage.dart';
+import 'complaint_detail_page.dart';
 import 'login_page.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -13,9 +14,10 @@ class AdminDashboard extends StatefulWidget {
   AdminDashboardState createState() => AdminDashboardState();
 }
 
+
 class AdminDashboardState extends State<AdminDashboard>
     with SingleTickerProviderStateMixin {
-
+  
   int totalComplaints = 0;
   int pendingComplaints = 0;
   int inProgressComplaints = 0;
@@ -201,7 +203,7 @@ class AdminDashboardState extends State<AdminDashboard>
             TextButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                if (!mounted) return;
+                if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginPage()),

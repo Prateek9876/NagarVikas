@@ -1,7 +1,8 @@
-// ComplaintDetailPage.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:video_player/video_player.dart';
+import '../service/local_status_storage.dart';
+import '../service/notification_service.dart';
 import './admin_dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -76,10 +77,38 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
     super.dispose();
   }
 
-  void _updateStatus(String newStatus) {
-    FirebaseDatabase.instance
+  Future<void> _updateStatus(String newStatus) async {
+    await FirebaseDatabase.instance
         .ref('complaints/${widget.complaintId}')
         .update({"status": newStatus});
+
+    // Fetch complaint details for notification
+    final snapshot = await FirebaseDatabase.instance
+        .ref('complaints/${widget.complaintId}')
+        .get();
+    if (snapshot.exists) {
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final String userId = data['user_id'] ?? '';
+      final String issueType = data['issue_type'] ?? 'Complaint';
+      final String status = data['status'] ?? newStatus;
+
+      // Save notification in local storage for user
+      await LocalStatusStorage.saveNotification({
+        'message': 'Your complaint (ID: ${widget.complaintId}) status has changed to $status.',
+        'timestamp': DateTime.now().toIso8601String(),
+        'complaint_id': widget.complaintId,
+        'status': status,
+        'issue_type': issueType,
+      });
+
+      // Optionally show a local notification immediately
+      await NotificationService().showNotification(
+        id: DateTime.now().millisecondsSinceEpoch % 100000,
+        title: 'Complaint Status Updated',
+        body: 'Your complaint (ID: ${widget.complaintId}) status is now $status.',
+        payload: widget.complaintId,
+      );
+    }
   }
 
   @override
@@ -114,7 +143,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha((0.1 * 255).toInt()),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

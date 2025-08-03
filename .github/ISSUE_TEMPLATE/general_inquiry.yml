@@ -1,0 +1,40 @@
+name: "❓ General Inquiry"
+description: Ask a question or request clarification about the project
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in our project! Please provide the following information to help us address your inquiry.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: |
+        Please provide any additional context about your question, such as:
+        - What you're trying to accomplish
+        - Any relevant code or configuration
+        - What you've tried so far
+      placeholder: |
+        I'm trying to...
+        I've already tried...
+  - type: input
+    id: docs
+    attributes:
+      label: Documentation References
+      description: Have you checked our documentation? If yes, which pages?
+      placeholder: e.g., Getting Started, API Reference, etc.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md)
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

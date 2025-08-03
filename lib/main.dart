@@ -1,42 +1,43 @@
 // 📦 Importing necessary packages and screens
-import 'package:NagarVikas/service/ConnectivityService.dart';
-import 'package:NagarVikas/widgets/bottom_nav_bar.dart';
-import 'package:NagarVikas/widgets/exit_confirmation.dart';
+import 'dart:developer';
+
+import 'package:nagarvikas/service/connectivity_service.dart';
+import 'package:nagarvikas/widgets/bottom_nav_bar.dart';
+import 'package:nagarvikas/widgets/exit_confirmation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:NagarVikas/screen/register_screen.dart';
-import 'package:NagarVikas/screen/admin_dashboard.dart';
-import 'package:NagarVikas/screen/login_page.dart';
+import 'package:nagarvikas/screen/register_screen.dart';
+import 'package:nagarvikas/screen/admin_dashboard.dart';
+import 'package:nagarvikas/screen/login_page.dart';
 import 'package:flutter/foundation.dart';
-import 'package:NagarVikas/screen/logo.dart';
+import 'package:nagarvikas/screen/logo.dart';
 import 'dart:async';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:NagarVikas/theme/theme_provider.dart';
+import 'package:nagarvikas/theme/theme_provider.dart';
 
 // 🔧 Background message handler for Firebase
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
+  log("Handling a background message: ${message.messageId}");
 }
 
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
- 
+
   // ✅ OneSignal push notification setup
   OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
   OneSignal.Notifications.requestPermission(true);
 
   // ✅ Set up notification opened handler
   OneSignal.Notifications.addClickListener((event) {
-    print("Notification Clicked: ${event.notification.body}");
+    log("Notification Clicked: ${event.notification.body}");
   });
 
   // ✅ Firebase initialization for Web and Mobile
@@ -55,7 +56,7 @@ void main() async {
   } else {
     await Firebase.initializeApp(); // This might fail if no default options
   }
- // ✅ Register background handler
+  // ✅ Register background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Run the app
@@ -77,7 +78,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'NagarVikas',
+      title: 'nagarvikas',
       theme: ThemeData(
         textTheme: GoogleFonts.nunitoTextTheme(),
         colorScheme: ColorScheme.fromSeed(
@@ -103,11 +104,11 @@ class AuthCheckScreen extends StatefulWidget {
   const AuthCheckScreen({super.key});
 
   @override
-  _AuthCheckScreenState createState() => _AuthCheckScreenState();
+  AuthCheckScreenState createState() => AuthCheckScreenState();
 }
 
 // ✅ State for Auth Check Screen
-class _AuthCheckScreenState extends State<AuthCheckScreen> {
+class AuthCheckScreenState extends State<AuthCheckScreen> {
   bool _showSplash = true;
   firebase_auth.User? user;
   bool isAdmin = false;
@@ -168,8 +169,10 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
 Future<void> handleAdminLogin(BuildContext context) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setBool('isAdmin', true);
-  Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (context) => AdminDashboard()));
+  if (context.mounted) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => AdminDashboard()));
+  }
 }
 
 // ✅ Logout Function (Clears Admin Status & Redirects to Login)
@@ -178,12 +181,12 @@ Future<void> handleLogout(BuildContext context) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('isAdmin'); // ✅ Clear admin status
   await firebase_auth.FirebaseAuth.instance.signOut();
-  Navigator.pushReplacement(
-      // ✅ Redirect to Login Page
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              const LoginPage())); // ✅ Fix: Use const for LoginPage to avoid unnecessary rebuilds
+  if (context.mounted) {
+    Navigator.pushReplacement(
+        // ✅ Redirect to Login Page
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()));
+  } // ✅ Fix: Use const for LoginPage to avoid unnecessary rebuilds
 }
 
 /// SplashScreen - displays an animated logo on app launch
@@ -206,10 +209,10 @@ class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  _WelcomeScreenState createState() => _WelcomeScreenState();
+  WelcomeScreenState createState() => WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class WelcomeScreenState extends State<WelcomeScreen> {
   bool _isLoading = false;
 
   void _onGetStartedPressed() {
@@ -218,14 +221,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
     // ✅ Simulate a delay for loading effect
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const RegisterScreen()),
-      ).then((_) {
-        setState(() {
-          _isLoading = false;
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const RegisterScreen()),
+        ).then((_) {
+          setState(() {
+            _isLoading = false;
+          });
         });
-      });
+      }
     });
   }
 

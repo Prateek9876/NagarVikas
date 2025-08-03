@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -41,7 +42,7 @@ class NotificationService {
   }
 
   void _onNotificationTapped(NotificationResponse notificationResponse) {
-    print('Notification tapped: ${notificationResponse.payload}');
+    log('Notification tapped: ${notificationResponse.payload}');
   }
 
   Future<void> showComplaintSubmittedNotification({
