@@ -25,21 +25,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   List<Widget> dashboardWidgets = [];
 
-  // Bottom navigation items
-  static const List<BottomNavigationBarItem> _bottomNavItems = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.analytics),
-      label: 'Analytics',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.logout),
-      label: 'Logout',
-    ),
-  ];
+
 
   @override
   void initState() {
@@ -249,11 +235,16 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
           : ThemeData.light().copyWith(scaffoldBackgroundColor: const Color(0xFFF2F7FF)),
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.teal,
-          title: Text("Analytics Dashboard", style: GoogleFonts.poppins()),
+          backgroundColor: Color.fromARGB(255, 4, 204, 240),
+          title: Text("Analytics Dashboard",style:  TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w600
+
+          ),),
           actions: [
             IconButton(
-              icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+              icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode,color: Colors.white,),
               onPressed: () {
                 setState(() {
                   isDarkMode = !isDarkMode;
@@ -285,17 +276,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                   },
                 ),
               ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: _bottomNavItems,
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.teal,
-          unselectedItemColor: Colors.grey,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-          elevation: 10,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+
       ),
     );
   }

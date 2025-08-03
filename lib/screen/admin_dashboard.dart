@@ -5,18 +5,17 @@ import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import './ComplaintDetailPage.dart';
 import 'login_page.dart';
-import 'package:NagarVikas/screen/analytics_dashboard.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
   @override
-  _AdminDashboardState createState() => _AdminDashboardState();
+  AdminDashboardState createState() => AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard>
+class AdminDashboardState extends State<AdminDashboard>
     with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0; // Home is selected by default
+
   int totalComplaints = 0;
   int pendingComplaints = 0;
   int inProgressComplaints = 0;
@@ -29,22 +28,6 @@ class _AdminDashboardState extends State<AdminDashboard>
   StreamSubscription? _complaintsSubscription;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-
-  // Bottom navigation items
-  static const List<BottomNavigationBarItem> _bottomNavItems = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Home',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.analytics),
-      label: 'Analytics',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.logout),
-      label: 'Logout',
-    ),
-  ];
 
   @override
   void initState() {
@@ -184,7 +167,7 @@ class _AdminDashboardState extends State<AdminDashboard>
     );
   }
 
-  // Handle bottom navigation item tap
+ /* // Handle bottom navigation item tap
   void _onItemTapped(int index) {
     if (index == 1) {
       // Analytics
@@ -234,7 +217,7 @@ class _AdminDashboardState extends State<AdminDashboard>
       },
     );
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -280,58 +263,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                 ],
               ),
             ),
-            const SizedBox(height: 10),
-            ListTile(
-              leading: Icon(Icons.analytics, color: Colors.teal),
-              title: Text(
-                'Analytics',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const AnalyticsDashboard(),
-                ));
-              },
-            ),
-            const Divider(thickness: 1),
-            ListTile(
-              leading: Icon(Icons.logout, color: Colors.red),
-              title: Text(
-                'Logout',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text("Confirm Logout"),
-                    content: const Text("Are you sure you want to log out?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text("Cancel"),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          await FirebaseAuth.instance.signOut();
-                          if (!mounted) return;
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const LoginPage()),
-                          );
-                        },
-                        child: const Text(
-                          "Logout",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+
           ],
         ),
       ),
@@ -558,19 +490,7 @@ class _AdminDashboardState extends State<AdminDashboard>
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: _bottomNavItems,
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.teal,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Theme.of(context).brightness == Brightness.dark
-            ? Colors.grey[900]
-            : Colors.white,
-        elevation: 10,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-      ),
+
     );
   }
 }

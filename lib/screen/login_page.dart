@@ -8,6 +8,8 @@ import 'package:NagarVikas/screen/admin_dashboard.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'main_navigation_bar.dart';
+
 // 🧩 Stateful widget for login page
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -135,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => AdminDashboard()),
+                    MaterialPageRoute(builder: (context) => MainNavigation()),
                   );
                 } else {
                   // 🔒 Handle incorrect PIN entry
