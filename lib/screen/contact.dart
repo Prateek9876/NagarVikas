@@ -40,7 +40,6 @@ class ContactUsPage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildContactTile({required IconData icon, required String text, required Function onTap}) {
     return GestureDetector(
       onTap: () => onTap(),
@@ -89,7 +88,7 @@ class ContactUsPage extends StatelessWidget {
         'body': body,
       },
     );
-
+  
     String emailUrl = emailLaunchUri.toString();
 
     // Replace + with %20 to fix space encoding for mailto
