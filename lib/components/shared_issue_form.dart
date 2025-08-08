@@ -322,9 +322,20 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
         'status': 'Pending',
       });
 
+      // Get current user's name for admin notification
+      final currentUser = FirebaseAuth.instance.currentUser;
+      String userName = 'Unknown User';
+      if (currentUser != null) {
+        final userSnapshot = await FirebaseDatabase.instance.ref('users/${currentUser.uid}').get();
+        if (userSnapshot.exists) {
+          final userData = Map<String, dynamic>.from(userSnapshot.value as Map);
+          userName = userData['name'] ?? 'Unknown User';
+        }
+      }
+
       // Save notification in local storage for admin
       await LocalStatusStorage.saveAdminNotification({
-        'message': 'A new complaint (ID: ${ref.key}) has been submitted and is pending review.',
+        'message': 'New ${widget.issueType} complaint submitted by $userName from $_selectedCity, $_selectedState and is pending review.',
         'timestamp': DateTime.now().toIso8601String(),
         'complaint_id': ref.key,
         'status': 'Pending',
