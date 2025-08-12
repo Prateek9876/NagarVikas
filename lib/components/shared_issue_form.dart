@@ -16,6 +16,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../screen/done_screen.dart';
 import '../service/local_status_storage.dart';
+import 'package:http/http.dart' as http;
 
 class SharedIssueForm extends StatefulWidget {
   final String issueType;
@@ -267,6 +268,37 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     }
   }
 
+    // Validate image by sending it to your backend ML endpoint
+  // Make sure to change serverUrl to your FastAPI server
+  Future<bool> _validateImage(File file) async {
+    const String serverUrl = 'http://YOUR_SERVER_IP:8000/validate-image/'; 
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(serverUrl));
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      // You can set a timeout on the request
+      final streamedResponse = await request.send().timeout(Duration(seconds: 12));
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode != 200) {
+        // treat non-200 as invalid / error
+        return false;
+      }
+
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      // Expecting something like: {"label": "valid"/"invalid", "score": 0.9, ...}
+      final label = (data['label'] ?? '').toString().toLowerCase();
+      // adjust logic if your label names differ
+      return label == 'valid';
+    } catch (e) {
+      // network error or timeout — treat as invalid or handle as you like
+      print('Validation request failed: $e');
+      return false;
+    }
+  }
+
+
+
   void _startListening() async {
     if (await _speech.initialize()) {
       setState(() => _isListening = true);
@@ -293,8 +325,24 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
     try {
       final file = _selectedVideo ?? _selectedImage!;
-      final isVideo = _selectedVideo != null;
-      final url = await _uploadToCloudinary(file, isVideo);
+final isVideo = _selectedVideo != null;
+
+// If it's an image, validate it before uploading
+if (!isVideo && _selectedImage != null) {
+  Fluttertoast.showToast(msg: "Validating image...");
+  final bool isValid = await _validateImage(_selectedImage!);
+  if (!isValid) {
+    Fluttertoast.showToast(msg: "Invalid image — upload rejected.");
+    await _notificationService.showSubmissionFailedNotification(
+      issueType: widget.issueType,
+    );
+    setState(() => _isUploading = false);
+    return; // stop submission
+  }
+}
+
+final url = await _uploadToCloudinary(file, isVideo);
+
 
       if (url == null) {
         Fluttertoast.showToast(msg: "Upload failed.");
