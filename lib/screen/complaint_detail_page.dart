@@ -94,7 +94,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
 
       // Save notification in local storage for user
       await LocalStatusStorage.saveNotification({
-        'message': 'Your complaint (ID: ${widget.complaintId}) status has changed to $status.',
+        'message': 'Your $issueType complaint from ${data['city'] ?? 'Unknown City'}, ${data['state'] ?? 'Unknown State'} has been updated to $status.',
         'timestamp': DateTime.now().toIso8601String(),
         'complaint_id': widget.complaintId,
         'status': status,
@@ -105,7 +105,7 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
       await NotificationService().showNotification(
         id: DateTime.now().millisecondsSinceEpoch % 100000,
         title: 'Complaint Status Updated',
-        body: 'Your complaint (ID: ${widget.complaintId}) status is now $status.',
+        body: 'Your $issueType complaint from ${data['city'] ?? 'Unknown City'}, ${data['state'] ?? 'Unknown State'} is now $status.',
         payload: widget.complaintId,
       );
     }

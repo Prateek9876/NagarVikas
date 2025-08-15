@@ -7,6 +7,7 @@ import 'package:nagarvikas/widgets/pie_chart_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_dashboard.dart';
 import 'login_page.dart';
+import 'complaint_details_page.dart'; // Import the new page
 
 class AnalyticsDashboard extends StatefulWidget {
   const AnalyticsDashboard({super.key});
@@ -96,38 +97,54 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     );
   }
 
-  void fetchComplaintStats() async {
-    final ref = FirebaseDatabase.instance.ref('complaints');
-    final snapshot = await ref.get();
+  Future<void> fetchComplaintStats() async {
+    setState(() {
+      isLoading = true;
+    });
 
-    if (snapshot.exists) {
-      int res = 0, pen = 0, rej = 0;
-      final data = snapshot.value as Map<dynamic, dynamic>;
-      data.forEach((key, value) {
-        final complaint = Map<String, dynamic>.from(value);
-        final status = (complaint['status'] ?? 'Pending').toString().toLowerCase();
-        if (status == 'resolved') {
-          res++;
-        } else if (status == 'pending') {
-          pen++;
-        } else if (status == 'rejected') {
-          rej++;
-        }
-      });
+    try {
+      final ref = FirebaseDatabase.instance.ref('complaints');
+      final snapshot = await ref.get();
 
+      if (snapshot.exists) {
+        int res = 0, pen = 0, rej = 0;
+        final data = snapshot.value as Map<dynamic, dynamic>;
+        data.forEach((key, value) {
+          final complaint = Map<String, dynamic>.from(value);
+          final status = (complaint['status'] ?? 'Pending').toString().toLowerCase();
+          if (status == 'resolved') {
+            res++;
+          } else if (status == 'pending') {
+            pen++;
+          } else if (status == 'rejected') {
+            rej++;
+          }
+        });
+
+        setState(() {
+          resolved = res;
+          pending = pen;
+          rejected = rej;
+          isLoading = false;
+          _buildDashboardSections();
+        });
+      } else {
+        setState(() {
+          resolved = pending = rejected = 0;
+          isLoading = false;
+          _buildDashboardSections();
+        });
+      }
+    } catch (e) {
       setState(() {
-        resolved = res;
-        pending = pen;
-        rejected = rej;
         isLoading = false;
-        _buildDashboardSections();
       });
-    } else {
-      setState(() {
-        resolved = pending = rejected = 0;
-        isLoading = false;
-        _buildDashboardSections();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching data: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -167,10 +184,10 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             runSpacing: spacing,
             alignment: WrapAlignment.center,
             children: [
-              _buildNeumorphicCard('Total', total, Colors.blue, Icons.all_inbox, cardWidth),
-              _buildNeumorphicCard('Resolved', resolved, Colors.green, Icons.check_circle, cardWidth),
-              _buildNeumorphicCard('Pending', pending, Colors.orange, Icons.timelapse, cardWidth),
-              _buildNeumorphicCard('Rejected', rejected, Colors.red, Icons.cancel, cardWidth),
+              _buildClickableNeumorphicCard('Total', total, Colors.blue, Icons.all_inbox, cardWidth, 'total'),
+              _buildClickableNeumorphicCard('Resolved', resolved, Colors.green, Icons.check_circle, cardWidth, 'resolved'),
+              _buildClickableNeumorphicCard('Pending', pending, Colors.orange, Icons.timelapse, cardWidth, 'pending'),
+              _buildClickableNeumorphicCard('Rejected', rejected, Colors.red, Icons.cancel, cardWidth, 'rejected'),
             ],
           );
         },
@@ -191,13 +208,27 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     );
   }
 
-  Widget _buildNeumorphicCard(
-      String title, int count, Color color, IconData icon, double width) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
+ Widget _buildClickableNeumorphicCard(
+    String title, int count, Color color, IconData icon, double width, String category) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ComplaintDetailsPage(
+            category: category,
+            title: title,
+            color: color,
+            icon: icon,
+          ),
+        ),
+      );
+    },
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       width: width,
-      height: 115,
-      padding: const EdgeInsets.all(14),
+      height: 130, // Increased height from 115 to 130
+      padding: const EdgeInsets.all(12), // Reduced padding from 14 to 12
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1F1F1F) : const Color(0xFFEFF3FA),
         borderRadius: BorderRadius.circular(18),
@@ -216,30 +247,42 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min, // Added this to minimize space usage
         children: [
-          Icon(icon, color: color, size: 26),
-          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.all(6), // Reduced from 8 to 6
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 24), // Reduced from 26 to 24
+          ),
+          const SizedBox(height: 6), // Reduced from 8 to 6
           Text(
             '$count',
             style: GoogleFonts.urbanist(
-              fontSize: 22,
+              fontSize: 20, // Reduced from 22 to 20
               fontWeight: FontWeight.w700,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2), // Reduced from 4 to 2
           Text(
             title,
             style: GoogleFonts.poppins(
               color: color,
               fontWeight: FontWeight.w500,
+              fontSize: 11, // Reduced from 12 to 11
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis, // Added overflow handling
           ),
+
         ],
       ),
-    );
-  }
-
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -253,6 +296,11 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
           title: Text("Analytics Dashboard", style: GoogleFonts.poppins()),
           actions: [
             IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              onPressed: fetchComplaintStats,
+              tooltip: 'Refresh Data',
+            ),
+            IconButton(
               icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
               onPressed: () {
                 setState(() {
@@ -264,25 +312,28 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : AnimationLimiter(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: dashboardWidgets.length,
-                  itemBuilder: (context, index) {
-                    return AnimationConfiguration.staggeredList(
-                      position: index,
-                      duration: const Duration(milliseconds: 500),
-                      child: SlideAnimation(
-                        verticalOffset: 30.0,
-                        child: FadeInAnimation(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: dashboardWidgets[index],
+            :             RefreshIndicator(
+                onRefresh: fetchComplaintStats,
+                child: AnimationLimiter(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: dashboardWidgets.length,
+                    itemBuilder: (context, index) {
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 500),
+                        child: SlideAnimation(
+                          verticalOffset: 30.0,
+                          child: FadeInAnimation(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: dashboardWidgets[index],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
         bottomNavigationBar: BottomNavigationBar(
@@ -295,6 +346,12 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
           backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
           elevation: 10,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: fetchComplaintStats,
+          backgroundColor: Colors.teal,
+          child: const Icon(Icons.refresh_rounded),
+          tooltip: 'Refresh Data',
         ),
       ),
     );
