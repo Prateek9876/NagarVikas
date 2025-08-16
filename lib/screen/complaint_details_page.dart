@@ -1,12 +1,11 @@
-// complaint_details_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'complaint_detail_page.dart'; // Import your complaint detail page
+import 'complaint_detail_page.dart'; 
 
 class ComplaintDetailsPage extends StatefulWidget {
-  final String category; // 'total', 'resolved', 'pending', 'rejected'
+  final String category; // 'total', 'resolved', 'pending', 'inprogress'
   final String title;
   final Color color;
   final IconData icon;
@@ -31,11 +30,11 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
   List<Map<String, dynamic>> totalComplaints = [];
   List<Map<String, dynamic>> resolvedComplaints = [];
   List<Map<String, dynamic>> pendingComplaints = [];
-  List<Map<String, dynamic>> rejectedComplaints = [];
+  List<Map<String, dynamic>> inProgressComplaints = []; // Changed from rejectedComplaints
 
-  final List<String> categories = ['Total', 'Resolved', 'Pending', 'Rejected'];
-  final List<Color> categoryColors = [Colors.blue, Colors.green, Colors.orange, Colors.red];
-  final List<IconData> categoryIcons = [Icons.all_inbox, Icons.check_circle, Icons.timelapse, Icons.cancel];
+  final List<String> categories = ['Total', 'Resolved', 'Pending', 'In Progress']; // Updated
+  final List<Color> categoryColors = [Colors.purple, Colors.green, Colors.orange, Colors.blue]; // Updated colors
+  final List<IconData> categoryIcons = [Icons.all_inbox, Icons.check_circle, Icons.timelapse, Icons.hourglass_empty]; // Updated icon
 
   @override
   void initState() {
@@ -56,7 +55,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
       case 'pending':
         _currentPage = 2;
         break;
-      case 'rejected':
+      case 'inprogress': // Updated to match the analytics dashboard
         _currentPage = 3;
         break;
     }
@@ -77,7 +76,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
         List<Map<String, dynamic>> total = [];
         List<Map<String, dynamic>> resolved = [];
         List<Map<String, dynamic>> pending = [];
-        List<Map<String, dynamic>> rejected = [];
+        List<Map<String, dynamic>> inProgress = []; // Changed from rejected
 
         final data = snapshot.value as Map<dynamic, dynamic>;
         
@@ -129,7 +128,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           // Add to total
           total.add(complaintData);
 
-          // Categorize by status
+          // Categorize by status - Updated logic
           switch (status.toLowerCase()) {
             case 'resolved':
             case 'completed':
@@ -138,14 +137,10 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
             case 'pending':
               pending.add(complaintData);
               break;
-            case 'in progress':
-              // Add in progress complaints to pending for now
-              pending.add(complaintData);
+            case 'in progress': // This is the main change - properly categorize in progress
+              inProgress.add(complaintData);
               break;
-            case 'rejected':
-            case 'cancelled':
-              rejected.add(complaintData);
-              break;
+            // Removed rejected/cancelled cases since we're not tracking them anymore
           }
         }
 
@@ -153,7 +148,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           totalComplaints = total;
           resolvedComplaints = resolved;
           pendingComplaints = pending;
-          rejectedComplaints = rejected;
+          inProgressComplaints = inProgress; // Updated
           isLoading = false;
         });
       } else {
@@ -161,7 +156,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           totalComplaints = [];
           resolvedComplaints = [];
           pendingComplaints = [];
-          rejectedComplaints = [];
+          inProgressComplaints = []; // Updated
           isLoading = false;
         });
       }
@@ -183,7 +178,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
       case 0: return totalComplaints;
       case 1: return resolvedComplaints;
       case 2: return pendingComplaints;
-      case 3: return rejectedComplaints;
+      case 3: return inProgressComplaints; // Updated
       default: return [];
     }
   }

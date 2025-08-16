@@ -7,7 +7,7 @@ import 'package:nagarvikas/widgets/pie_chart_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_dashboard.dart';
 import 'login_page.dart';
-import 'complaint_details_page.dart'; // Import the new page
+import 'complaint_details_page.dart'; 
 
 class AnalyticsDashboard extends StatefulWidget {
   const AnalyticsDashboard({super.key});
@@ -20,7 +20,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   int _selectedIndex = 1; // Analytics is selected by default
   int resolved = 0;
   int pending = 0;
-  int rejected = 0;
+  int inProgress = 0; // Changed from rejected to inProgress
   bool isLoading = true;
   bool isDarkMode = false;
 
@@ -107,7 +107,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       final snapshot = await ref.get();
 
       if (snapshot.exists) {
-        int res = 0, pen = 0, rej = 0;
+        int res = 0, pen = 0, inProg = 0; // Changed rej to inProg
         final data = snapshot.value as Map<dynamic, dynamic>;
         data.forEach((key, value) {
           final complaint = Map<String, dynamic>.from(value);
@@ -116,21 +116,21 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             res++;
           } else if (status == 'pending') {
             pen++;
-          } else if (status == 'rejected') {
-            rej++;
+          } else if (status == 'in progress') { // Changed from rejected to in progress
+            inProg++;
           }
         });
 
         setState(() {
           resolved = res;
           pending = pen;
-          rejected = rej;
+          inProgress = inProg; // Changed from rejected to inProgress
           isLoading = false;
           _buildDashboardSections();
         });
       } else {
         setState(() {
-          resolved = pending = rejected = 0;
+          resolved = pending = inProgress = 0; // Changed rejected to inProgress
           isLoading = false;
           _buildDashboardSections();
         });
@@ -149,11 +149,11 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
   }
 
   void _buildDashboardSections() {
-    final total = resolved + pending + rejected;
+    final total = resolved + pending + inProgress; // Changed rejected to inProgress
 
     dashboardWidgets = [
       _buildSectionHeader(Icons.insights, "Complaints Overview"),
-      PieChartWidget(resolved: resolved, pending: pending, rejected: rejected),
+      PieChartWidget(resolved: resolved, pending: pending, rejected: inProgress), // Note: PieChartWidget might need updating too
       const SizedBox(height: 20),
       _buildSectionHeader(Icons.bar_chart, "Monthly Complaint Trends"),
       SizedBox(
@@ -162,11 +162,11 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
           values: [
             resolved.toDouble(),
             pending.toDouble(),
-            rejected.toDouble(),
+            inProgress.toDouble(), // Changed from rejected
             total.toDouble(),
           ],
-          labels: ['Resolved', 'Pending', 'Rejected', 'Total'],
-          colors: [Colors.green, Colors.orange, Colors.red, Colors.blue],
+          labels: ['Resolved', 'Pending', 'In Progress', 'Total'], // Updated label
+          colors: [Colors.green, Colors.orange, Colors.blue, Colors.purple], // Changed red to blue for In Progress
         ),
       ),
       const SizedBox(height: 20),
@@ -184,10 +184,10 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             runSpacing: spacing,
             alignment: WrapAlignment.center,
             children: [
-              _buildClickableNeumorphicCard('Total', total, Colors.blue, Icons.all_inbox, cardWidth, 'total'),
+              _buildClickableNeumorphicCard('Total', total, Colors.purple, Icons.all_inbox, cardWidth, 'total'),
               _buildClickableNeumorphicCard('Resolved', resolved, Colors.green, Icons.check_circle, cardWidth, 'resolved'),
               _buildClickableNeumorphicCard('Pending', pending, Colors.orange, Icons.timelapse, cardWidth, 'pending'),
-              _buildClickableNeumorphicCard('Rejected', rejected, Colors.red, Icons.cancel, cardWidth, 'rejected'),
+              _buildClickableNeumorphicCard('In Progress', inProgress, Colors.blue, Icons.hourglass_empty, cardWidth, 'inprogress'), // Updated
             ],
           );
         },
