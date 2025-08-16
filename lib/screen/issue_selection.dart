@@ -1,36 +1,23 @@
 // Importing necessary Flutter and plugin packages
 import 'dart:developer';
-
-import 'package:nagarvikas/screen/about.dart';
-import 'package:nagarvikas/screen/contact.dart';
-import 'package:nagarvikas/screen/facing_issues.dart';
-import 'package:nagarvikas/screen/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/chatbot_wrapper.dart';
 import 'garbage.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'water.dart';
 import 'road.dart';
 import 'new_entry.dart';
 import 'street_light.dart';
 import 'drainage.dart';
 import 'animals.dart';
-import 'my_complaints.dart';
-import 'profile_screen.dart';
-import 'feedback.dart';
-import 'referearn.dart';
 import 'discussion.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:nagarvikas/screen/fun_game_screen.dart';
+import 'package:nagarvikas/screen/modern_app_drawer.dart'; // Add this import
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {
@@ -251,7 +238,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     return ChatbotWrapper(
       child: Scaffold(
         backgroundColor: const Color.fromARGB(255, 253, 253, 253),
-        drawer: AppDrawer(
+        drawer: ModernAppDrawer(
           language: _language,
           onLanguageChanged: (lang) {
             setState(() {
@@ -417,305 +404,4 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
           context, MaterialPageRoute(builder: (context) => nextPage));
     });
   }
-}
-
-// App Drawer for navigation and profile settings
-class AppDrawer extends StatefulWidget {
-  final String language;
-  final void Function(String) onLanguageChanged;
-  final String Function(String) t;
-  const AppDrawer(
-      {super.key,
-        required this.language,
-        required this.onLanguageChanged,
-        required this.t});
-//sidebar enhanced
-  @override
-  _AppDrawerState createState() => _AppDrawerState();
-}
-// work done
-
-class _AppDrawerState extends State<AppDrawer> {
-  String _appVersion = "Loading...";
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAppVersion();
-  }
-
-// Load app version using package_info_plus
-  Future<void> _loadAppVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _appVersion = packageInfo.version;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
-      ),
-      child: Container(
-        color: Colors.white,
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(children: [
-                // App title with icon and "Made with ❤️ by Prateek Chourasia"
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Color(0xFFE0F7FA),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/app_icon.png',
-                            width: 38,
-                            height: 38,
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "NagarVikas",
-                            style: TextStyle(
-                              fontSize: 26,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Made with ❤️ by Prateek Chourasia',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Language Switcher
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.language, color: Colors.black87),
-                      SizedBox(width: 8),
-                      Text("Language:", style: TextStyle(fontSize: 15, color: Colors.black87)),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              ChoiceChip(
-                                label: Text('English', style: TextStyle(fontSize: 13)),
-                                selected: widget.language == 'en',
-                                onSelected: (selected) {
-                                  if (selected) widget.onLanguageChanged('en');
-                                },
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                visualDensity: VisualDensity.compact,
-                                selectedColor: Color(0xFFE0F7FA),
-                                backgroundColor: Color(0xFFF5F5F5),
-                                labelStyle: TextStyle(color: widget.language == 'en' ? Colors.teal : Colors.black87),
-                              ),
-                              SizedBox(width: 6),
-                              ChoiceChip(
-                                label: Text('हिन्दी', style: TextStyle(fontSize: 13)),
-                                selected: widget.language == 'hi',
-                                onSelected: (selected) {
-                                  if (selected) widget.onLanguageChanged('hi');
-                                },
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                visualDensity: VisualDensity.compact,
-                                selectedColor: Color(0xFFE0F7FA),
-                                backgroundColor: Color(0xFFF5F5F5),
-                                labelStyle: TextStyle(color: widget.language == 'hi' ? Colors.teal : Colors.black87),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Drawer Items (localized)
-                ...[
-                  buildDrawerItem(
-                      context, Icons.person, widget.t('profile'), ProfilePage()),
-                  buildDrawerItem(context, Icons.history, widget.t('Spell Records'), MyComplaintsScreen()),
-                  buildDrawerItem(context, Icons.favorite, widget.t('user_feedback'), FeedbackPage()),
-                  buildDrawerItem(context, Icons.card_giftcard, widget.t('refer_earn'), ReferAndEarnPage()),
-                  buildDrawerItem(context, Icons.report_problem, widget.t('facing_issues'), FacingIssuesPage()),
-                  buildDrawerItem(context, Icons.info, widget.t('about'), AboutAppPage()),
-                  buildDrawerItem(context, Icons.headset_mic, widget.t('contact'), ContactUsPage()),
-                  buildDrawerItem(
-                    context,
-                    Icons.share,
-                    widget.t('share_app'),
-                    null,
-                    onTap: () {
-                      Share.share(
-                        'Check out this app: https://github.com/Prateek9876/NagarVikas',
-                        subject: 'NagarVikas App',
-                      );
-                    },
-                  ),
-                  buildDrawerItem(
-                    context,
-                    Icons.games,
-                    '2048 Game',
-                    null,
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const FunGameScreen()));
-                    },
-                  ),
-                  buildDrawerItem(
-                    context,
-                    Icons.logout,
-                    widget.t('logout'),
-                    null,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(widget.t('logout_title')),
-                          content: Text(widget.t('logout_content')),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(widget.t('cancel')),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final FirebaseAuth auth = FirebaseAuth.instance;
-                                await auth.signOut();
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const LoginPage()));
-                              },
-                              child: Text(widget.t('yes')),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ].map((item) => Container(
-                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  child: item,
-                )).toList(),
-                const Divider(color: Color(0xFFE0F7FA), thickness: 1),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 15),
-                  child: Text(
-                    widget.t('follow_us'),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialMediaIcon(FontAwesomeIcons.facebook, "https://facebook.com", Color(0xFF1877F2)),
-                    _socialMediaIcon(FontAwesomeIcons.instagram, "https://instagram.com", Color(0xFFC13584)),
-                    _socialMediaIcon(FontAwesomeIcons.youtube, "https://youtube.com", Color(0xFFFF0000)),
-                    _socialMediaIcon(FontAwesomeIcons.twitter, "https://twitter.com", Color(0xFF1DA1F2)),
-                    _socialMediaIcon(FontAwesomeIcons.linkedin, "https://linkedin.com/in/prateek-chourasia-in", Color(0xFF0A66C2)),
-                  ],
-                ),
-                Divider(color: Color(0xFFE0F7FA), thickness: 1),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        " 2025 NextGen Soft Labs and Prateek.\nAll Rights Reserved.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
-                      ),
-                      Text(
-                        "${widget.t('version')} $_appVersion",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      )
-                    ],
-                  ),
-                ),
-              ]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Reusable method for social media icon buttons
-  Widget _socialMediaIcon(IconData icon, String url, Color color) {
-    return IconButton(
-      icon: FaIcon(icon, color: color, size: 35),
-      onPressed: () {
-        launchUrl(Uri.parse(url));
-      },
-    );
-  }
-}
-
-// Reusable widget to build drawer items
-Widget buildDrawerItem(
-    BuildContext context, IconData icon, String title, Widget? page,
-    {VoidCallback? onTap}) {
-  return Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap ??
-          (page != null
-              ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => page),
-                  );
-                }
-              : null),
-      splashColor:
-          Colors.blue.withAlpha((0.5 * 255).toInt()), // Ripple effect color
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 28, // or whatever width fits your icons best
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Icon(icon, color: Colors.black),
-              ),
-            ),
-            SizedBox(width: 10),
-            Text(title, style: TextStyle(fontSize: 16, color: Colors.black)),
-          ],
-        ),
-      ),
-    ),
-  );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 //working chatbot
 class ChatbotFloatingButton extends StatefulWidget {
   const ChatbotFloatingButton({Key? key}) : super(key: key);
@@ -6,6 +7,7 @@ class ChatbotFloatingButton extends StatefulWidget {
   @override
   State<ChatbotFloatingButton> createState() => _ChatbotFloatingButtonState();
 }
+
 //chatbot floating button
 class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with SingleTickerProviderStateMixin {
   bool _isChatOpen = false;
@@ -290,20 +292,47 @@ class _ChatMessage {
   _ChatMessage({required this.text, required this.isBot});
 }
 
-class ChatbotWrapper extends StatelessWidget {
+// UPDATED CHATBOT WRAPPER - THIS IS THE KEY CHANGE
+class ChatbotWrapper extends StatefulWidget {
   final Widget child;
-  const ChatbotWrapper({required this.child, Key? key}) : super(key: key);
+  final bool hideChat;
+  
+  const ChatbotWrapper({
+    required this.child, 
+    this.hideChat = false,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  State<ChatbotWrapper> createState() => _ChatbotWrapperState();
+}
+
+class _ChatbotWrapperState extends State<ChatbotWrapper> {
+  bool _isDrawerOpen = false;
 
   @override
   Widget build(BuildContext context) {
-    // Determine if a Drawer is open
-    final isDrawerOpen = Scaffold.maybeOf(context)?.isDrawerOpen ?? false;
-    return Stack(
-      children: [
-        child,
-        if (!isDrawerOpen)
-          const ChatbotFloatingButton(),
-      ],
+    return NotificationListener<DrawerNotification>(
+      onNotification: (notification) {
+        setState(() {
+          _isDrawerOpen = notification.isOpen;
+        });
+        return true;
+      },
+      child: Stack(
+        children: [
+          widget.child,
+          // Only show chatbot when hideChat is false AND drawer is not open
+          if (!widget.hideChat && !_isDrawerOpen)
+            const ChatbotFloatingButton(),
+        ],
+      ),
     );
   }
+}
+
+// Add this custom notification class
+class DrawerNotification extends Notification {
+  final bool isOpen;
+  DrawerNotification(this.isOpen);
 }
