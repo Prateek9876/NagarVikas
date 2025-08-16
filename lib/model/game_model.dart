@@ -10,14 +10,12 @@ class GameModel {
   GameModel() {
     resetGame();
   }
-
   void resetGame() {
     board = List.generate(gridSize, (_) => List.filled(gridSize, 0));
     score = 0;
     _spawnTile();
     _spawnTile();
   }
-
   List<List<int>> getBoard() {
     return List.generate(
         gridSize, (i) => List.from(board[i])); // deep copy for safe use
