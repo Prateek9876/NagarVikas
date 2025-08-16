@@ -248,8 +248,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
   // Building the main issue selection grid with animated cards
   @override
   Widget build(BuildContext context) {
-    return ChatbotWrapper(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: const Color.fromARGB(255, 253, 253, 253),
         drawer: AppDrawer(
           language: _language,
@@ -273,7 +272,8 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
           ),
           centerTitle: true,
         ),
-        body: Padding(
+        body: ChatbotWrapper(
+          child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
@@ -319,6 +319,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
             ],
           ),
         ),
+        ),
         // Floating Action Button to navigate to the Discussion Forum screen.
         floatingActionButton: FloatingActionButton(
           backgroundColor: const Color.fromARGB(255, 7, 7, 7),
@@ -330,8 +331,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
           },
           child: const Icon(Icons.forum, color: Colors.white),
         ),
-      ),
-    );
+      );
   }
 
   /// Builds a reusable issue card with an image and label, which navigates to the corresponding issue page on tap.

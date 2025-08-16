@@ -55,7 +55,7 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
         ),
         if (_isChatOpen)
           Positioned(
-            bottom: 170,
+            bottom: 165,
             right: 16,
             child: ScaleTransition(
               scale: _scaleAnimation,
@@ -64,7 +64,7 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   width: 340,
-                  height: 440,
+                  height: 420,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -80,6 +80,7 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
+                        height: 60,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.blueAccent,
@@ -101,10 +102,13 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                                 ),
                               ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
-                              splashRadius: 20,
-                              onPressed: _closeChat,
+                            Transform.translate(
+                              offset: const Offset(0, -3),
+                              child: IconButton(
+                                icon: const Icon(Icons.close, color: Colors.white),
+                                splashRadius: 20,
+                                onPressed: _closeChat,
+                              ),
                             ),
                           ],
                         ),
