@@ -70,7 +70,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             Text(
               "Your saved complaints",
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withAlpha(230),
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
               ),
@@ -288,12 +288,12 @@ class ComplaintCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withAlpha(10),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withAlpha(5),
             blurRadius: 1,
             offset: const Offset(0, 1),
           ),
@@ -405,7 +405,7 @@ class ComplaintCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(complaint["status"]).withOpacity(0.1),
+                          color: _getStatusColor(complaint["status"]).withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

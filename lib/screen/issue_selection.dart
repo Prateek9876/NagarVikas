@@ -263,6 +263,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
+          titleSpacing: 0,
           title: FadeInDown(
             duration: Duration(milliseconds: 1000),
             child: Text(

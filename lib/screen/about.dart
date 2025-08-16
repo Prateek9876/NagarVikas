@@ -104,7 +104,7 @@ class _ExpandableTileState extends State<_ExpandableTile> {
           ),
         ),
         trailing: AnimatedRotation(
-          turns: _isExpanded ? 0.5 : 0.0, // 180° when expanded
+          turns: _isExpanded ? 0.5 : 0.0,
           duration: Duration(milliseconds: 300),
           child: Icon(
             Icons.arrow_drop_down,

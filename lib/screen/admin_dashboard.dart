@@ -297,7 +297,6 @@ class AdminDashboardState extends State<AdminDashboard> {
                     onRemoveFavorite: _removeFavoriteFromDashboard,
                   ),
                 ));
-                // Refresh the UI when returning from favorites page
                 setState(() {});
               },
             ),
@@ -378,7 +377,7 @@ class AdminDashboardState extends State<AdminDashboard> {
             Text(
               "Manage complaints & track issues",
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withAlpha(230),
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
               ),
@@ -392,7 +391,7 @@ class AdminDashboardState extends State<AdminDashboard> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withAlpha(51),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -418,7 +417,7 @@ class AdminDashboardState extends State<AdminDashboard> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00BCD4).withOpacity(0.1),
+                          color: const Color(0xFF00BCD4).withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -456,12 +455,12 @@ class AdminDashboardState extends State<AdminDashboard> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withAlpha(8),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withAlpha(5),
                     blurRadius: 1,
                     offset: const Offset(0, 1),
                   ),
@@ -652,12 +651,12 @@ class ComplaintCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withAlpha(10),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withAlpha(5),
             blurRadius: 1,
             offset: const Offset(0, 1),
           ),
@@ -769,7 +768,7 @@ class ComplaintCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(complaint["status"]).withOpacity(0.1),
+                          color: _getStatusColor(complaint["status"]).withAlpha(25),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

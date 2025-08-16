@@ -253,7 +253,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withAlpha(20),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -282,7 +282,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: isSelected ? [
                                 BoxShadow(
-                                  color: categoryColors[index].withOpacity(0.3),
+                                  color: categoryColors[index].withAlpha(76),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -380,13 +380,13 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: categoryColors[categoryIndex].withOpacity(0.1),
+                color: categoryColors[categoryIndex].withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 categoryIcons[categoryIndex],
                 size: 48,
-                color: categoryColors[categoryIndex].withOpacity(0.5),
+                color: categoryColors[categoryIndex].withAlpha(128),
               ),
             ),
             const SizedBox(height: 16),
@@ -442,12 +442,12 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _getStatusColor(complaint["status"]).withOpacity(0.2),
+          color: _getStatusColor(complaint["status"]).withAlpha(51),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(12),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -473,7 +473,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: _getStatusColor(complaint["status"]).withOpacity(0.1),
+                        color: _getStatusColor(complaint["status"]).withAlpha(25),
                       ),
                       child: complaint["media_type"] == "image"
                           ? ClipRRect(
@@ -542,10 +542,10 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(complaint["status"]).withOpacity(0.1),
+                        color: _getStatusColor(complaint["status"]).withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: _getStatusColor(complaint["status"]).withOpacity(0.3),
+                          color: _getStatusColor(complaint["status"]).withAlpha(76),
                           width: 1,
                         ),
                       ),

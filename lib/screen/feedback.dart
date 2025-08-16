@@ -117,7 +117,7 @@ class FeedbackPageState extends State<FeedbackPage> {
         Text(
           'Would you like to give any suggestion?',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Colors.black87,
           ),

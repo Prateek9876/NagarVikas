@@ -70,7 +70,7 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withAlpha(30),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -231,7 +231,7 @@ class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
                   margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                   decoration: BoxDecoration(
-                    color: msg.isBot ? Colors.blue[50] : Colors.blueAccent.withOpacity(0.85),
+                    color: msg.isBot ? Colors.blue[50] : Colors.blueAccent.withAlpha(217),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
@@ -253,7 +253,7 @@ class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withAlpha(10),
                 blurRadius: 4,
                 offset: const Offset(0, 1),
               ),
