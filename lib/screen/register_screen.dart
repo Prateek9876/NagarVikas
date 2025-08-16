@@ -50,7 +50,7 @@ class RegisterScreenState extends State<RegisterScreen> {
       final capitalized = text
           .split(' ')
           .map((word) =>
-              word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
+      word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : '')
           .join(' ');
 
       // Avoid endless loops
@@ -68,6 +68,7 @@ class RegisterScreenState extends State<RegisterScreen> {
   bool hasUppercase = false;
   bool hasSpecialChar = false;
   bool hasMinLength = false;
+  bool showPasswordRequirements = false;
 
   // ✅ Real-time password validation logic
   void _validatePassword(String password) {
@@ -84,6 +85,9 @@ class RegisterScreenState extends State<RegisterScreen> {
 
     // Check if password meets criteria
     if (!hasMinLength || !hasUppercase || !hasSpecialChar) {
+      setState(() {
+        showPasswordRequirements = true;
+      });
       Fluttertoast.showToast(
           msg: "Password does not meet the required criteria.");
       return;
@@ -96,7 +100,7 @@ class RegisterScreenState extends State<RegisterScreen> {
     try {
       // ✅ Create user using Firebase Authentication
       UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: password,
       );
@@ -112,7 +116,7 @@ class RegisterScreenState extends State<RegisterScreen> {
 
       Fluttertoast.showToast(
           msg:
-              "Registration successful! Please verify your email before logging in.");
+          "Registration successful! Please verify your email before logging in.");
 
       await _auth.signOut(); // Sign out the user after registration
       await Future.delayed(Duration(seconds: 2));
@@ -289,28 +293,30 @@ class RegisterScreenState extends State<RegisterScreen> {
               SizedBox(height: 12),
 
               // Password Requirements List
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ZoomIn(
-                    duration: Duration(milliseconds: 800),
-                    child: buildPasswordValidationItem(
-                        "At least 8 characters", hasMinLength),
-                  ),
-                  ZoomIn(
-                    duration: Duration(milliseconds: 800),
-                    child: buildPasswordValidationItem(
-                        "At least 1 uppercase letter", hasUppercase),
-                  ),
-                  ZoomIn(
-                    duration: Duration(milliseconds: 800),
-                    child: buildPasswordValidationItem(
-                        "At least 1 special character", hasSpecialChar),
-                  ),
-                ],
-              ),
+              if (showPasswordRequirements) // ✅ Conditional rendering
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ZoomIn(
+                      duration: Duration(milliseconds: 800),
+                      child: buildPasswordValidationItem(
+                          "At least 8 characters", hasMinLength),
+                    ),
+                    ZoomIn(
+                      duration: Duration(milliseconds: 800),
+                      child: buildPasswordValidationItem(
+                          "At least 1 uppercase letter", hasUppercase),
+                    ),
+                    ZoomIn(
+                      duration: Duration(milliseconds: 800),
+                      child: buildPasswordValidationItem(
+                          "At least 1 special character", hasSpecialChar),
+                    ),
+                    SizedBox(height: 25),
+                  ],
+                ),
 
-              SizedBox(height: 37),
+              SizedBox(height: showPasswordRequirements ? 12 : 37),
 
               // Register Button
               FadeInUp(
@@ -319,7 +325,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     padding:
-                        EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                    EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                   ),
@@ -327,10 +333,10 @@ class RegisterScreenState extends State<RegisterScreen> {
                   child: isLoading
                       ? CircularProgressIndicator(color: Colors.white)
                       : Text("Register",
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
                 ),
               ),
 
