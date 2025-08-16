@@ -525,7 +525,7 @@ class AdminDashboardState extends State<AdminDashboard> {
             const SizedBox(height: 16),
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? _buildShimmerList()
                   : filteredComplaints.isEmpty
                   ? const Center(child: Text("No complaints found."))
                   : ListView.builder(
@@ -620,6 +620,69 @@ class AdminDashboardState extends State<AdminDashboard> {
       favoriteComplaints.removeWhere((fav) =>
       (fav["id"] ?? fav.hashCode.toString()) == complaintId);
     });
+  }
+
+  Widget _buildShimmerList() {
+    return ListView.builder(
+      itemCount: 6,
+      itemBuilder: (context, index) => Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!, width: 1),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 16,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 12,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 12,
+                      width: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

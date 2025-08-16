@@ -114,8 +114,19 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   @override
   Widget build(BuildContext context) {
     if (complaint == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        appBar: AppBar(
+          title: Container(
+            width: 150,
+            height: 20,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+        ),
+        body: _buildDetailShimmer(),
       );
     }
 
@@ -254,6 +265,76 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
     );
   }
 
+  Widget _buildDetailShimmer() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha((0.1 * 255).toInt()),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image shimmer
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Info sections shimmer
+            ...List.generate(6, (index) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 120,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+            )),
+
+            // Dropdown shimmer
+            Container(
+              width: double.infinity,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildInfoSection(String title, String? value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -348,8 +429,13 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
           ],
         );
       } else {
-        return const SizedBox(
-            height: 200, child: Center(child: CircularProgressIndicator()));
+        return Container(
+          height: 200,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(8),
+          ),
+        );
       }
     }
 
@@ -360,9 +446,12 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
       fit: BoxFit.cover,
       loadingBuilder: (context, child, progress) {
         if (progress == null) return child;
-        return const SizedBox(
+        return Container(
           height: 200,
-          child: Center(child: CircularProgressIndicator()),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(8),
+          ),
         );
       },
       errorBuilder: (context, error, stackTrace) {

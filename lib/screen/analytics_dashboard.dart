@@ -195,6 +195,102 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     ];
   }
 
+  Widget _buildShimmerDashboard() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Shimmer for section header
+          Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 200,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Shimmer for pie chart
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Shimmer for bar chart header
+          Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 250,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Shimmer for bar chart
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Shimmer for cards
+          Expanded(
+            child: GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.2,
+              children: List.generate(4, (index) => Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              )),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(IconData icon, String text) {
     return Row(
       children: [
@@ -311,7 +407,7 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
           ],
         ),
         body: isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? _buildShimmerDashboard()
             :             RefreshIndicator(
                 onRefresh: fetchComplaintStats,
                 child: AnimationLimiter(
