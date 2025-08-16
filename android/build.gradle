@@ -3,7 +3,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:8.3.0"
@@ -18,23 +17,27 @@ allprojects {
         mavenCentral()
     }
 
+    // Force Java 17 compatible version of BouncyCastle
     configurations.all {
         resolutionStrategy.eachDependency { details ->
             if (details.requested.group == 'org.bouncycastle' &&
-                    details.requested.name == 'bcprov-jdk18on') {
-                details.useVersion '1.76' // Java 17 compatible
+                details.requested.name == 'bcprov-jdk18on') {
+                details.useVersion '1.76'
             }
         }
     }
 }
 
+// Set root build directory
 rootProject.buildDir = "../build"
 
+// Ensure subprojects use same build directory
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
     project.evaluationDependsOn(":app")
 }
 
+// Clean task
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
