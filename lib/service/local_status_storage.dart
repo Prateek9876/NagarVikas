@@ -47,4 +47,3 @@ class LocalStatusStorage {
     await prefs.remove(_adminNotificationKey);
   }
 }
-
