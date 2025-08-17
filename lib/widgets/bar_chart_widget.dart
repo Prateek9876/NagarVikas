@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class BarChartWidget extends StatelessWidget {
+class BarChartWidget extends StatelessWidget { //Bar Chart Widget
   final List<double> values;
   final List<String> labels;
   final List<Color> colors;

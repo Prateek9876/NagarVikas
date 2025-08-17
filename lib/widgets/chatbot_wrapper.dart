@@ -300,9 +300,9 @@ class _ChatMessage {
 class ChatbotWrapper extends StatefulWidget {
   final Widget child;
   final bool hideChat;
-  
+
   const ChatbotWrapper({
-    required this.child, 
+    required this.child,
     this.hideChat = false,
     Key? key
   }) : super(key: key);
@@ -323,7 +323,7 @@ class _ChatbotWrapperState extends State<ChatbotWrapper> {
         });
         return true;
       },
-      child: Stack(
+      child: Stack( // Stack
         children: [
           widget.child,
           // Only show chatbot when hideChat is false AND drawer is not open
@@ -336,7 +336,7 @@ class _ChatbotWrapperState extends State<ChatbotWrapper> {
 }
 
 // Add this custom notification class
-class DrawerNotification extends Notification {
+class DrawerNotification extends Notification { // Drawer Notification
   final bool isOpen;
   DrawerNotification(this.isOpen);
 }
