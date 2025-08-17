@@ -4,6 +4,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:provider/provider.dart';
+
+import '../theme/theme_provider.dart';
 
 /// LogoWidget
 /// Enhanced splash screen with realistic animated trees in background
@@ -183,7 +186,7 @@ class LogoWidgetState extends State<LogoWidget>
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.watch<ThemeProvider>().isDarkMode ? Colors.grey[900] : Colors.white,
       body: AnimatedBuilder(
         animation: Listenable.merge([
           _controller, _pulseController, _progressController,
@@ -198,9 +201,15 @@ class LogoWidgetState extends State<LogoWidget>
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFFF8FFFE),
-                      Color(0xFFF0FDF4),
+                    colors: context.watch<ThemeProvider>().isDarkMode
+                        ? [
+                      Colors.grey[900]!,
+                      Colors.grey[850]!,
+                      Colors.grey[800]!,
+                    ]
+                        : [
+                      const Color(0xFFF8FFFE),
+                      const Color(0xFFF0FDF4),
                       Colors.white,
                     ],
                   ),
@@ -323,7 +332,7 @@ class LogoWidgetState extends State<LogoWidget>
                                       textStyle: GoogleFonts.nunito(
                                         fontSize: 35,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
+                                        color: context.watch<ThemeProvider>().isDarkMode ? Colors.white : Colors.black87,
                                         letterSpacing: 1.2,
                                       ),
                                       textAlign: TextAlign.center,
@@ -334,7 +343,7 @@ class LogoWidgetState extends State<LogoWidget>
                                       textStyle: GoogleFonts.nunito(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.grey[700],
+                                        color: context.watch<ThemeProvider>().isDarkMode ? Colors.grey[300] : Colors.grey[700],
                                         height: 1.5,
                                       ),
                                       textAlign: TextAlign.center,
@@ -386,10 +395,12 @@ class LogoWidgetState extends State<LogoWidget>
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.green.shade50,
+                                color: context.watch<ThemeProvider>().isDarkMode
+                                    ? Colors.grey[800]
+                                    : Colors.green.shade50,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: Colors.green.shade200,
+                                  color: context.watch<ThemeProvider>().isDarkMode ? Colors.grey[600]! : Colors.green.shade200,
                                   width: 1,
                                 ),
                               ),
@@ -398,7 +409,7 @@ class LogoWidgetState extends State<LogoWidget>
                                 style: GoogleFonts.nunito(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey[700],
+                                  color: context.watch<ThemeProvider>().isDarkMode ? Colors.grey[300] : Colors.grey[700],
                                   letterSpacing: 0.3,
                                 ),
                                 textAlign: TextAlign.center,
