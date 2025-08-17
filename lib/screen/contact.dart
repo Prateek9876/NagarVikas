@@ -1,67 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../theme/theme_provider.dart';
+
 class ContactUsPage extends StatelessWidget {
-  final String phoneNumber = "+917307858026";  // Replace with your phone number
+  final String phoneNumber = "+917307858026"; // Replace with your phone number
   final String email = "support@nagarvikas.com";
 
-  const ContactUsPage({super.key});  // Replace with your support email
+  const ContactUsPage({super.key}); // Replace with your support email
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Contact Us"),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'If you have any questions or need assistance, feel free to contact us:',
-              style: TextStyle(fontSize: 18, color: Colors.black87),
-            ),
-            SizedBox(height: 20),
-            _buildContactTile(
-              icon: Icons.phone,
-              text: phoneNumber,
-              onTap: () => _launchPhoneDialer(),
-            ),
-            SizedBox(height: 20),
-            _buildContactTile(
-              icon: Icons.email,
-              text: email,
-              onTap: () => _launchEmailClient(),
-            ),
-          ],
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+        appBar: AppBar(
+          title: Text("Contact Us"),
+          backgroundColor: const Color.fromARGB(255, 4, 204, 240),
         ),
-      ),
-    );
+        body: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'If you have any questions or need assistance, feel free to contact us:',
+                style: TextStyle(
+                    fontSize: 18,
+                    color: themeProvider.isDarkMode
+                        ? Colors.white
+                        : Colors.black87),
+              ),
+              SizedBox(height: 20),
+              _buildContactTile(
+                icon: Icons.phone,
+                text: phoneNumber,
+                onTap: () => _launchPhoneDialer(),
+              ),
+              SizedBox(height: 20),
+              _buildContactTile(
+                icon: Icons.email,
+                text: email,
+                onTap: () => _launchEmailClient(),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
-  Widget _buildContactTile({required IconData icon, required String text, required Function onTap}) {
-    return GestureDetector(
-      onTap: () => onTap(),
-      child: Card(
-        color: Colors.amberAccent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.all(15.0),
-          leading: Icon(icon, color: Colors.black, size: 30),
-          title: Text(
-            text,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+
+  Widget _buildContactTile(
+      {required IconData icon, required String text, required Function onTap}) {
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return GestureDetector(
+        onTap: () => onTap(),
+        child: Card(
+          color:
+              themeProvider.isDarkMode ? Colors.grey[800] : Colors.amberAccent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(15.0),
+            leading: Icon(icon, color: Colors.black, size: 30),
+            title: Text(
+              text,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   // Function to launch the phone dialer
@@ -88,7 +104,7 @@ class ContactUsPage extends StatelessWidget {
         'body': body,
       },
     );
-  
+
     String emailUrl = emailLaunchUri.toString();
 
     // Replace + with %20 to fix space encoding for mailto
@@ -104,9 +120,9 @@ class ContactUsPage extends StatelessWidget {
         // Gmail fallback
         final fallbackUrl = Uri.parse(
           'https://mail.google.com/mail/?view=cm&fs=1'
-              '&to=${Uri.encodeComponent(email)}'
-              '&su=${Uri.encodeComponent(subject)}'
-              '&body=${Uri.encodeComponent(body)}',
+          '&to=${Uri.encodeComponent(email)}'
+          '&su=${Uri.encodeComponent(subject)}'
+          '&body=${Uri.encodeComponent(body)}',
         );
 
         if (await canLaunchUrl(fallbackUrl)) {

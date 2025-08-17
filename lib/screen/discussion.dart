@@ -2,6 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
+
+import '../theme/theme_provider.dart';
 
 /// DiscussionForum
 /// A real-time chat interface where users can post and view messages.
@@ -72,126 +75,142 @@ class DiscussionForumState extends State<DiscussionForum> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // 🧭 App bar
-      appBar: AppBar(
-        elevation: 5,
-        shadowColor: Colors.black87,
-        centerTitle: true,
-        title: Text("Discussion Forum",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-      ),
-      body: Stack(
-        children: [
-          const AnimatedBackground(), // <-- Add this line
-          Column(
-            children: [
-              // 🔄 Real-time message list
-              Expanded(
-                child: StreamBuilder(
-                  stream: _messagesRef.orderByChild("timestamp").onValue,
-                  builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
-                    if (!snapshot.hasData ||
-                        snapshot.data?.snapshot.value == null) {
-                      return Center(
-                          child: Text("No messages yet!")); // 💤 Empty state
-                    }
-
-                    // 🔄 Convert snapshot to list of messages
-                    Map<dynamic, dynamic> messagesMap =
-                        snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-
-                    List<Map<String, dynamic>> messagesList = messagesMap
-                        .entries
-                        .map((e) => {
-                              "key": e.key,
-                              ...Map<String, dynamic>.from(e.value)
-                            })
-                        .toList();
-
-                    // 🕒 Sort by timestamp (ascending)
-                    messagesList.sort(
-                        (a, b) => a["timestamp"].compareTo(b["timestamp"]));
-
-                    return ListView.builder(
-                      controller: _scrollController,
-                      itemCount: messagesList.length,
-                      itemBuilder: (context, index) {
-                        final message = messagesList[index];
-                        bool isMe = message["senderId"] == userId;
-                        return _buildMessage(
-                            message, isMe); // 🧱 Render message
-                      },
-                    );
-                  },
-                ),
-              ),
-
-              // 💬 Message input field & send button
-              Padding(
-                padding: EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    // ✍️ Text input field
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+        // 🧭 App bar
+        appBar: AppBar(
+          elevation: 5,
+          shadowColor: Colors.black87,
+          centerTitle: true,
+          title: Text("Discussion Forum",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+        ),
+        body: Stack(
+          children: [
+            const AnimatedBackground(), // <-- Add this line
+            Column(
+              children: [
+                // 🔄 Real-time message list
+                Expanded(
+                  child: StreamBuilder(
+                    stream: _messagesRef.orderByChild("timestamp").onValue,
+                    builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                      if (!snapshot.hasData ||
+                          snapshot.data?.snapshot.value == null) {
+                        return Center(
+                            child: Text(
+                          "No messages yet!",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
                           ),
-                          child: TextField(
-                            controller: _messageController,
-                            decoration: InputDecoration(
-                              icon: Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 8.0, left: 18, right: 8, bottom: 8),
-                                child: Icon(Icons.message, color: Colors.grey),
+                        )); // 💤 Empty state
+                      }
+
+                      // 🔄 Convert snapshot to list of messages
+                      Map<dynamic, dynamic> messagesMap = snapshot
+                          .data!.snapshot.value as Map<dynamic, dynamic>;
+
+                      List<Map<String, dynamic>> messagesList = messagesMap
+                          .entries
+                          .map((e) => {
+                                "key": e.key,
+                                ...Map<String, dynamic>.from(e.value)
+                              })
+                          .toList();
+
+                      // 🕒 Sort by timestamp (ascending)
+                      messagesList.sort(
+                          (a, b) => a["timestamp"].compareTo(b["timestamp"]));
+
+                      return ListView.builder(
+                        controller: _scrollController,
+                        itemCount: messagesList.length,
+                        itemBuilder: (context, index) {
+                          final message = messagesList[index];
+                          bool isMe = message["senderId"] == userId;
+                          return _buildMessage(
+                              message, isMe); // 🧱 Render message
+                        },
+                      );
+                    },
+                  ),
+                ),
+
+                // 💬 Message input field & send button
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      // ✍️ Text input field
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: themeProvider.isDarkMode
+                                  ? Colors.grey[800]
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: TextField(
+                              controller: _messageController,
+                              decoration: InputDecoration(
+                                icon: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 8.0, left: 18, right: 8, bottom: 8),
+                                  child:
+                                      Icon(Icons.message, color: Colors.grey),
+                                ),
+                                hintText: "Type a message...",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide:
+                                      BorderSide.none, // Remove default border
+                                ),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 1),
+                                filled: true,
+                                fillColor: themeProvider.isDarkMode
+                                    ? Colors.grey[800]
+                                    : Colors.white,
                               ),
-                              hintText: "Type a message...",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide:
-                                    BorderSide.none, // Remove default border
-                              ),
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 1),
-                              filled: true,
-                              fillColor: Colors.white,
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 8),
+                      SizedBox(width: 8),
 
-                    // 🚀 Send button
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 8.0, top: 8, right: 8),
-                      child: FloatingActionButton(
-                        onPressed: _sendMessage,
-                        backgroundColor: const Color.fromARGB(255, 7, 7, 7),
-                        child: Icon(Icons.send, color: Colors.white),
+                      // 🚀 Send button
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: 8.0, top: 8, right: 8),
+                        child: FloatingActionButton(
+                          onPressed: _sendMessage,
+                          backgroundColor: const Color.fromARGB(255, 7, 7, 7),
+                          child: Icon(Icons.send, color: Colors.white),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 
