@@ -16,7 +16,7 @@ class PieChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = resolved + pending + rejected;
-    
+
     // Handle case where total is 0 to avoid division by zero
     if (total == 0) {
       return AspectRatio(
@@ -26,7 +26,7 @@ class PieChartWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             color: Colors.grey.shade100,
           ),
-          child: const Center(
+          child: const Center( // Center the text
             child: Text(
               'No complaints data available',
               style: TextStyle(

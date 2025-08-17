@@ -16,9 +16,9 @@ class BarChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20.0),
+      padding: const EdgeInsets.only(left: 20.0), // Padding: 20
       child: AspectRatio(
-        aspectRatio: 1.7,
+        aspectRatio: 1.7, // Aspect Ratio: 1.7
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
