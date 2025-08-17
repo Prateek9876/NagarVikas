@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animate_do/animate_do.dart';
@@ -14,6 +15,8 @@ import 'package:nagarvikas/screen/about.dart';
 import 'package:nagarvikas/screen/contact.dart';
 import 'package:nagarvikas/screen/fun_game_screen.dart';
 import 'package:nagarvikas/screen/login_page.dart';
+
+import '../theme/theme_provider.dart';
 
 class ModernAppDrawer extends StatefulWidget {
   final String language;
@@ -74,46 +77,55 @@ class _ModernAppDrawerState extends State<ModernAppDrawer>
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      width: MediaQuery.of(context).size.width * 0.85,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(25)),
-      ),
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF8F9FA),
-              Color(0xFFFFFFFF),
-            ],
-          ),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Drawer(
+        width: MediaQuery.of(context).size.width * 0.85,
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.horizontal(right: Radius.circular(25)),
         ),
-        child: Column(
-          children: [
-            _buildDrawerHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 10), // Add bottom padding
-                child: Column(
-                  children: [
-                    _buildLanguageSelector(),
-                    const SizedBox(height: 5), // Reduced spacing
-                    _buildMenuSection(),
-                    const SizedBox(height: 10), // Reduced spacing
-                    _buildSocialMediaSection(),
-                    const SizedBox(height: 10), // Reduced spacing
-                    _buildFooter(),
-                  ],
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: themeProvider.isDarkMode
+                  ? [
+                      Colors.grey[850]!,
+                      Colors.grey[900]!,
+                    ]
+                  : [
+                      const Color(0xFFF8F9FA),
+                      const Color(0xFFFFFFFF),
+                    ],
+            ),
+            borderRadius:
+                const BorderRadius.horizontal(right: Radius.circular(25)),
+          ),
+          child: Column(
+            children: [
+              _buildDrawerHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.only(bottom: 10), // Add bottom padding
+                  child: Column(
+                    children: [
+                      _buildLanguageSelector(),
+                      const SizedBox(height: 5), // Reduced spacing
+                      _buildMenuSection(),
+                      const SizedBox(height: 10), // Reduced spacing
+                      _buildSocialMediaSection(),
+                      const SizedBox(height: 10), // Reduced spacing
+                      _buildFooter(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildDrawerHeader() {
@@ -257,75 +269,79 @@ class _ModernAppDrawerState extends State<ModernAppDrawer>
   }
 
   Widget _buildLanguageSelector() {
-    return FadeInUp(
-      duration: const Duration(milliseconds: 600),
-      child: Container(
-        margin: const EdgeInsets.all(12), // Reduced margin
-        padding: const EdgeInsets.all(12), // Reduced padding
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return FadeInUp(
+        duration: const Duration(milliseconds: 600),
+        child: Container(
+          margin: const EdgeInsets.all(12), // Reduced margin
+          padding: const EdgeInsets.all(12), // Reduced padding
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6), // Reduced padding
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF42A5F5).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.language,
+                      color: Color(0xFF42A5F5),
+                      size: 18, // Reduced icon size
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Language / भाषा",
+                    style: TextStyle(
+                      fontSize: 14, // Reduced font size
+                      fontWeight: FontWeight.w600,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildLanguageChip(
+                      'English',
+                      'en',
+                      Icons.language,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildLanguageChip(
+                      'हिन्दी',
+                      'hi',
+                      Icons.translate,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6), // Reduced padding
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF42A5F5).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.language,
-                    color: Color(0xFF42A5F5),
-                    size: 18, // Reduced icon size
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Language / भाषा",
-                  style: TextStyle(
-                    fontSize: 14, // Reduced font size
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildLanguageChip(
-                    'English',
-                    'en',
-                    Icons.language,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildLanguageChip(
-                    'हिन्दी',
-                    'hi',
-                    Icons.translate,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildLanguageChip(String label, String langCode, IconData icon) {
@@ -334,7 +350,8 @@ class _ModernAppDrawerState extends State<ModernAppDrawer>
       onTap: () => widget.onLanguageChanged(langCode),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12), // Reduced padding
+        padding: const EdgeInsets.symmetric(
+            vertical: 10, horizontal: 12), // Reduced padding
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
@@ -355,14 +372,14 @@ class _ModernAppDrawerState extends State<ModernAppDrawer>
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.grey[600],
+              color: isSelected ? Colors.white : Colors.grey[500],
               size: 16, // Reduced icon size
             ),
             const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[700],
+                color: isSelected ? Colors.white : Colors.grey[500],
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 fontSize: 12, // Reduced font size
               ),
@@ -460,222 +477,243 @@ class _ModernAppDrawerState extends State<ModernAppDrawer>
   }
 
   Widget _buildMenuItem(DrawerMenuItem item) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2), // Reduced margins
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        child: InkWell(
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: 12, vertical: 2), // Reduced margins
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          onTap: item.onTap ??
-              (item.page != null
-                  ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => item.page!),
-                      );
-                    }
-                  : null),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14), // Reduced padding
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8), // Reduced padding
-                  decoration: BoxDecoration(
-                    color: item.color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    item.icon,
-                    color: item.color,
-                    size: 20, // Reduced icon size
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    item.title,
-                    style: const TextStyle(
-                      fontSize: 14, // Reduced font size
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
+          color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.05),
+              spreadRadius: 1,
+              blurRadius: 6,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: item.onTap ??
+                (item.page != null
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => item.page!),
+                        );
+                      }
+                    : null),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                  vertical: 12, horizontal: 14), // Reduced padding
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8), // Reduced padding
+                    decoration: BoxDecoration(
+                      color: item.color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      item.icon,
+                      color: item.color,
+                      size: 20, // Reduced icon size
                     ),
                   ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 12, // Reduced icon size
-                  color: Colors.grey[400],
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 14, // Reduced font size
+                        fontWeight: FontWeight.w500,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black87,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 12, // Reduced icon size
+                    color: Colors.grey[400],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildSocialMediaSection() {
-    return FadeInUp(
-      duration: const Duration(milliseconds: 800),
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12), // Reduced margin
-        padding: const EdgeInsets.all(16), // Reduced padding
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF3E5F5),
-              Color(0xFFE1F5FE),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return FadeInUp(
+        duration: const Duration(milliseconds: 800),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 12), // Reduced margin
+          padding: const EdgeInsets.all(16), // Reduced padding
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: themeProvider.isDarkMode
+                  ? [
+                      Colors.grey[800]!,
+                      Colors.grey[850]!,
+                    ]
+                  : [
+                      const Color(0xFFF3E5F5),
+                      const Color(0xFFE1F5FE),
+                    ],
+            ),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: const Color(0xFF42A5F5).withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                widget.t('follow_us'),
+                style: TextStyle(
+                  fontSize: 16, // Reduced font size
+                  fontWeight: FontWeight.bold,
+                  color:
+                      themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12), // Reduced spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSocialIcon(
+                    FontAwesomeIcons.facebook,
+                    "https://facebook.com",
+                    const Color(0xFF1877F2),
+                  ),
+                  _buildSocialIcon(
+                    FontAwesomeIcons.instagram,
+                    "https://instagram.com",
+                    const Color(0xFFE4405F),
+                  ),
+                  _buildSocialIcon(
+                    FontAwesomeIcons.youtube,
+                    "https://youtube.com",
+                    const Color(0xFFFF0000),
+                  ),
+                  _buildSocialIcon(
+                    FontAwesomeIcons.twitter,
+                    "https://twitter.com",
+                    const Color(0xFF1DA1F2),
+                  ),
+                  _buildSocialIcon(
+                    FontAwesomeIcons.linkedin,
+                    "https://linkedin.com/in/prateek-chourasia-in",
+                    const Color(0xFF0A66C2),
+                  ),
+                ],
+              ),
             ],
           ),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: const Color(0xFF42A5F5).withOpacity(0.2),
-            width: 1,
-          ),
         ),
-        child: Column(
-          children: [
-            Text(
-              widget.t('follow_us'),
-              style: const TextStyle(
-                fontSize: 16, // Reduced font size
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12), // Reduced spacing
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSocialIcon(
-                  FontAwesomeIcons.facebook,
-                  "https://facebook.com",
-                  const Color(0xFF1877F2),
-                ),
-                _buildSocialIcon(
-                  FontAwesomeIcons.instagram,
-                  "https://instagram.com",
-                  const Color(0xFFE4405F),
-                ),
-                _buildSocialIcon(
-                  FontAwesomeIcons.youtube,
-                  "https://youtube.com",
-                  const Color(0xFFFF0000),
-                ),
-                _buildSocialIcon(
-                  FontAwesomeIcons.twitter,
-                  "https://twitter.com",
-                  const Color(0xFF1DA1F2),
-                ),
-                _buildSocialIcon(
-                  FontAwesomeIcons.linkedin,
-                  "https://linkedin.com/in/prateek-chourasia-in",
-                  const Color(0xFF0A66C2),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildSocialIcon(IconData icon, String url, Color color) {
-    return GestureDetector(
-      onTap: () => launchUrl(Uri.parse(url)),
-      child: Container(
-        padding: const EdgeInsets.all(10), // Reduced padding
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return GestureDetector(
+        onTap: () => launchUrl(Uri.parse(url)),
+        child: Container(
+          padding: const EdgeInsets.all(10), // Reduced padding
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: FaIcon(
+            icon,
+            color: color,
+            size: 20, // Reduced icon size
+          ),
         ),
-        child: FaIcon(
-          icon,
-          color: color,
-          size: 20, // Reduced icon size
-        ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildFooter() {
-    return FadeInUp(
-      duration: const Duration(milliseconds: 1000),
-      child: Container(
-        padding: const EdgeInsets.all(16), // Reduced padding
-        child: Column(
-          children: [
-            Container(
-              height: 1,
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.grey.withOpacity(0.3),
-                    Colors.transparent,
-                  ],
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return FadeInUp(
+        duration: const Duration(milliseconds: 1000),
+        child: Container(
+          padding: const EdgeInsets.all(16), // Reduced padding
+          child: Column(
+            children: [
+              Container(
+                height: 1,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.grey.withOpacity(0.3),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Text(
-              "© 2025 NextGen Soft Labs and Prateek.\nAll Rights Reserved.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11, // Reduced font size
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF42A5F5).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF42A5F5).withOpacity(0.2),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                "${widget.t('version')} $_appVersion",
-                style: const TextStyle(
+              Text(
+                "© 2025 NextGen Soft Labs and Prateek.\nAll Rights Reserved.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
                   fontSize: 11, // Reduced font size
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1565C0),
+                  fontWeight: FontWeight.w500,
+                  color: themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
+                  height: 1.4,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF42A5F5).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF42A5F5).withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  "${widget.t('version')} $_appVersion",
+                  style: const TextStyle(
+                    fontSize: 11, // Reduced font size
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1565C0),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   void _showLogoutDialog() {
