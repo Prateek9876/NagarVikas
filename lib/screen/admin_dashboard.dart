@@ -2,7 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
+import '../theme/theme_provider.dart';
 import 'complaint_detail_page.dart';
 import 'favourites.dart';
 import 'login_page.dart';
@@ -385,6 +387,16 @@ class AdminDashboardState extends State<AdminDashboard> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              Provider.of<ThemeProvider>(context).isDarkMode
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            onPressed: () {
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+            },
+          ),
           Container(
             margin: const EdgeInsets.only(right: 8),
             child: PopupMenuButton<String>(
