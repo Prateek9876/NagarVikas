@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
 import '../widgets/chatbot_wrapper.dart';
 import 'garbage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -113,61 +115,94 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     if (!hasAccepted) {
       await Future.delayed(Duration(milliseconds: 300));
       if (mounted) {
-        // Check if the widget is still mounted before showing the dialog
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text(
-                "Terms & Conditions",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "By using this app, you agree to the following terms:\n",
-                      style: TextStyle(fontWeight: FontWeight.w600),
+            return Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return AlertDialog(
+                  backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                  title: Text(
+                    "Terms & Conditions",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                     ),
-                    Text("• Report issues truthfully and accurately."),
-                    Text("• Consent to receive notifications from the app."),
-                    Text("• Do not misuse the platform for false complaints."),
-                    Text("• Data may be used to improve services."),
-                    SizedBox(height: 10),
-                    Text(
-                      "If you agree, tap **Accept** to proceed.",
-                      style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "By using this app, you agree to the following terms:\n",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        Text(
+                          "• Report issues truthfully and accurately.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          "• Consent to receive notifications from the app.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          "• Do not misuse the platform for false complaints.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          "• Data may be used to improve services.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "If you agree, tap **Accept** to proceed.",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Decline"),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeProvider.isDarkMode ? Colors.teal : Colors.black,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () async {
+                        await prefs.setBool('hasAcceptedTerms', true);
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text("Accept"),
                     ),
                   ],
-                ),
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Decline"),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () async {
-                    await prefs.setBool('hasAcceptedTerms', true);
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text("Accept"),
-                ),
-              ],
+                );
+              },
             );
           },
         );
@@ -235,109 +270,131 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
   // Building the main issue selection grid with animated cards
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: const Color.fromARGB(255, 253, 253, 253),
-        drawer: ModernAppDrawer(
-          language: _language,
-          onLanguageChanged: (lang) {
-            setState(() {
-              _language = lang;
-            });
-          },
-          t: t,
-        ),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          titleSpacing: 0,
-          title: FadeInDown(
-            duration: Duration(milliseconds: 1000),
-            child: Text(
-              t('Select the nuisance you wish to vanish 🪄'),
-              style: const TextStyle(
-                  color: Colors.black, fontSize: 16, fontWeight: FontWeight.w900),
-            ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : const Color.fromARGB(255, 253, 253, 253),
+          drawer: ModernAppDrawer(
+            language: _language,
+            onLanguageChanged: (lang) {
+              setState(() {
+                _language = lang;
+              });
+            },
+            t: t,
           ),
-          centerTitle: true,
-        ),
-        body: ChatbotWrapper(
-          child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  children: [
-                    // Each issue card has a ZoomIn animation for better user experience and smooth UI.
-                    ZoomIn(
-                        delay: Duration(milliseconds: 200),
-                        child: buildIssueCard(context, t('garbage'),
-                            "assets/garbage.png", const GarbagePage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 400),
-                        child: buildIssueCard(context, t('water'),
-                            "assets/water.png", const WaterPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 600),
-                        child: buildIssueCard(context, t('road'),
-                            "assets/road.png", const RoadPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 800),
-                        child: buildIssueCard(context, t('streetlight'),
-                            "assets/streetlight.png", const StreetLightPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 1000),
-                        child: buildIssueCard(context, t('animals'),
-                            "assets/animals.png", const AnimalsPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 1200),
-                        child: buildIssueCard(context, t('drainage'),
-                            "assets/drainage.png", const DrainagePage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 1400),
-                        child: buildIssueCard(context, t('other'),
-                            "assets/newentry.png", const NewEntryPage())),
-                  ],
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            titleSpacing: 0,
+            iconTheme: IconThemeData(
+              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+            ),
+            title: FadeInDown(
+              duration: Duration(milliseconds: 1000),
+              child: Text(
+                t('Select the nuisance you wish to vanish 🪄'),
+                style: TextStyle(
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
                 ),
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
+                onPressed: () {
+                  themeProvider.toggleTheme();
+                },
               ),
             ],
           ),
-        ),
-        ),
-        // Floating Action Button to navigate to the Discussion Forum screen.
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: const Color.fromARGB(255, 7, 7, 7),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => DiscussionForum()),
-            );
-          },
-          child: const Icon(Icons.forum, color: Colors.white),
-        ),
-      );
+          body: ChatbotWrapper(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      children: [
+                        ZoomIn(
+                            delay: Duration(milliseconds: 200),
+                            child: buildIssueCard(context, t('garbage'),
+                                "assets/garbage.png", const GarbagePage(), themeProvider)),
+                        ZoomIn(
+                            delay: Duration(milliseconds: 400),
+                            child: buildIssueCard(context, t('water'),
+                                "assets/water.png", const WaterPage(), themeProvider)),
+                        ZoomIn(
+                            delay: Duration(milliseconds: 600),
+                            child: buildIssueCard(context, t('road'),
+                                "assets/road.png", const RoadPage(), themeProvider)),
+                        ZoomIn(
+                            delay: Duration(milliseconds: 800),
+                            child: buildIssueCard(context, t('streetlight'),
+                                "assets/streetlight.png", const StreetLightPage(), themeProvider)),
+                        ZoomIn(
+                            delay: Duration(milliseconds: 1000),
+                            child: buildIssueCard(context, t('animals'),
+                                "assets/animals.png", const AnimalsPage(), themeProvider)),
+                        ZoomIn(
+                            delay: Duration(milliseconds: 1200),
+                            child: buildIssueCard(context, t('drainage'),
+                                "assets/drainage.png", const DrainagePage(), themeProvider)),
+                        ZoomIn(
+                            delay: Duration(milliseconds: 1400),
+                            child: buildIssueCard(context, t('other'),
+                                "assets/newentry.png", const NewEntryPage(), themeProvider)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: themeProvider.isDarkMode ? Colors.teal : const Color.fromARGB(255, 7, 7, 7),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DiscussionForum()),
+              );
+            },
+            child: const Icon(Icons.forum, color: Colors.white),
+          ),
+        );
+      },
+    );
   }
 
   /// Builds a reusable issue card with an image and label, which navigates to the corresponding issue page on tap.
   Widget buildIssueCard(
-      BuildContext context, String text, String imagePath, Widget page) {
+      BuildContext context, String text, String imagePath, Widget page, ThemeProvider themeProvider) {
     return GestureDetector(
-      onTap: () => showProcessingDialog(context, page),
+      onTap: () => showProcessingDialog(context, page, themeProvider),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
+          color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withAlpha((0.1 * 255).toInt()),
-                blurRadius: 8,
-                spreadRadius: 2)
+              color: themeProvider.isDarkMode
+                  ? Colors.black26
+                  : Colors.black.withAlpha((0.1 * 255).toInt()),
+              blurRadius: 8,
+              spreadRadius: 2,
+            )
           ],
         ),
         child: Column(
@@ -359,8 +416,11 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
               child: Text(
                 text,
                 textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
             ),
           ],
@@ -369,14 +429,14 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     );
   }
 
-  void showProcessingDialog(BuildContext context, Widget nextPage) {
+  void showProcessingDialog(BuildContext context, Widget nextPage, ThemeProvider themeProvider) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -389,7 +449,11 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
                 Text(
                   t('Calling... \nThe Ministry of Magic 🔮'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
                 ),
               ],
             ),
@@ -399,7 +463,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     );
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (!context.mounted) return; // Check if the widget is still mounted
+      if (!context.mounted) return;
       Navigator.pop(context);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => nextPage));
