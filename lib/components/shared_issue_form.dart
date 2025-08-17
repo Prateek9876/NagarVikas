@@ -328,7 +328,9 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
       final currentUser = FirebaseAuth.instance.currentUser;
       String userName = 'Unknown User';
       if (currentUser != null) {
-        final userSnapshot = await FirebaseDatabase.instance.ref('users/${currentUser.uid}').get();
+        final userSnapshot = await FirebaseDatabase.instance
+            .ref('users/${currentUser.uid}')
+            .get();
         if (userSnapshot.exists) {
           final userData = Map<String, dynamic>.from(userSnapshot.value as Map);
           userName = userData['name'] ?? 'Unknown User';
@@ -337,7 +339,8 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
       // Save notification in local storage for admin
       await LocalStatusStorage.saveAdminNotification({
-        'message': 'New ${widget.issueType} complaint submitted by $userName from $_selectedCity, $_selectedState and is pending review.',
+        'message':
+            'New ${widget.issueType} complaint submitted by $userName from $_selectedCity, $_selectedState and is pending review.',
         'timestamp': DateTime.now().toIso8601String(),
         'complaint_id': ref.key,
         'status': 'Pending',
@@ -373,11 +376,14 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String hint, {required bool isFilled, required ThemeProvider themeProvider}) =>
+  InputDecoration _inputDecoration(String hint,
+          {required bool isFilled, required ThemeProvider themeProvider}) =>
       InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: themeProvider.isDarkMode ? Colors.grey[800] : const Color.fromARGB(255, 251, 250, 250),
+        fillColor: themeProvider.isDarkMode
+            ? Colors.grey[800]
+            : const Color.fromARGB(255, 251, 250, 250),
         hintStyle: TextStyle(
           color: themeProvider.isDarkMode ? Colors.white70 : null,
         ),
@@ -397,275 +403,312 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
-          return Container(
-            color: themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
-            child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            FadeInDown(
-              duration: const Duration(milliseconds: 1000),
-              child: Text(widget.headingText,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
-            ),
-            const SizedBox(height: 8),
-            Text(widget.infoText,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
-            const SizedBox(height: 20),
-            ZoomIn(child: Image.asset(widget.imageAsset, height: 200)),
-            const SizedBox(height: 20),
-
-            Padding(
-              padding: const EdgeInsets.only(
-                  top: 0.0, bottom: 4.0, right: 4.0, left: 4.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedState,
-                hint: const Text("Select the Wizarding Region"),
-                items: _states.keys
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (value) => setState(() {
-                  _selectedState = value;
-                  _selectedCity = null;
-                }),
-                decoration:
-                    _inputDecoration("State", isFilled: _selectedState != null, themeProvider: themeProvider),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedCity,
-                hint: const Text("Select the Nearest Magical District"),
-                items: _selectedState != null
-                    ? _states[_selectedState]!
-                        .map((city) =>
-                            DropdownMenuItem(value: city, child: Text(city)))
-                        .toList()
-                    : [],
-                onChanged: (value) => setState(() => _selectedCity = value),
-                decoration:
-                    _inputDecoration("City", isFilled: _selectedCity != null, themeProvider: themeProvider),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: TextField(
-                controller: _locationController,
-                decoration: _inputDecoration("Reveal the Secret Location",
-                        isFilled: _locationController.text.trim().isNotEmpty, themeProvider: themeProvider)
-                    .copyWith(
-                  suffixIcon: IconButton(
-                      icon: const Icon(Icons.my_location),
-                      onPressed: _getCurrentLocation),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Container(
+          color: themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                FadeInDown(
+                  duration: const Duration(milliseconds: 1000),
+                  child: Text(widget.headingText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black)),
                 ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: TextField(
-                controller: _descriptionController,
-                maxLines: 3,
-                maxLength: 250,
-                buildCounter: (_,
-                        {required currentLength,
-                        required isFocused,
-                        maxLength}) =>
-                    null,
-                decoration: _inputDecoration(
-                        "Describe the Strange Occurence or Speak a spell",
-                        isFilled: _descriptionController.text.trim().isNotEmpty, themeProvider: themeProvider)
-                    .copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-                    onPressed: _isListening ? _stopListening : _startListening,
+                const SizedBox(height: 8),
+                Text(widget.infoText,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black)),
+                const SizedBox(height: 20),
+                ZoomIn(child: Image.asset(widget.imageAsset, height: 200)),
+                const SizedBox(height: 20),
+
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 0.0, bottom: 4.0, right: 4.0, left: 4.0),
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedState,
+                    hint: const Text("Select the Wizarding Region"),
+                    items: _states.keys
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    onChanged: (value) => setState(() {
+                      _selectedState = value;
+                      _selectedCity = null;
+                    }),
+                    decoration: _inputDecoration("State",
+                        isFilled: _selectedState != null,
+                        themeProvider: themeProvider),
                   ),
                 ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  "${_remainingCharacters.clamp(0, 250)} characters remaining",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: _remainingCharacters <= 0
-                        ? Colors.red
-                        : Colors.grey[600],
-                    fontWeight: _remainingCharacters <= 0
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedCity,
+                    hint: const Text("Select the Nearest Magical District"),
+                    items: _selectedState != null
+                        ? _states[_selectedState]!
+                            .map((city) => DropdownMenuItem(
+                                value: city, child: Text(city)))
+                            .toList()
+                        : [],
+                    onChanged: (value) => setState(() => _selectedCity = value),
+                    decoration: _inputDecoration("City",
+                        isFilled: _selectedCity != null,
+                        themeProvider: themeProvider),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Upload image or video",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : Colors.black),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Upload Image button
-            Padding(
-              padding:
-                  const EdgeInsets.only(bottom: 4.0, left: 4.0, right: 4.0),
-              child: _buildUploadButton("Reveal a Magical Proof 📷",
-                  Icons.image, _selectedImage != null, _pickImage),
-            ),
-            const SizedBox(height: 8),
+                const SizedBox(height: 10),
+
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: TextField(
+                    controller: _locationController,
+                    decoration: _inputDecoration("Reveal the Secret Location",
+                            isFilled:
+                                _locationController.text.trim().isNotEmpty,
+                            themeProvider: themeProvider)
+                        .copyWith(
+                      suffixIcon: IconButton(
+                          icon: const Icon(Icons.my_location),
+                          onPressed: _getCurrentLocation),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: TextField(
+                    controller: _descriptionController,
+                    maxLines: 3,
+                    maxLength: 250,
+                    buildCounter: (_,
+                            {required currentLength,
+                            required isFocused,
+                            maxLength}) =>
+                        null,
+                    decoration: _inputDecoration(
+                            "Describe the Strange Occurence or Speak a spell",
+                            isFilled:
+                                _descriptionController.text.trim().isNotEmpty,
+                            themeProvider: themeProvider)
+                        .copyWith(
+                      suffixIcon: IconButton(
+                        icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+                        onPressed:
+                            _isListening ? _stopListening : _startListening,
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      "${_remainingCharacters.clamp(0, 250)} characters remaining",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _remainingCharacters <= 0
+                            ? Colors.red
+                            : Colors.grey[600],
+                        fontWeight: _remainingCharacters <= 0
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Upload image or video",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Upload Image button
+                Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 4.0, left: 4.0, right: 4.0),
+                  child: _buildUploadButton("Reveal a Magical Proof 📷",
+                      Icons.image, _selectedImage != null, _pickImage),
+                ),
+                const SizedBox(height: 8),
 
 // Show selected image preview
-            if (_selectedImage != null)
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(_selectedImage!,
-                        height: 160, fit: BoxFit.cover),
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: GestureDetector(
-                      onTap: () => _confirmMediaRemoval(isVideo: false),
-                      child: const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.black,
-                        child: Icon(Icons.close, color: Colors.red, size: 16),
+                if (_selectedImage != null)
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(_selectedImage!,
+                            height: 160, fit: BoxFit.cover),
                       ),
-                    ),
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: GestureDetector(
+                          onTap: () => _confirmMediaRemoval(isVideo: false),
+                          child: const CircleAvatar(
+                            radius: 12,
+                            backgroundColor: Colors.black,
+                            child:
+                                Icon(Icons.close, color: Colors.red, size: 16),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            const SizedBox(height: 4),
+                const SizedBox(height: 4),
 
 // Centered "or" text with dividers
-            Row(
-              children: [
-                const Expanded(child: Divider(thickness: 1)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text("or",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
+                Row(
+                  children: [
+                    const Expanded(child: Divider(thickness: 1)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text("or",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black)),
+                    ),
+                    const Expanded(child: Divider(thickness: 1)),
+                  ],
                 ),
-                const Expanded(child: Divider(thickness: 1)),
-              ],
-            ),
 
-            const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
 // Upload Video button
-            _buildUploadButton("Upload Video (max 10s)", Icons.videocam,
-                _selectedVideo != null, _pickVideo),
-            const SizedBox(height: 8),
+                _buildUploadButton("Upload Video (max 10s)", Icons.videocam,
+                    _selectedVideo != null, _pickVideo),
+                const SizedBox(height: 8),
 
-            if (_videoController != null &&
-                _videoController!.value.isInitialized)
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 180,
-                    child: AspectRatio(
-                      aspectRatio: _videoController!.value.aspectRatio,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: VideoPlayer(_videoController!),
-                      ),
-                    ),
-                  ),
-                  // Play/Pause Button
-                  Positioned.fill(
-                    child: Center(
-                      child: IconButton(
-                        icon: Icon(
-                          _videoController!.value.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          color: Colors.white,
-                          size: 40,
+                if (_videoController != null &&
+                    _videoController!.value.isInitialized)
+                  Stack(
+                    children: [
+                      SizedBox(
+                        height: 180,
+                        child: AspectRatio(
+                          aspectRatio: _videoController!.value.aspectRatio,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: VideoPlayer(_videoController!),
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _videoController!.value.isPlaying
-                                ? _videoController!.pause()
-                                : _videoController!.play();
-                          });
-                        },
                       ),
-                    ),
-                  ),
+                      // Play/Pause Button
+                      Positioned.fill(
+                        child: Center(
+                          child: IconButton(
+                            icon: Icon(
+                              _videoController!.value.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _videoController!.value.isPlaying
+                                    ? _videoController!.pause()
+                                    : _videoController!.play();
+                              });
+                            },
+                          ),
+                        ),
+                      ),
 
-                  // Close Button
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: GestureDetector(
-                      onTap: () => _confirmMediaRemoval(isVideo: true),
-                      child: const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.black,
-                        child: Icon(Icons.close, color: Colors.red, size: 16),
+                      // Close Button
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: () => _confirmMediaRemoval(isVideo: true),
+                          child: const CircleAvatar(
+                            radius: 12,
+                            backgroundColor: Colors.black,
+                            child:
+                                Icon(Icons.close, color: Colors.red, size: 16),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            const SizedBox(height: 16),
-            FadeInUp(
-              child: ElevatedButton(
-                onPressed: (!_canSubmit || _isUploading) ? null : _submitForm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: !_canSubmit ? Colors.grey : Colors.black,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                const SizedBox(height: 16),
+                FadeInUp(
+                  child: ElevatedButton(
+                    onPressed:
+                        (!_canSubmit || _isUploading) ? null : _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: !_canSubmit ? Colors.grey : Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 15),
+                    ),
+                    child: _isUploading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text("Send via Owl Post",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black)),
+                  ),
                 ),
-                child: _isUploading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : Text("Send via Owl Post",
-                        style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
-              ),
+              ],
             ),
-          ],
-        ),
-      ));}
-    );
+          ));
+    });
   }
 
   Widget _buildUploadButton(
       String label, IconData icon, bool filled, VoidCallback onTap) {
-    return Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: themeProvider.isDarkMode ? Colors.black : const Color.fromARGB(255, 253, 253, 253),
-          borderRadius: BorderRadius.circular(8),
-          border: filled ? null : Border.all(color: Colors.grey),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode
+                ? Colors.black
+                : const Color.fromARGB(255, 253, 253, 253),
+            borderRadius: BorderRadius.circular(8),
+            border: filled ? null : Border.all(color: Colors.grey),
+          ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(icon,
+                color:
+                    themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
+            const SizedBox(width: 10),
+            Text(filled ? "Change" : label,
+                style: TextStyle(
+                    color: themeProvider.isDarkMode
+                        ? Colors.white70
+                        : Colors.black54))
+          ]),
         ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
-          const SizedBox(width: 10),
-          Text(filled ? "Change" : label,
-              style: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54))
-        ]),
-      ),
-    );});
+      );
+    });
   }
 }

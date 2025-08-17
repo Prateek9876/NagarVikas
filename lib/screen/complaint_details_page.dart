@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'complaint_detail_page.dart'; 
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
+import 'complaint_detail_page.dart';
 
 class ComplaintDetailsPage extends StatefulWidget {
   final String category; // 'total', 'resolved', 'pending', 'inprogress'
@@ -30,11 +32,27 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
   List<Map<String, dynamic>> totalComplaints = [];
   List<Map<String, dynamic>> resolvedComplaints = [];
   List<Map<String, dynamic>> pendingComplaints = [];
-  List<Map<String, dynamic>> inProgressComplaints = []; // Changed from rejectedComplaints
+  List<Map<String, dynamic>> inProgressComplaints =
+      []; // Changed from rejectedComplaints
 
-  final List<String> categories = ['Total', 'Resolved', 'Pending', 'In Progress']; // Updated
-  final List<Color> categoryColors = [Colors.purple, Colors.green, Colors.orange, Colors.blue]; // Updated colors
-  final List<IconData> categoryIcons = [Icons.all_inbox, Icons.check_circle, Icons.timelapse, Icons.hourglass_empty]; // Updated icon
+  final List<String> categories = [
+    'Total',
+    'Resolved',
+    'Pending',
+    'In Progress'
+  ]; // Updated
+  final List<Color> categoryColors = [
+    Colors.purple,
+    Colors.green,
+    Colors.orange,
+    Colors.blue
+  ]; // Updated colors
+  final List<IconData> categoryIcons = [
+    Icons.all_inbox,
+    Icons.check_circle,
+    Icons.timelapse,
+    Icons.hourglass_empty
+  ]; // Updated icon
 
   @override
   void initState() {
@@ -97,12 +115,14 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           if (timestamp != "Unknown") {
             DateTime dateTime = DateTime.tryParse(timestamp) ?? DateTime.now();
             date = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
-            time = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+            time =
+                "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
           }
 
-          String? mediaUrl = complaint["media_url"] ?? complaint["image_url"] ?? "";
+          String? mediaUrl =
+              complaint["media_url"] ?? complaint["image_url"] ?? "";
           String mediaType = (complaint["media_type"] ??
-              (complaint["image_url"] != null ? "image" : "video"))
+                  (complaint["image_url"] != null ? "image" : "video"))
               .toString()
               .toLowerCase();
 
@@ -175,11 +195,16 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
 
   List<Map<String, dynamic>> _getComplaintsForCategory(int index) {
     switch (index) {
-      case 0: return totalComplaints;
-      case 1: return resolvedComplaints;
-      case 2: return pendingComplaints;
-      case 3: return inProgressComplaints; // Updated
-      default: return [];
+      case 0:
+        return totalComplaints;
+      case 1:
+        return resolvedComplaints;
+      case 2:
+        return pendingComplaints;
+      case 3:
+        return inProgressComplaints; // Updated
+      default:
+        return [];
     }
   }
 
@@ -211,7 +236,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
         const end = Offset.zero;
         const curve = Curves.easeInOut;
         final tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
@@ -219,151 +244,169 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F7FF),
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        title: Text(
-          'Complaint Details',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: fetchComplaintsByCategory,
-            tooltip: 'Refresh Data',
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor: themeProvider.isDarkMode
+            ? Colors.grey[900]
+            : const Color(0xFFF2F7FF),
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: Text(
+            'Complaint Details',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
-        ],
-      ),
-      body: isLoading
-          ? _buildComplaintsShimmer()
-          : Column(
-              children: [
-                // Category Selection Header (Not Swipeable)
-                Container(
-                  margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(20),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: List.generate(categories.length, (index) {
-                      bool isSelected = _currentPage == index;
-                      List<Map<String, dynamic>> complaints = _getComplaintsForCategory(index);
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              onPressed: fetchComplaintsByCategory,
+              tooltip: 'Refresh Data',
+            ),
+          ],
+        ),
+        body: isLoading
+            ? _buildComplaintsShimmer()
+            : Column(
+                children: [
+                  // Category Selection Header (Not Swipeable)
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(20),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: List.generate(categories.length, (index) {
+                        bool isSelected = _currentPage == index;
+                        List<Map<String, dynamic>> complaints =
+                            _getComplaintsForCategory(index);
 
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            _pageController.animateToPage(
-                              index,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            margin: const EdgeInsets.all(4),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isSelected ? categoryColors[index] : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: isSelected ? [
-                                BoxShadow(
-                                  color: categoryColors[index].withAlpha(76),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ] : [],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  categoryIcons[index],
-                                  color: isSelected ? Colors.white : categoryColors[index],
-                                  size: 20,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${complaints.length}',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : categoryColors[index],
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              _pageController.animateToPage(
+                                index,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              margin: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? categoryColors[index]
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: categoryColors[index]
+                                              .withAlpha(76),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    categoryIcons[index],
+                                    color: isSelected
+                                        ? Colors.white
+                                        : categoryColors[index],
+                                    size: 20,
                                   ),
-                                ),
-                                Text(
-                                  categories[index],
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: isSelected ? Colors.white : categoryColors[index],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${complaints.length}',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : categoryColors[index],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    categories[index],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : categoryColors[index],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
-                ),
 
-                // Page Indicator
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(categories.length, (index) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: 4,
-                        width: _currentPage == index ? 24 : 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index
-                              ? categoryColors[_currentPage]
-                              : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      );
-                    }),
+                  // Page Indicator
+                  Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(categories.length, (index) {
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 4,
+                          width: _currentPage == index ? 24 : 8,
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? categoryColors[_currentPage]
+                                : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
-                ),
 
-                // Swipeable Content Area
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    itemCount: categories.length,
-                    itemBuilder: (context, pageIndex) {
-                      List<Map<String, dynamic>> complaints = _getComplaintsForCategory(pageIndex);
-                      return _buildComplaintsList(complaints, pageIndex);
-                    },
+                  // Swipeable Content Area
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemCount: categories.length,
+                      itemBuilder: (context, pageIndex) {
+                        List<Map<String, dynamic>> complaints =
+                            _getComplaintsForCategory(pageIndex);
+                        return _buildComplaintsList(complaints, pageIndex);
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: fetchComplaintsByCategory,
-        backgroundColor: Colors.teal,
-        child: const Icon(Icons.refresh_rounded),
-        tooltip: 'Refresh',
-      ),
-    );
+                ],
+              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: fetchComplaintsByCategory,
+          backgroundColor: Colors.teal,
+          child: const Icon(Icons.refresh_rounded),
+          tooltip: 'Refresh',
+        ),
+      );
+    });
   }
 
   Widget _buildComplaintsShimmer() {
@@ -378,17 +421,19 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
-            children: List.generate(4, (index) => Expanded(
-              child: Container(
-                margin: const EdgeInsets.all(4),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                height: 80,
-              ),
-            )),
+            children: List.generate(
+                4,
+                (index) => Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        height: 80,
+                      ),
+                    )),
           ),
         ),
 
@@ -397,15 +442,17 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(4, (index) => Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              height: 4,
-              width: 8,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            )),
+            children: List.generate(
+                4,
+                (index) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 4,
+                      width: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    )),
           ),
         ),
 
@@ -498,7 +545,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
     );
   }
 
-  Widget _buildComplaintsList(List<Map<String, dynamic>> complaints, int categoryIndex) {
+  Widget _buildComplaintsList(
+      List<Map<String, dynamic>> complaints, int categoryIndex) {
     if (complaints.isEmpty) {
       return Center(
         child: Column(
@@ -562,7 +610,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
     );
   }
 
-  Widget _buildComplaintCard(Map<String, dynamic> complaint, int categoryIndex) {
+  Widget _buildComplaintCard(
+      Map<String, dynamic> complaint, int categoryIndex) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -600,7 +649,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: _getStatusColor(complaint["status"]).withAlpha(25),
+                        color:
+                            _getStatusColor(complaint["status"]).withAlpha(25),
                       ),
                       child: complaint["media_type"] == "image"
                           ? ClipRRect(
@@ -612,10 +662,10 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(
-                                      Icons.broken_image_rounded,
-                                      color: _getStatusColor(complaint["status"]),
-                                      size: 24,
-                                    ),
+                                  Icons.broken_image_rounded,
+                                  color: _getStatusColor(complaint["status"]),
+                                  size: 24,
+                                ),
                               ),
                             )
                           : Container(
@@ -648,7 +698,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.location_on_rounded, size: 14, color: Colors.grey[600]),
+                              Icon(Icons.location_on_rounded,
+                                  size: 14, color: Colors.grey[600]),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
@@ -667,12 +718,15 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
 
                     // Status badge with proper color
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(complaint["status"]).withAlpha(25),
+                        color:
+                            _getStatusColor(complaint["status"]).withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: _getStatusColor(complaint["status"]).withAlpha(76),
+                          color: _getStatusColor(complaint["status"])
+                              .withAlpha(76),
                           width: 1,
                         ),
                       ),
@@ -710,7 +764,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.person_outline, size: 14, color: Colors.grey[500]),
+                        Icon(Icons.person_outline,
+                            size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
                           complaint["user_name"] ?? "Unknown",
@@ -724,7 +779,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                     ),
                     Row(
                       children: [
-                        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                        Icon(Icons.access_time,
+                            size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
                           "${complaint["date"]} ${complaint["time"]}",

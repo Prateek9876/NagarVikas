@@ -5,7 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../theme/theme_provider.dart';
 
 class MyComplaintsScreen extends StatefulWidget {
   const MyComplaintsScreen({super.key});
@@ -243,12 +246,25 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 253, 254, 254),
-      appBar: AppBar(
-        title: Text("Spell Records"),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-      ),
+    return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Scaffold(
+            backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : const Color.fromARGB(255, 253, 254, 254),
+            appBar: AppBar(
+              title: Text("Spell Records"),
+              backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                  onPressed: () {
+                    themeProvider.toggleTheme();
+                  },
+                ),
+              ],
+            ),
       body: _isLoading
           ? Center(
         child: Shimmer.fromColors(
@@ -260,7 +276,7 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                   margin: EdgeInsets.all(10),
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
@@ -280,7 +296,7 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black54,
+                          color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54,
                         ),
                       ),
                     ],
@@ -298,12 +314,13 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                     onChanged: (val) => _applyFilters(),
                     decoration: InputDecoration(
                       hintText: 'Search complaints...',
-                      prefixIcon: Icon(Icons.search),
+                      hintStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
+                      prefixIcon: Icon(Icons.search, color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: themeProvider.isDarkMode ? Colors.grey[850] : Colors.white,
                     ),
                   ),
                 ),
@@ -318,7 +335,10 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                   ]
                       .map((status) => DropdownMenuItem(
                     value: status,
-                    child: Text(status),
+                    child: Text(
+                      status,
+                      style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black),
+                    ),
                   ))
                       .toList(),
                   onChanged: (value) {
@@ -385,7 +405,7 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                   return Container(
                     margin: EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(
@@ -462,32 +482,32 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+                                    color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
                                   ),
                                 ),
                               ),
                             ],
                           ),
                           SizedBox(height: 10),
-                          Divider(color: Colors.grey[300]),
+                          Divider(color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300]),
                           Row(
                             children: [
                               Icon(Icons.calendar_today,
-                                  size: 16, color: Colors.grey[600]),
+                                  size: 16, color: themeProvider.isDarkMode ? Colors.white70 : Colors.grey[600]),
                               SizedBox(width: 5),
                               Text(
                                 complaint['date'],
                                 style:
-                                TextStyle(color: Colors.black54),
+                                TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
                               ),
                               SizedBox(width: 15),
                               Icon(Icons.access_time,
-                                  size: 16, color: Colors.grey[600]),
+                                  size: 16, color: themeProvider.isDarkMode ? Colors.white70 : Colors.grey[600]),
                               SizedBox(width: 5),
                               Text(
                                 complaint['time'],
                                 style:
-                                TextStyle(color: Colors.black54),
+                                TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
                               ),
                             ],
                           ),
@@ -501,7 +521,7 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                                 child: Text(
                                   "${complaint['location']}, ${complaint['city']}, ${complaint['state']}",
                                   style: TextStyle(
-                                    color: Colors.black87,
+                                    color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
                                     fontWeight: FontWeight.w500,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -519,7 +539,7 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
           ),
         ],
       ),
-    );
+    );});
   }
 
   String _getNoComplaintsMessage() {

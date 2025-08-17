@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import '../service/local_status_storage.dart';
 import '../service/notification_service.dart';
+import '../theme/theme_provider.dart';
 import './admin_dashboard.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -94,7 +96,8 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
 
       // Save notification in local storage for user
       await LocalStatusStorage.saveNotification({
-        'message': 'Your $issueType complaint from ${data['city'] ?? 'Unknown City'}, ${data['state'] ?? 'Unknown State'} has been updated to $status.',
+        'message':
+            'Your $issueType complaint from ${data['city'] ?? 'Unknown City'}, ${data['state'] ?? 'Unknown State'} has been updated to $status.',
         'timestamp': DateTime.now().toIso8601String(),
         'complaint_id': widget.complaintId,
         'status': status,
@@ -105,7 +108,8 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
       await NotificationService().showNotification(
         id: DateTime.now().millisecondsSinceEpoch % 100000,
         title: 'Complaint Status Updated',
-        body: 'Your $issueType complaint from ${data['city'] ?? 'Unknown City'}, ${data['state'] ?? 'Unknown State'} is now $status.',
+        body:
+            'Your $issueType complaint from ${data['city'] ?? 'Unknown City'}, ${data['state'] ?? 'Unknown State'} is now $status.',
         payload: widget.complaintId,
       );
     }
@@ -135,134 +139,139 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
         ? 'https://picsum.photos/250?image=9'
         : complaint!["media_url"];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(complaint!["issue_type"] ?? "Complaint"),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+        appBar: AppBar(
+          title: Text(complaint!["issue_type"] ?? "Complaint"),
+          backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha((0.1 * 255).toInt()),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: _buildMediaPreview(mediaType, mediaUrl),
-                ),
-                const SizedBox(height: 20),
-                _buildInfoSection("📍 Location", complaint!["location"]),
-                _buildInfoSection("🏙️ City", complaint!["city"]),
-                _buildInfoSection("🗺️ State", complaint!["state"]),
-                _buildInfoSection("📅 Date & Time",
-                    _formatTimestamp(complaint!["timestamp"])),
-                _buildInfoSection("👤 User",
-                    "${complaint!["user_name"]} (${complaint!["user_email"]})"),
-                _buildInfoSection(
-                    "📝 Description", complaint!["description"] ?? "-"),
-                const SizedBox(height: 12),
-                const Text("🔄 Update Status",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: selectedStatus,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color:
+                    themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha((0.1 * 255).toInt()),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  items: ["Pending", "In Progress", "Resolved"]
-                      .map((status) =>
-                          DropdownMenuItem(value: status, child: Text(status)))
-                      .toList(),
-                  onChanged: (newStatus) {
-                    if (newStatus != null) {
-                      _updateStatus(newStatus);
-                      setState(() {
-                        selectedStatus = newStatus;
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 20),
-
-// 🔴 Delete Button
-                Center(
-                  child: TextButton.icon(
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.red,
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _buildMediaPreview(mediaType, mediaUrl),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInfoSection("📍 Location", complaint!["location"]),
+                  _buildInfoSection("🏙️ City", complaint!["city"]),
+                  _buildInfoSection("🗺️ State", complaint!["state"]),
+                  _buildInfoSection("📅 Date & Time",
+                      _formatTimestamp(complaint!["timestamp"])),
+                  _buildInfoSection("👤 User",
+                      "${complaint!["user_name"]} (${complaint!["user_email"]})"),
+                  _buildInfoSection(
+                      "📝 Description", complaint!["description"] ?? "-"),
+                  const SizedBox(height: 12),
+                  const Text("🔄 Update Status",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: selectedStatus,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      filled: true,
+                      fillColor: Colors.grey.shade100,
                     ),
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text("Delete"),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Confirm Deletion"),
-                          content: const Text(
-                              "Are you sure you want to delete this complaint?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () =>
-                                  Navigator.pop(context), // Close dialog
-                              child: const Text("No"),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final navigator = Navigator.of(
-                                    context); // ✅ capture the safe context *before* popping
-
-                                Navigator.pop(context); // Close dialog
-
-                                await FirebaseDatabase.instance
-                                    .ref('complaints/${widget.complaintId}')
-                                    .remove();
-
-                                if (!mounted) return;
-                                // ✅ Now use the saved navigator to push replacement
-                                navigator.pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => AdminDashboard()),
-                                );
-                                Fluttertoast.showToast(
-                                    msg: "Deleted Successfully!");
-                              },
-                              child: const Text("Yes",
-                                  style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        ),
-                      );
+                    items: ["Pending", "In Progress", "Resolved"]
+                        .map((status) => DropdownMenuItem(
+                            value: status, child: Text(status)))
+                        .toList(),
+                    onChanged: (newStatus) {
+                      if (newStatus != null) {
+                        _updateStatus(newStatus);
+                        setState(() {
+                          selectedStatus = newStatus;
+                        });
+                      }
                     },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+
+// 🔴 Delete Button
+                  Center(
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text("Delete"),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Confirm Deletion"),
+                            content: const Text(
+                                "Are you sure you want to delete this complaint?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context), // Close dialog
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  final navigator = Navigator.of(
+                                      context); // ✅ capture the safe context *before* popping
+
+                                  Navigator.pop(context); // Close dialog
+
+                                  await FirebaseDatabase.instance
+                                      .ref('complaints/${widget.complaintId}')
+                                      .remove();
+
+                                  if (!mounted) return;
+                                  // ✅ Now use the saved navigator to push replacement
+                                  navigator.pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (context) => AdminDashboard()),
+                                  );
+                                  Fluttertoast.showToast(
+                                      msg: "Deleted Successfully!");
+                                },
+                                child: const Text("Yes",
+                                    style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildDetailShimmer() {
@@ -296,29 +305,31 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
             const SizedBox(height: 20),
 
             // Info sections shimmer
-            ...List.generate(6, (index) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 120,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-            )),
+            ...List.generate(
+                6,
+                (index) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+                    )),
 
             // Dropdown shimmer
             Container(
