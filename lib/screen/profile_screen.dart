@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
+
+import '../theme/theme_provider.dart';
 
 /// ProfilePage
 /// Displays user profile information (Name, Email, User ID)
@@ -18,7 +21,7 @@ class ProfilePageState extends State<ProfilePage> {
   String name = "Loading...";
   String email = "Loading...";
   String userId = "Loading...";
-  
+
   @override
   void initState() {
     super.initState();
@@ -48,49 +51,81 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // 📌 App bar with title
-      appBar: AppBar(
-        title: const Text("Profile"),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240), // Cyan-colored app bar
-      ),
-
-      // 📄 Profile content
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // 👤 User avatar
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Color.fromARGB(255, 3, 3, 3), 
-              child: Icon(Icons.person, size: 50, color: Colors.white),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+        appBar: AppBar(
+          title: Text(
+            "Profile",
+            style: TextStyle(
+              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
             ),
-            const SizedBox(height: 20),
-
-            // ℹ️ Profile info rows (name, email, UID)
-            _buildProfileRow("Full Name", name),
-            _buildProfileRow("Email", email),
-            _buildProfileRow("User ID", userId),
-          ],
+          ),
+          backgroundColor: themeProvider.isDarkMode
+              ? Colors.grey[850]
+              : const Color.fromARGB(255, 4, 204, 240),
+          iconTheme: IconThemeData(
+            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+          ),
         ),
-      ),
-    );
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 👤 User avatar
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: themeProvider.isDarkMode
+                    ? Colors.grey[700]
+                    : const Color.fromARGB(255, 3, 3, 3),
+                child: const Icon(Icons.person, size: 50, color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+
+              // ℹ️ Profile info rows (name, email, UID)
+              _buildProfileRow("Full Name", name),
+              _buildProfileRow("Email", email),
+              _buildProfileRow("User ID", userId),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   /// 🔧 Reusable widget to display a labeled, read-only text field
   Widget _buildProfileRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: TextField(
-        readOnly: true,   // Field is not editable by user; for display only
-        decoration: InputDecoration(
-          labelText: label,           // Field label
-          hintText: value,           // Field value
-          border: const OutlineInputBorder(), // Standard border
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: TextField(
+          readOnly: true, // Field is not editable by user; for display only
+          decoration: InputDecoration(
+            labelText: label,
+            hintText: value,
+            border: const OutlineInputBorder(),
+            labelStyle: TextStyle(
+              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+            ),
+            hintStyle: TextStyle(
+              color: themeProvider.isDarkMode
+                  ? Colors.grey[400]
+                  : Colors.grey[600],
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color:
+                    themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey,
+              ),
+            ),
+          ),
+          style: TextStyle(
+            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+          ),
         ),
-     ),
-);
-}
+      );
+    });
+  }
 }
