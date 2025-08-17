@@ -7,6 +7,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -16,6 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../screen/done_screen.dart';
 import '../service/local_status_storage.dart';
+import '../theme/theme_provider.dart';
 
 class SharedIssueForm extends StatefulWidget {
   final String issueType;
@@ -371,11 +373,14 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     super.dispose();
   }
 
-  InputDecoration _inputDecoration(String hint, {required bool isFilled}) =>
+  InputDecoration _inputDecoration(String hint, {required bool isFilled, required ThemeProvider themeProvider}) =>
       InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: const Color.fromARGB(255, 251, 250, 250),
+        fillColor: themeProvider.isDarkMode ? Colors.grey[800] : const Color.fromARGB(255, 251, 250, 250),
+        hintStyle: TextStyle(
+          color: themeProvider.isDarkMode ? Colors.white70 : null,
+        ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         enabledBorder: OutlineInputBorder(
@@ -392,9 +397,11 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: SingleChildScrollView(
+    return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Container(
+            color: themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+            child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -402,13 +409,13 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
               duration: const Duration(milliseconds: 1000),
               child: Text(widget.headingText,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 18, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
             ),
             const SizedBox(height: 8),
             Text(widget.infoText,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16)),
+                style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
             const SizedBox(height: 20),
             ZoomIn(child: Image.asset(widget.imageAsset, height: 200)),
             const SizedBox(height: 20),
@@ -427,7 +434,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                   _selectedCity = null;
                 }),
                 decoration:
-                    _inputDecoration("State", isFilled: _selectedState != null),
+                    _inputDecoration("State", isFilled: _selectedState != null, themeProvider: themeProvider),
               ),
             ),
             const SizedBox(height: 10),
@@ -444,7 +451,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                     : [],
                 onChanged: (value) => setState(() => _selectedCity = value),
                 decoration:
-                    _inputDecoration("City", isFilled: _selectedCity != null),
+                    _inputDecoration("City", isFilled: _selectedCity != null, themeProvider: themeProvider),
               ),
             ),
             const SizedBox(height: 10),
@@ -454,7 +461,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
               child: TextField(
                 controller: _locationController,
                 decoration: _inputDecoration("Reveal the Secret Location",
-                        isFilled: _locationController.text.trim().isNotEmpty)
+                        isFilled: _locationController.text.trim().isNotEmpty, themeProvider: themeProvider)
                     .copyWith(
                   suffixIcon: IconButton(
                       icon: const Icon(Icons.my_location),
@@ -476,7 +483,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                     null,
                 decoration: _inputDecoration(
                         "Describe the Strange Occurence or Speak a spell",
-                        isFilled: _descriptionController.text.trim().isNotEmpty)
+                        isFilled: _descriptionController.text.trim().isNotEmpty, themeProvider: themeProvider)
                     .copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
@@ -504,11 +511,11 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
               ),
             ),
             const SizedBox(height: 20),
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Upload image or video",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : Colors.black),
               ),
             ),
             const SizedBox(height: 20),
@@ -548,15 +555,15 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
 // Centered "or" text with dividers
             Row(
-              children: const [
-                Expanded(child: Divider(thickness: 1)),
+              children: [
+                const Expanded(child: Divider(thickness: 1)),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Text("or",
                       style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
                 ),
-                Expanded(child: Divider(thickness: 1)),
+                const Expanded(child: Divider(thickness: 1)),
               ],
             ),
 
@@ -629,34 +636,36 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
                 ),
                 child: _isUploading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Send via Owl Post",
-                        style: TextStyle(fontSize: 16, color: Colors.white)),
+                    : Text("Send via Owl Post",
+                        style: TextStyle(fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : Colors.black)),
               ),
             ),
           ],
         ),
-      ),
+      ));}
     );
   }
 
   Widget _buildUploadButton(
       String label, IconData icon, bool filled, VoidCallback onTap) {
+    return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 253, 253, 253),
+          color: themeProvider.isDarkMode ? Colors.black : const Color.fromARGB(255, 253, 253, 253),
           borderRadius: BorderRadius.circular(8),
           border: filled ? null : Border.all(color: Colors.grey),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, color: Colors.black54),
+          Icon(icon, color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
           const SizedBox(width: 10),
           Text(filled ? "Change" : label,
-              style: const TextStyle(color: Colors.black54))
+              style: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54))
         ]),
       ),
-    );
+    );});
   }
 }
