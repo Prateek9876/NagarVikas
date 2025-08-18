@@ -1,10 +1,13 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../theme/theme_provider.dart';
 
 class MyComplaintsScreen extends StatefulWidget {
   const MyComplaintsScreen({super.key});
@@ -242,14 +245,44 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 253, 254, 254),
-      appBar: AppBar(
-        title: Text("Spell Records"),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240),
-      ),
+    return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Scaffold(
+            backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : const Color.fromARGB(255, 253, 254, 254),
+            appBar: AppBar(
+              title: Text("Spell Records"),
+              backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+              actions: [
+                IconButton(
+                  icon: Icon(
+                    themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                  onPressed: () {
+                    themeProvider.toggleTheme();
+                  },
+                ),
+              ],
+            ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            children: List.generate(5, (index) =>
+                Container(
+                  margin: EdgeInsets.all(10),
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+            ),
+          ),
+        ),
+      )
           : complaints.isEmpty
               ? Center(
                   child: Column(
@@ -262,211 +295,263 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black54,
+                          color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54,
                         ),
                       ),
                     ],
                   ),
                 )
               : Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: searchController,
+                    onChanged: (val) => _applyFilters(),
+                    decoration: InputDecoration(
+                      hintText: 'Search complaints...',
+                      hintStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
+                      prefixIcon: Icon(Icons.search, color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: themeProvider.isDarkMode ? Colors.grey[850] : Colors.white,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                DropdownButton<String>(
+                  value: selectedStatus,
+                  items: [
+                    'All',
+                    'Pending',
+                    'In Progress',
+                    'Resolved',
+                  ]
+                      .map((status) => DropdownMenuItem(
+                    value: status,
+                    child: Text(
+                      status,
+                      style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black),
+                    ),
+                  ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedStatus = value;
+                      });
+                      _applyFilters();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _fetchComplaints,
+              child: filteredComplaints.isEmpty
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
+                    Icon(
+                      Icons.inbox_outlined,
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      _getNoComplaintsMessage(),
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      selectedStatus == 'All'
+                          ? 'Try adjusting your search or filters'
+                          : 'Try changing the status filter or search term',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              )
+                  : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: filteredComplaints.length,
+                padding: EdgeInsets.all(10),
+                itemBuilder: (ctx, index) {
+                  final complaint = filteredComplaints[index];
+
+                  int originalIndex = complaints.indexWhere((c) =>
+                  c['issue'] == complaint['issue'] &&
+                      c['date'] == complaint['date'] &&
+                      c['time'] == complaint['time']);
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withAlpha((0.2 * 255).toInt()),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: searchController,
-                              onChanged: (val) => _applyFilters(),
-                              decoration: InputDecoration(
-                                hintText: 'Search complaints...',
-                                prefixIcon: Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(
+                                      complaint['status']),
+                                  borderRadius:
+                                  BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      spreadRadius: 1,
+                                      blurRadius: 3,
+                                    ),
+                                  ],
                                 ),
-                                filled: true,
-                                fillColor: Colors.white,
+                                child: Text(
+                                  complaint['status'],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius:
+                                  BorderRadius.circular(20),
+                                  onTap: () => _showDeleteDialog(
+                                      originalIndex),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red[400],
+                                      size: 22,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(width: 10),
-                          DropdownButton<String>(
-                            value: selectedStatus,
-                            items: [
-                              'All',
-                              'Pending',
-                              'In Progress',
-                              'Resolved',
-                            ]
-                                .map((status) => DropdownMenuItem(
-                                      value: status,
-                                      child: Text(status),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() {
-                                  selectedStatus = value;
-                                });
-                                _applyFilters();
-                              }
-                            },
+                          SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(
+                                _getComplaintIcon(complaint['issue']),
+                                color: Colors.blueAccent,
+                                size: 22,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  complaint['issue'],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Divider(color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300]),
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_today,
+                                  size: 16, color: themeProvider.isDarkMode ? Colors.white70 : Colors.grey[600]),
+                              SizedBox(width: 5),
+                              Text(
+                                complaint['date'],
+                                style:
+                                TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
+                              ),
+                              SizedBox(width: 15),
+                              Icon(Icons.access_time,
+                                  size: 16, color: themeProvider.isDarkMode ? Colors.white70 : Colors.grey[600]),
+                              SizedBox(width: 5),
+                              Text(
+                                complaint['time'],
+                                style:
+                                TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(Icons.location_on,
+                                  size: 18, color: Colors.redAccent),
+                              SizedBox(width: 5),
+                              Expanded(
+                                child: Text(
+                                  "${complaint['location']}, ${complaint['city']}, ${complaint['state']}",
+                                  style: TextStyle(
+                                    color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: RefreshIndicator(
-                        onRefresh: _fetchComplaints,
-                        child: ListView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: filteredComplaints.length,
-                          padding: EdgeInsets.all(10),
-                          itemBuilder: (ctx, index) {
-                            final complaint = filteredComplaints[index];
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );});
+  }
 
-                            int originalIndex = complaints.indexWhere((c) =>
-                                c['issue'] == complaint['issue'] &&
-                                c['date'] == complaint['date'] &&
-                                c['time'] == complaint['time']);
-
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withAlpha((0.2 * 255).toInt()),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                  ),
-                                ],
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: _getStatusColor(
-                                                complaint['status']),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black12,
-                                                spreadRadius: 1,
-                                                blurRadius: 3,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Text(
-                                            complaint['status'],
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            onTap: () => _showDeleteDialog(
-                                                originalIndex),
-                                            child: Padding(
-                                              padding: EdgeInsets.all(8),
-                                              child: Icon(
-                                                Icons.delete_outline,
-                                                color: Colors.red[400],
-                                                size: 22,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          _getComplaintIcon(complaint['issue']),
-                                          color: Colors.blueAccent,
-                                          size: 22,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            complaint['issue'],
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Divider(color: Colors.grey[300]),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.calendar_today,
-                                            size: 16, color: Colors.grey[600]),
-                                        SizedBox(width: 5),
-                                        Text(
-                                          complaint['date'],
-                                          style:
-                                              TextStyle(color: Colors.black54),
-                                        ),
-                                        SizedBox(width: 15),
-                                        Icon(Icons.access_time,
-                                            size: 16, color: Colors.grey[600]),
-                                        SizedBox(width: 5),
-                                        Text(
-                                          complaint['time'],
-                                          style:
-                                              TextStyle(color: Colors.black54),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.location_on,
-                                            size: 18, color: Colors.redAccent),
-                                        SizedBox(width: 5),
-                                        Expanded(
-                                          child: Text(
-                                            "${complaint['location']}, ${complaint['city']}, ${complaint['state']}",
-                                            style: TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-    );
+  String _getNoComplaintsMessage() {
+    switch (selectedStatus) {
+      case 'Pending':
+        return 'No Pending Issues';
+      case 'In Progress':
+        return 'No In Progress Issues';
+      case 'Resolved':
+        return 'No Resolved Issues';
+      case 'All':
+      default:
+        return 'No Complaints Found';
+    }
   }
 }

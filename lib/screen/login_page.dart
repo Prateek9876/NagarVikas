@@ -6,10 +6,12 @@ import 'package:nagarvikas/screen/issue_selection.dart';
 import 'package:nagarvikas/screen/register_screen.dart';
 import 'package:nagarvikas/screen/admin_dashboard.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../service/local_status_storage.dart';
 import '../service/notification_service.dart';
+import '../theme/theme_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 // 🧩 Stateful widget for login page
@@ -124,65 +126,98 @@ class LoginPageState extends State<LoginPage> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Admin Authentication"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("Enter Admin PIN to access the dashboard."),
-              TextField(
-                controller: pinController,
-                obscureText: true,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: "Enter 4-digit PIN",
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            return AlertDialog(
+              backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+              title: Text(
+                "Admin Authentication",
+                style: TextStyle(
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
-            ],
-          ),
-          actions: [
-            // ❌ Cancel button to close dialog
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Cancel"),
-            ),
-            // ✅ Submit button to verify PIN
-            TextButton(
-              onPressed: () async {
-                if (pinController.text == "2004") {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  await prefs.setBool("isAdmin", true);
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Enter Admin PIN to access the dashboard.",
+                    style: TextStyle(
+                      color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
+                  TextField(
+                    controller: pinController,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(
+                      color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Enter 4-digit PIN",
+                      hintStyle: TextStyle(
+                        color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey,
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey,
+                        ),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (pinController.text == "2004") {
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool("isAdmin", true);
 
-                  if(!context.mounted) return;
-                  Navigator.pop(context);
-                  final adminNotifications = await LocalStatusStorage.getAdminNotifications();
-                  if (adminNotifications.isNotEmpty) {
-                    for (var i = 0; i <adminNotifications.length; i++) {
-                      final n = adminNotifications[i];
-                      await NotificationService().showNotification(
-                        id: i + 500, // avoid collision with other IDs
-                        title: 'New Complaint Filed',
-                        body: n['message'] ?? 'A new complaint has been filed.',
-                        payload: n['complaint_id'] ?? '',
+                      if(!context.mounted) return;
+                      Navigator.pop(context);
+                      final adminNotifications = await LocalStatusStorage.getAdminNotifications();
+                      if (adminNotifications.isNotEmpty) {
+                        for (var i = 0; i <adminNotifications.length; i++) {
+                          final n = adminNotifications[i];
+                          await NotificationService().showNotification(
+                            id: i + 500,
+                            title: 'New Complaint Filed',
+                            body: n['message'] ?? 'A new complaint has been filed.',
+                            payload: n['complaint_id'] ?? '',
+                          );
+                        }
+                        await LocalStatusStorage.clearAdminNotifications();
+                      }
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => AdminDashboard()),
                       );
+                    } else {
+                      Fluttertoast.showToast(msg: "Incorrect PIN! Access Denied.");
                     }
-                    await LocalStatusStorage.clearAdminNotifications();
-                  }
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => AdminDashboard()),
-                  );
-                } else {
-                  // 🔒 Handle incorrect PIN entry
-                  Fluttertoast.showToast(msg: "Incorrect PIN! Access Denied.");
-                }
-              },
-              child: const Text("Submit"),
-            ),
-          ],
+                  },
+                  child: const Text(
+                    "Submit",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -207,164 +242,188 @@ class LoginPageState extends State<LoginPage> {
   // 🧱 UI layout and animations
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 80),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 80),
 
-            // 👋 Welcome text with fade-in effect
-            FadeInUp(
-              duration: const Duration(milliseconds: 1000),
-              child: const Text(
-                "Welcome Back!",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // 🖼️ Login illustration with entry animation for better UX
-            ZoomIn(
-              duration: const Duration(milliseconds: 1200),
-              child: Image.asset("assets/login.png", height: 250, width: 250),
-            ),
-            const SizedBox(height: 30),
-
-            // 📧 Email input field
-            FadeInUp(
-              duration: const Duration(milliseconds: 1200),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    labelStyle: const TextStyle(color: Colors.black87),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.black, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2),
-                      borderRadius: BorderRadius.circular(10),
+                // Welcome text with fade-in effect
+                FadeInUp(
+                  duration: const Duration(milliseconds: 1000),
+                  child: Text(
+                    "Welcome Back!",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 15),
+                const SizedBox(height: 10),
 
-            // 🔒 Password input field with fade-in effect
-            FadeInUp(
-              duration: const Duration(milliseconds: 1300),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.black, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    suffixIcon: IconButton(
-                      //✅ This will show the eye icon on the right side.
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.grey,
+                // Login illustration with entry animation for better UX
+                ZoomIn(
+                  duration: const Duration(milliseconds: 1200),
+                  child: Image.asset("assets/login.png", height: 250, width: 250),
+                ),
+                const SizedBox(height: 30),
+
+                // Email input field
+                FadeInUp(
+                  duration: const Duration(milliseconds: 1200),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: TextField(
+                      controller: _emailController,
+                      style: TextStyle(
+                        color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        labelStyle: TextStyle(
+                          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.black87,
+                        ),
+                        filled: true,
+                        fillColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.black,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
+                const SizedBox(height: 15),
 
-            // ❓ Forgot password button with fade-in effect
-            FadeInUp(
-              duration: const Duration(milliseconds: 1300),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 25),
-                child: Align(
-                  alignment: Alignment.centerRight,
+                // Password input field with fade-in effect
+                FadeInUp(
+                  duration: const Duration(milliseconds: 1300),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: TextField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      style: TextStyle(
+                        color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        labelStyle: TextStyle(
+                          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.black87,
+                        ),
+                        filled: true,
+                        fillColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.black,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Forgot password button with fade-in effect
+                FadeInUp(
+                  duration: const Duration(milliseconds: 1300),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 25),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _forgotPassword,
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Login button with fade-in effect
+                FadeInUp(
+                  duration: const Duration(milliseconds: 1400),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: themeProvider.isDarkMode ? Colors.teal : Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: isLoading ? null : _loginUser,
+                    child: isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                      "Login",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // Signup navigation with fade-in effect
+                FadeInUp(
+                  duration: const Duration(milliseconds: 1500),
                   child: TextButton(
-                    onPressed: _forgotPassword,
-                    child: const Text(
-                      "Forgot Password?",
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterScreen()));
+                    },
+                    child: Text(
+                      "Don't have an account? Signup",
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
+                        color: themeProvider.isDarkMode ? Colors.teal : Colors.blue,
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 20),
-
-            // 🚪 Login button with fade-in effect
-            FadeInUp(
-              duration: const Duration(milliseconds: 1400),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: isLoading ? null : _loginUser,
-                child: isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "Login",
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // 🆕 Signup navigation with fade-in effect
-            FadeInUp(
-              duration: const Duration(milliseconds: 1500),
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterScreen()));
-                },
-                child: const Text(
-                  "Don't have an account? Signup",
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

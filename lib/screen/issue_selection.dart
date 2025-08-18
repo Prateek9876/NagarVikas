@@ -1,36 +1,25 @@
 // Importing necessary Flutter and plugin packages
 import 'dart:developer';
-
-import 'package:nagarvikas/screen/about.dart';
-import 'package:nagarvikas/screen/contact.dart';
-import 'package:nagarvikas/screen/facing_issues.dart';
-import 'package:nagarvikas/screen/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
 import '../widgets/chatbot_wrapper.dart';
 import 'garbage.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'water.dart';
 import 'road.dart';
 import 'new_entry.dart';
 import 'street_light.dart';
 import 'drainage.dart';
 import 'animals.dart';
-import 'my_complaints.dart';
-import 'profile_screen.dart';
-import 'feedback.dart';
-import 'referearn.dart';
 import 'discussion.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:nagarvikas/screen/fun_game_screen.dart';
+import 'package:nagarvikas/screen/modern_app_drawer.dart';
 
 // Main Stateful Widget for Issue Selection Page
 class IssueSelectionPage extends StatefulWidget {
@@ -40,13 +29,23 @@ class IssueSelectionPage extends StatefulWidget {
   IssueSelectionPageState createState() => IssueSelectionPageState();
 }
 
-class IssueSelectionPageState extends State<IssueSelectionPage> {
+class IssueSelectionPageState extends State<IssueSelectionPage>
+    with TickerProviderStateMixin {
   String _language = 'en'; // 'en' for English, 'hi' for Hindi
+
+  // Animation controllers
+  late AnimationController _headerAnimationController;
+  late AnimationController _cardAnimationController;
+  late AnimationController _fabAnimationController;
+  late Animation<double> _headerFadeAnimation;
+  late Animation<double> _headerSlideAnimation;
+  late Animation<double> _fabScaleAnimation;
 
   // Translation map for all visible strings in this file
   static const Map<String, Map<String, String>> _localizedStrings = {
     'en': {
       'title': 'What type of issue are you facing?',
+      'subtitle': 'Select the category that best describes your concern',
       'garbage': 'No garbage lifting in my area.',
       'water': 'No water supply in my area.',
       'road': 'Road damage in my area.',
@@ -72,9 +71,15 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
       'version': 'Version',
       'get_started': 'Get Started',
       'discussion': 'Discussion Forum',
+      'select_issue': 'Select Issue Type',
+      'calling_magic': 'Calling the Ministry of Magic 🔮',
+      'processing_request': 'Processing your request...',
+      'tap_to_report': 'Tap to Report',
+      'choose_concern': 'Choose your concern and let\'s resolve it together',
     },
     'hi': {
       'title': 'आप किस प्रकार की समस्या का सामना कर रहे हैं?',
+      'subtitle': 'उस श्रेणी का चयन करें जो आपकी चिंता का सबसे अच्छा वर्णन करती है',
       'garbage': 'मेरे क्षेत्र में कचरा नहीं उठाया जा रहा है।',
       'water': 'मेरे क्षेत्र में पानी की आपूर्ति नहीं है।',
       'road': 'मेरे क्षेत्र में सड़क क्षतिग्रस्त है।',
@@ -100,6 +105,11 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
       'version': 'संस्करण',
       'get_started': 'शुरू करें',
       'discussion': 'चर्चा मंच',
+      'select_issue': 'समस्या प्रकार चुनें',
+      'calling_magic': 'मंत्रालय को कॉल कर रहे हैं 🔮',
+      'processing_request': 'आपके अनुरोध को संसाधित कर रहे हैं...',
+      'tap_to_report': 'रिपोर्ट करने के लिए टैप करें',
+      'choose_concern': 'अपनी चिंता चुनें और आइए इसे एक साथ हल करते हैं',
     },
   };
 
@@ -108,6 +118,7 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
   @override
   void initState() {
     super.initState();
+    _initAnimations();
 
     // Add OneSignal trigger for in-app messages
     OneSignal.InAppMessages.addTrigger("welcoming_you", "available");
@@ -119,68 +130,172 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     _showTermsAndConditionsDialogIfNeeded();
   }
 
+  @override
+  void dispose() {
+    _headerAnimationController.dispose();
+    _cardAnimationController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
+
+  void _initAnimations() {
+    _headerAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _cardAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _fabAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _headerFadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _headerAnimationController,
+      curve: const Interval(0.0, 0.8, curve: Curves.easeInOut),
+    ));
+
+    _headerSlideAnimation = Tween<double>(
+      begin: -50.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _headerAnimationController,
+      curve: const Interval(0.2, 1.0, curve: Curves.easeOutBack),
+    ));
+
+    _fabScaleAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fabAnimationController,
+      curve: Curves.elasticOut,
+    ));
+
+    // Start animations with slight delays to prevent stuttering
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _headerAnimationController.forward();
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _cardAnimationController.forward();
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (mounted) {
+        _fabAnimationController.forward();
+      }
+    });
+  }
+
   void _showTermsAndConditionsDialogIfNeeded() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool hasAccepted = prefs.getBool('hasAcceptedTerms') ?? false;
 
     if (!hasAccepted) {
-      await Future.delayed(Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        // Check if the widget is still mounted before showing the dialog
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text(
-                "Terms & Conditions",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "By using this app, you agree to the following terms:\n",
-                      style: TextStyle(fontWeight: FontWeight.w600),
+            return Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return AlertDialog(
+                  backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  title: Text(
+                    "Terms & Conditions",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                     ),
-                    Text("• Report issues truthfully and accurately."),
-                    Text("• Consent to receive notifications from the app."),
-                    Text("• Do not misuse the platform for false complaints."),
-                    Text("• Data may be used to improve services."),
-                    SizedBox(height: 10),
-                    Text(
-                      "If you agree, tap **Accept** to proceed.",
-                      style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "By using this app, you agree to the following terms:\n",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        Text(
+                          "• Report issues truthfully and accurately.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          "• Consent to receive notifications from the app.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          "• Do not misuse the platform for false complaints.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          "• Data may be used to improve services.",
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "If you agree, tap **Accept** to proceed.",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        "Decline",
+                        style: TextStyle(
+                          color: themeProvider.isDarkMode ? Colors.red[300] : Colors.red,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeProvider.isDarkMode ? Colors.teal : const Color(0xFF1565C0),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        await prefs.setBool('hasAcceptedTerms', true);
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text("Accept"),
                     ),
                   ],
-                ),
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Decline"),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () async {
-                    await prefs.setBool('hasAcceptedTerms', true);
-                    if (context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: const Text("Accept"),
-                ),
-              ],
+                );
+              },
             );
           },
         );
@@ -195,7 +310,6 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     NotificationSettings settings = await messaging.getNotificationSettings();
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // Show toast only once
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool hasShownToast = prefs.getBool('hasShownToast') ?? false;
 
@@ -204,7 +318,6 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
         await prefs.setBool('hasShownToast', true);
       }
     } else {
-      // Request notification permissions if not already granted
       NotificationSettings newSettings = await messaging.requestPermission();
       if (newSettings.authorizationStatus == AuthorizationStatus.authorized) {
         Fluttertoast.showToast(msg: "Notifications Enabled");
@@ -228,12 +341,11 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     log("FCM Token: $token");
 
     DatabaseReference userRef =
-        FirebaseDatabase.instance.ref("users/${user.uid}/fcmToken");
+    FirebaseDatabase.instance.ref("users/${user.uid}/fcmToken");
 
     DatabaseEvent event = await userRef.once();
     String? existingToken = event.snapshot.value as String?;
 
-    // Save the token only if it's different
     if (existingToken == null || existingToken != token) {
       await userRef.set(token).then((_) {
         log("FCM Token saved successfully.");
@@ -245,135 +357,308 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     }
   }
 
-  // Building the main issue selection grid with animated cards
   @override
   Widget build(BuildContext context) {
-    return ChatbotWrapper(
-      child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 253, 253, 253),
-        drawer: AppDrawer(
-          language: _language,
-          onLanguageChanged: (lang) {
-            setState(() {
-              _language = lang;
-            });
-          },
-          t: t,
-        ),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: FadeInDown(
-            duration: Duration(milliseconds: 1000),
-            child: Text(
-              t('Select the nuisance you wish to vanish 🪄'),
-              style: const TextStyle(
-                  color: Colors.black, fontSize: 16, fontWeight: FontWeight.w900),
-            ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor: themeProvider.isDarkMode
+              ? Colors.grey[900]
+              : const Color(0xFFF8F9FA),
+          drawer: ModernAppDrawer(
+            language: _language,
+            onLanguageChanged: (lang) {
+              setState(() {
+                _language = lang;
+              });
+            },
+            t: t,
           ),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  children: [
-                    // Each issue card has a ZoomIn animation for better user experience and smooth UI.
-                    ZoomIn(
-                        delay: Duration(milliseconds: 200),
-                        child: buildIssueCard(context, t('garbage'),
-                            "assets/garbage.png", const GarbagePage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 400),
-                        child: buildIssueCard(context, t('water'),
-                            "assets/water.png", const WaterPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 600),
-                        child: buildIssueCard(context, t('road'),
-                            "assets/road.png", const RoadPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 800),
-                        child: buildIssueCard(context, t('streetlight'),
-                            "assets/streetlight.png", const StreetLightPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 1000),
-                        child: buildIssueCard(context, t('animals'),
-                            "assets/animals.png", const AnimalsPage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 1200),
-                        child: buildIssueCard(context, t('drainage'),
-                            "assets/drainage.png", const DrainagePage())),
-                    ZoomIn(
-                        delay: Duration(milliseconds: 1400),
-                        child: buildIssueCard(context, t('other'),
-                            "assets/newentry.png", const NewEntryPage())),
+          body: ChatbotWrapper(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: themeProvider.isDarkMode
+                      ? [
+                    Colors.grey[900]!,
+                    Colors.grey[850]!,
+                  ]
+                      : [
+                    const Color(0xFFF8F9FA),
+                    const Color(0xFFFFFFFF),
                   ],
                 ),
               ),
-            ],
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  _buildSliverAppBar(themeProvider),
+                  SliverToBoxAdapter(
+                    child: AnimatedBuilder(
+                      animation: _headerFadeAnimation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, _headerSlideAnimation.value),
+                          child: Opacity(
+                            opacity: _headerFadeAnimation.value,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 10),
+                                  _buildHeaderSection(themeProvider),
+                                  const SizedBox(height: 0),
+                                  _buildIssueGrid(themeProvider),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        // Floating Action Button to navigate to the Discussion Forum screen.
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: const Color.fromARGB(255, 7, 7, 7),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => DiscussionForum()),
-            );
-          },
-          child: const Icon(Icons.forum, color: Colors.white),
-        ),
-      ),
+          floatingActionButton: AnimatedBuilder(
+            animation: _fabScaleAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _fabScaleAnimation.value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: themeProvider.isDarkMode
+                          ? [Colors.teal, Colors.teal[300]!]
+                          : [const Color(0xFF1565C0), const Color(0xFF42A5F5)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: themeProvider.isDarkMode
+                            ? Colors.teal.withOpacity(0.3)
+                            : const Color(0xFF1565C0).withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DiscussionForum()),
+                      );
+                    },
+                    child: const Icon(
+                      Icons.forum,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  /// Builds a reusable issue card with an image and label, which navigates to the corresponding issue page on tap.
-  Widget buildIssueCard(
-      BuildContext context, String text, String imagePath, Widget page) {
-    return GestureDetector(
-      onTap: () => showProcessingDialog(context, page),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+  Widget _buildSliverAppBar(ThemeProvider themeProvider) {
+    return SliverAppBar(
+      expandedHeight: 100,
+      floating: false,
+      pinned: false,
+      elevation: 0,
+      backgroundColor: themeProvider.isDarkMode
+          ? Colors.grey[800]
+          : const Color(0xFF1565C0),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: themeProvider.isDarkMode
+                  ? [
+                Colors.grey[800]!,
+                Colors.grey[700]!,
+                Colors.teal[600]!,
+              ]
+                  : [
+                const Color(0xFF1565C0),
+                const Color(0xFF42A5F5),
+                const Color(0xFF81C784),
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Builder(
+                      builder: (context) => IconButton(
+                        icon: const Icon(Icons.menu, color: Colors.white),
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SlideInDown(
+                          child: Text(
+                            t('select_issue'),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black26,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        SlideInDown(
+                          delay: const Duration(milliseconds: 200),
+                          child: Text(
+                            t('choose_concern'),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Theme toggle button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        themeProvider.toggleTheme();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      leading: const SizedBox.shrink(), // Hide default leading
+    );
+  }
+
+  Widget _buildHeaderSection(ThemeProvider themeProvider) {
+    return FadeInUp(
+      duration: const Duration(milliseconds: 800),
+      child: Container(
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
+          color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withAlpha((0.1 * 255).toInt()),
-                blurRadius: 8,
-                spreadRadius: 2)
+              color: themeProvider.isDarkMode
+                  ? Colors.black26
+                  : Colors.grey.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
           ],
         ),
         child: Column(
           children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: DecorationImage(
-                    image: AssetImage(imagePath),
-                    fit: BoxFit.contain,
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: themeProvider.isDarkMode
+                          ? [Colors.teal, Colors.teal[300]!]
+                          : [const Color(0xFF42A5F5), const Color(0xFF1565C0)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: themeProvider.isDarkMode
+                            ? Colors.teal.withOpacity(0.3)
+                            : const Color(0xFF42A5F5).withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.report_problem,
+                    color: Colors.white,
+                    size: 28,
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0),
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t('title'),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        t('subtitle'),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -381,27 +666,384 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     );
   }
 
-  void showProcessingDialog(BuildContext context, Widget nextPage) {
+  Widget _buildIssueGrid(ThemeProvider themeProvider) {
+    final issues = [
+      {
+        'title': t('garbage'),
+        'icon': Icons.delete,
+        'image': "assets/garbage.png",
+        'page': const GarbagePage(),
+        'color': const Color(0xFF4CAF50),
+      },
+      {
+        'title': t('water'),
+        'icon': Icons.water_drop,
+        'image': "assets/water.png",
+        'page': const WaterPage(),
+        'color': const Color(0xFF2196F3),
+      },
+      {
+        'title': t('road'),
+        'icon': Icons.construction,
+        'image': "assets/road.png",
+        'page': const RoadPage(),
+        'color': const Color(0xFFFF9800),
+      },
+      {
+        'title': t('streetlight'),
+        'icon': Icons.lightbulb,
+        'image': "assets/streetlight.png",
+        'page': const StreetLightPage(),
+        'color': const Color(0xFFFFC107),
+      },
+      {
+        'title': t('animals'),
+        'icon': Icons.pets,
+        'image': "assets/animals.png",
+        'page': const AnimalsPage(),
+        'color': const Color(0xFF9C27B0),
+      },
+      {
+        'title': t('drainage'),
+        'icon': Icons.water,
+        'image': "assets/drainage.png",
+        'page': const DrainagePage(),
+        'color': const Color(0xFF00BCD4),
+      },
+      {
+        'title': t('other'),
+        'icon': Icons.more_horiz,
+        'image': "assets/newentry.png",
+        'page': const NewEntryPage(),
+        'color': const Color(0xFF607D8B),
+      },
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate optimal card height based on screen size
+        final double cardHeight = constraints.maxWidth > 600 ? 220 : 200;
+        final double aspectRatio = (constraints.maxWidth / 2 - 16) / cardHeight;
+
+        return AnimatedBuilder(
+          animation: _cardAnimationController,
+          builder: (context, child) {
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: aspectRatio,
+              ),
+              itemCount: issues.length,
+              itemBuilder: (context, index) {
+                final issue = issues[index];
+                final animationDelay = (index * 100).clamp(0, 700);
+
+                return SlideInUp(
+                  duration: Duration(milliseconds: 600),
+                  delay: Duration(milliseconds: animationDelay),
+                  child: buildEnhancedIssueCard(
+                    context,
+                    themeProvider,
+                    issue['title'] as String,
+                    issue['image'] as String,
+                    issue['page'] as Widget,
+                    issue['color'] as Color,
+                    issue['icon'] as IconData,
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget buildEnhancedIssueCard(
+      BuildContext context,
+      ThemeProvider themeProvider,
+      String text,
+      String imagePath,
+      Widget page,
+      Color color,
+      IconData icon,
+      ) {
+    return Hero(
+      tag: 'issue_$text',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => showEnhancedProcessingDialog(context, themeProvider, page, color),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: themeProvider.isDarkMode
+                  ? Border.all(color: Colors.grey[700]!, width: 0.5)
+                  : null,
+              boxShadow: [
+                BoxShadow(
+                  color: themeProvider.isDarkMode
+                      ? Colors.black26
+                      : color.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Top section with image - now takes full width and height
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: themeProvider.isDarkMode
+                            ? [
+                          color.withOpacity(0.15),
+                          color.withOpacity(0.08),
+                        ]
+                            : [
+                          color.withOpacity(0.1),
+                          color.withOpacity(0.05),
+                        ],
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        padding: const EdgeInsets.all(12.0),
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: themeProvider.isDarkMode
+                                ? Colors.grey[700]?.withOpacity(0.9)
+                                : Colors.white.withOpacity(0.9),
+                            boxShadow: [
+                              BoxShadow(
+                                color: themeProvider.isDarkMode
+                                    ? Colors.black26
+                                    : color.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Image.asset(
+                              imagePath,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  icon,
+                                  size: 50,
+                                  color: color,
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Bottom section with text
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            text,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: themeProvider.isDarkMode
+                                ? color.withOpacity(0.2)
+                                : color.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: themeProvider.isDarkMode
+                                ? Border.all(color: color.withOpacity(0.3), width: 0.5)
+                                : null,
+                          ),
+                          child: Text(
+                            t('tap_to_report'),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: themeProvider.isDarkMode
+                                  ? color.withOpacity(0.9)
+                                  : color,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  void showEnhancedProcessingDialog(
+      BuildContext context,
+      ThemeProvider themeProvider,
+      Widget nextPage,
+      Color color
+      ) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            padding: const EdgeInsets.all(32.0),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: themeProvider.isDarkMode
+                    ? [
+                  Colors.grey[800]!,
+                  Colors.grey[700]!.withOpacity(0.8),
+                ]
+                    : [
+                  Colors.white,
+                  color.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: themeProvider.isDarkMode
+                  ? Border.all(color: Colors.grey[600]!, width: 0.5)
+                  : null,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(
-                  color: Colors.red,
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: themeProvider.isDarkMode
+                          ? [Colors.teal, Colors.teal[300]!]
+                          : [color, color.withOpacity(0.7)],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: themeProvider.isDarkMode
+                            ? Colors.teal.withOpacity(0.3)
+                            : color.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome,
+                    color: Colors.white,
+                    size: 40,
+                  ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Text(
-                  t('Calling... \nThe Ministry of Magic 🔮'),
+                  t('calling_magic'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: themeProvider.isDarkMode
+                        ? Colors.teal
+                        : color,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  t('processing_request'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      themeProvider.isDarkMode ? Colors.teal : color,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -411,311 +1053,30 @@ class IssueSelectionPageState extends State<IssueSelectionPage> {
     );
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (!context.mounted) return; // Check if the widget is still mounted
+      if (!context.mounted) return;
       Navigator.pop(context);
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => nextPage));
-    });
-  }
-}
-
-// App Drawer for navigation and profile settings
-class AppDrawer extends StatefulWidget {
-  final String language;
-  final void Function(String) onLanguageChanged;
-  final String Function(String) t;
-  const AppDrawer(
-      {super.key,
-        required this.language,
-        required this.onLanguageChanged,
-        required this.t});
-//sidebar enhanced
-  @override
-  _AppDrawerState createState() => _AppDrawerState();
-}
-// work done
-
-class _AppDrawerState extends State<AppDrawer> {
-  String _appVersion = "Loading...";
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAppVersion();
-  }
-
-// Load app version using package_info_plus
-  Future<void> _loadAppVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _appVersion = packageInfo.version;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
-      ),
-      child: Container(
-        color: Colors.white,
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(children: [
-                // App title with icon and "Made with ❤️ by Prateek Chourasia"
-                DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Color(0xFFE0F7FA),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/app_icon.png',
-                            width: 38,
-                            height: 38,
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "NagarVikas",
-                            style: TextStyle(
-                              fontSize: 26,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Made with ❤️ by Prateek Chourasia',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Language Switcher
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.language, color: Colors.black87),
-                      SizedBox(width: 8),
-                      Text("Language:", style: TextStyle(fontSize: 15, color: Colors.black87)),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              ChoiceChip(
-                                label: Text('English', style: TextStyle(fontSize: 13)),
-                                selected: widget.language == 'en',
-                                onSelected: (selected) {
-                                  if (selected) widget.onLanguageChanged('en');
-                                },
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                visualDensity: VisualDensity.compact,
-                                selectedColor: Color(0xFFE0F7FA),
-                                backgroundColor: Color(0xFFF5F5F5),
-                                labelStyle: TextStyle(color: widget.language == 'en' ? Colors.teal : Colors.black87),
-                              ),
-                              SizedBox(width: 6),
-                              ChoiceChip(
-                                label: Text('हिन्दी', style: TextStyle(fontSize: 13)),
-                                selected: widget.language == 'hi',
-                                onSelected: (selected) {
-                                  if (selected) widget.onLanguageChanged('hi');
-                                },
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                visualDensity: VisualDensity.compact,
-                                selectedColor: Color(0xFFE0F7FA),
-                                backgroundColor: Color(0xFFF5F5F5),
-                                labelStyle: TextStyle(color: widget.language == 'hi' ? Colors.teal : Colors.black87),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Drawer Items (localized)
-                ...[
-                  buildDrawerItem(
-                      context, Icons.person, widget.t('profile'), ProfilePage()),
-                  buildDrawerItem(context, Icons.history, widget.t('Spell Records'), MyComplaintsScreen()),
-                  buildDrawerItem(context, Icons.favorite, widget.t('user_feedback'), FeedbackPage()),
-                  buildDrawerItem(context, Icons.card_giftcard, widget.t('refer_earn'), ReferAndEarnPage()),
-                  buildDrawerItem(context, Icons.report_problem, widget.t('facing_issues'), FacingIssuesPage()),
-                  buildDrawerItem(context, Icons.info, widget.t('about'), AboutAppPage()),
-                  buildDrawerItem(context, Icons.headset_mic, widget.t('contact'), ContactUsPage()),
-                  buildDrawerItem(
-                    context,
-                    Icons.share,
-                    widget.t('share_app'),
-                    null,
-                    onTap: () {
-                      Share.share(
-                        'Check out this app: https://github.com/Prateek9876/NagarVikas',
-                        subject: 'NagarVikas App',
-                      );
-                    },
-                  ),
-                  buildDrawerItem(
-                    context,
-                    Icons.games,
-                    '2048 Game',
-                    null,
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const FunGameScreen()));
-                    },
-                  ),
-                  buildDrawerItem(
-                    context,
-                    Icons.logout,
-                    widget.t('logout'),
-                    null,
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(widget.t('logout_title')),
-                          content: Text(widget.t('logout_content')),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(widget.t('cancel')),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                final FirebaseAuth auth = FirebaseAuth.instance;
-                                await auth.signOut();
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const LoginPage()));
-                              },
-                              child: Text(widget.t('yes')),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ].map((item) => Container(
-                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
-                  child: item,
-                )).toList(),
-                const Divider(color: Color(0xFFE0F7FA), thickness: 1),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 15),
-                  child: Text(
-                    widget.t('follow_us'),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _socialMediaIcon(FontAwesomeIcons.facebook, "https://facebook.com", Color(0xFF1877F2)),
-                    _socialMediaIcon(FontAwesomeIcons.instagram, "https://instagram.com", Color(0xFFC13584)),
-                    _socialMediaIcon(FontAwesomeIcons.youtube, "https://youtube.com", Color(0xFFFF0000)),
-                    _socialMediaIcon(FontAwesomeIcons.twitter, "https://twitter.com", Color(0xFF1DA1F2)),
-                    _socialMediaIcon(FontAwesomeIcons.linkedin, "https://linkedin.com/in/prateek-chourasia-in", Color(0xFF0A66C2)),
-                  ],
-                ),
-                Divider(color: Color(0xFFE0F7FA), thickness: 1),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        " 2025 NextGen Soft Labs and Prateek.\nAll Rights Reserved.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54),
-                      ),
-                      Text(
-                        "${widget.t('version')} $_appVersion",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      )
-                    ],
-                  ),
-                ),
-              ]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Reusable method for social media icon buttons
-  Widget _socialMediaIcon(IconData icon, String url, Color color) {
-    return IconButton(
-      icon: FaIcon(icon, color: color, size: 35),
-      onPressed: () {
-        launchUrl(Uri.parse(url));
-      },
-    );
-  }
-}
-
-// Reusable widget to build drawer items
-Widget buildDrawerItem(
-    BuildContext context, IconData icon, String title, Widget? page,
-    {VoidCallback? onTap}) {
-  return Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap ??
-          (page != null
-              ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => page),
-                  );
-                }
-              : null),
-      splashColor:
-          Colors.blue.withAlpha((0.5 * 255).toInt()), // Ripple effect color
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 28, // or whatever width fits your icons best
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Icon(icon, color: Colors.black),
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => nextPage,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.3, 0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInOut,
+                )),
+                child: child,
               ),
-            ),
-            SizedBox(width: 10),
-            Text(title, style: TextStyle(fontSize: 16, color: Colors.black)),
-          ],
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 400),
         ),
-      ),
-    ),
-  );
+      );
+    });
+  }
 }

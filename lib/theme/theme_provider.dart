@@ -27,3 +27,5 @@ class ThemeProvider extends ChangeNotifier {
     await prefs.setBool('isDarkMode', isDark);
   }
 }
+
+

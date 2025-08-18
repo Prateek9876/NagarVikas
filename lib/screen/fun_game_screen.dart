@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../model/game_model.dart';
+import '../theme/theme_provider.dart';
 
 class FunGameScreen extends StatefulWidget {
   const FunGameScreen({super.key});
@@ -14,7 +16,6 @@ class _FunGameScreenState extends State<FunGameScreen> {
   late GameModel game;
   Offset startSwipeOffset = Offset.zero;
   int highScore = 0;
-  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -65,34 +66,37 @@ class _FunGameScreenState extends State<FunGameScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        final textStyle = GoogleFonts.poppins(
-          color: isDarkMode ? Colors.white : Colors.black87,
-          fontWeight: FontWeight.w500,
-        );
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final textStyle = GoogleFonts.poppins(
+              color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+              fontWeight: FontWeight.w500,
+            );
 
-        return AlertDialog(
-          backgroundColor: isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
-          title: Text(
-            'Game Over!',
-            style:
-                textStyle.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          content: Text('Looks like you’re out of moves!', style: textStyle),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _restartGame();
-              },
-              child: Text('Play Again', style: textStyle),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              child: Text('Go to Home', style: textStyle),
-            ),
-          ],
+            return AlertDialog(
+              backgroundColor: themeProvider.isDarkMode ? const Color(0xFF2E2E2E) : Colors.white,
+              title: Text(
+                'Game Over!',
+                style: textStyle.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              content: Text('Looks like youâ€™re out of moves!', style: textStyle),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _restartGame();
+                  },
+                  child: Text('Play Again', style: textStyle),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  child: Text('Go to Home', style: textStyle),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -100,17 +104,21 @@ class _FunGameScreenState extends State<FunGameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = isDarkMode ? Colors.white : Colors.black;
+    return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          final textColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
 
-    return Scaffold(
+          return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 81, 190, 240),
         title: Text('2048',
             style: GoogleFonts.urbanist(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.brightness_6),
-            onPressed: () => setState(() => isDarkMode = !isDarkMode),
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            ),
+            onPressed: () => themeProvider.toggleTheme(),
           ),
           IconButton(
             icon: const Icon(Icons.restart_alt),
@@ -121,7 +129,7 @@ class _FunGameScreenState extends State<FunGameScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isDarkMode
+            colors: themeProvider.isDarkMode
                 ? [const Color(0xFF121212), const Color(0xFF263238)]
                 : [const Color(0xFFE0F7FA), const Color(0xFFB2EBF2)],
             begin: Alignment.topLeft,
@@ -191,7 +199,7 @@ class _FunGameScreenState extends State<FunGameScreen> {
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInOut,
                           decoration: BoxDecoration(
-                            color: _getTileColor(value),
+                            color: _getTileColor(value, themeProvider.isDarkMode),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
@@ -215,11 +223,10 @@ class _FunGameScreenState extends State<FunGameScreen> {
           ),
         ),
       ),
-    );
+    );});
   }
 
-  Color _getTileColor(int value) {
-    bool isDark = isDarkMode;
+  Color _getTileColor(int value, bool isDark) {
     switch (value) {
       case 2:
         return isDark ? const Color(0xFF90CAF9) : const Color(0xFF1565C0);

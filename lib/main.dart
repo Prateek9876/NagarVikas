@@ -242,15 +242,25 @@ class WelcomeScreenState extends State<WelcomeScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
+            Container(
+              height: MediaQuery.of(context).size.height * 0.15,
+              decoration: const BoxDecoration(
                 color: Colors.deepPurple,
               ),
-              child: Text(
-                'Settings',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: MediaQuery.of(context).size.width * 0.06,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -271,7 +281,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -282,8 +292,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               child: ZoomIn(
                 duration: const Duration(milliseconds: 1200),
                 child: Container(
-                  width: 120,
-                  height: 120,
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  height: MediaQuery.of(context).size.width * 0.3,
                   decoration: const BoxDecoration(
                     color: Color.fromARGB(255, 133, 207, 239),
                     shape: BoxShape.circle,
@@ -291,40 +301,39 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.04),
 
             // ✅ Main Image Animation
             ZoomIn(
               duration: const Duration(milliseconds: 1200),
               child: Image.asset(
                 'assets/mobileprofile.png',
-                width: 300,
-                height: 300,
+                width: MediaQuery.of(context).size.width * 0.75,
+                height: MediaQuery.of(context).size.height * 0.35,
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.025),
 
             // ✅ Headline & Subtext
             FadeInUp(
               duration: const Duration(milliseconds: 1200),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     "Facing Civic Issues?",
                     style: TextStyle(
-                      fontSize: 28,
+                      fontSize: MediaQuery.of(context).size.width * 0.07,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(
-                      height: 10), // Space between heading and subtext
-                  const Text(
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+                  Text(
                     "Register your complaint now and\nget it done in few time..",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: MediaQuery.of(context).size.width * 0.045,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
@@ -332,7 +341,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 50),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.06),
 
             // ✅ Get Started Button
             FadeInUp(
@@ -342,18 +351,20 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 onPressed: _isLoading ? null : _onGetStartedPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 8, 8, 8),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 90, vertical: 15),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.22,
+                    vertical: MediaQuery.of(context).size.height * 0.018,
+                  ),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ), // ✅ Button style
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Get Started",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white)),
+                    : Text("Get Started",
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.05,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white)),
               ),
             ),
           ],
