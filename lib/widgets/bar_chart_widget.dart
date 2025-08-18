@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class BarChartWidget extends StatelessWidget {
+class BarChartWidget extends StatelessWidget { //Bar Chart Widget
   final List<double> values;
   final List<String> labels;
   final List<Color> colors;
@@ -16,9 +16,9 @@ class BarChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20.0),
+      padding: const EdgeInsets.only(left: 20.0), // Padding: 20
       child: AspectRatio(
-        aspectRatio: 1.7,
+        aspectRatio: 1.7, // Aspect Ratio: 1.7
         child: BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
@@ -89,4 +89,6 @@ class BarChartWidget extends StatelessWidget {
     return (max + 5).ceilToDouble();
   }
 }
+
+
 

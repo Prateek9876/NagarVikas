@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
+import '../theme/theme_provider.dart';
 import 'complaint_detail_page.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -34,105 +36,108 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF0F9FF),
-      appBar: AppBar(
-        toolbarHeight: 80,
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF00BCD4),
-                Color(0xFF0097A7),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : const Color(0xFFF0F9FF),
+          appBar: AppBar(
+            toolbarHeight: 80,
+            elevation: 0,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF00BCD4),
+                    Color(0xFF0097A7),
+                  ],
+                ),
+              ),
+            ),
+            backgroundColor: Colors.transparent,
+            iconTheme: const IconThemeData(color: Colors.white),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Favorite Complaints",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "Your saved complaints",
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(230),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
               ],
             ),
           ),
-        ),
-        backgroundColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Favorite Complaints",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              "Your saved complaints",
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: widget.favoriteComplaints.isEmpty
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.favorite_border,
-              size: 80,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
-            Text(
-              'No favorite complaints yet',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Tap the heart icon on complaints to add them here',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      )
-          : Padding(
-        padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: widget.favoriteComplaints.length,
-          itemBuilder: (context, index) {
-            final complaint = widget.favoriteComplaints[index];
-            return RealTimeComplaintCard(
-              complaintId: complaint["id"] ?? complaint.hashCode.toString(),
-              isFavorite: true, // Always true in favorites page
-              onFavoriteToggle: () => _removeFavorite(index),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ComplaintDetailPage(complaintId: complaint["id"]),
+          body: widget.favoriteComplaints.isEmpty
+              ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.favorite_border,
+                  size: 80,
+                  color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey,
                 ),
-              ),
-            );
-          },
-        ),
-      ),
+                SizedBox(height: 16),
+                Text(
+                  'No favorite complaints yet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: themeProvider.isDarkMode ? Colors.grey[300] : Colors.grey,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Tap the heart icon on complaints to add them here',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+              : Padding(
+            padding: const EdgeInsets.all(16),
+            child: ListView.builder(
+              itemCount: widget.favoriteComplaints.length,
+              itemBuilder: (context, index) {
+                final complaint = widget.favoriteComplaints[index];
+                return RealTimeComplaintCard(
+                  complaintId: complaint["id"] ?? complaint.hashCode.toString(),
+                  isFavorite: true, // Always true in favorites page
+                  onFavoriteToggle: () => _removeFavorite(index),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ComplaintDetailPage(complaintId: complaint["id"]),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
-// Real-time complaint card that fetches live data
 class RealTimeComplaintCard extends StatefulWidget {
   final String complaintId;
   final bool isFavorite;
@@ -180,7 +185,6 @@ class _RealTimeComplaintCardState extends State<RealTimeComplaintCard> {
       if (complaintData != null) {
         String userId = complaintData["user_id"] ?? "Unknown";
 
-        // Fetch user data
         DataSnapshot userSnapshot = await usersRef.child(userId).get();
         Map<String, dynamic>? userData = userSnapshot.value != null
             ? Map<String, dynamic>.from(userSnapshot.value as Map)
@@ -223,7 +227,6 @@ class _RealTimeComplaintCardState extends State<RealTimeComplaintCard> {
           isLoading = false;
         });
       } else {
-        // Complaint was deleted
         setState(() {
           complaint = null;
           isLoading = false;
@@ -235,20 +238,74 @@ class _RealTimeComplaintCardState extends State<RealTimeComplaintCard> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        height: 88,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!, width: 1),
-        ),
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
+                width: 1,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 16,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 12,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          height: 12,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       );
     }
 
     if (complaint == null) {
-      return SizedBox.shrink(); // Hide deleted complaints
+      return SizedBox.shrink();
     }
 
     return ComplaintCard(
@@ -260,7 +317,6 @@ class _RealTimeComplaintCardState extends State<RealTimeComplaintCard> {
   }
 }
 
-// ComplaintCard class (reusable component)
 class ComplaintCard extends StatelessWidget {
   final Map<String, dynamic> complaint;
   final bool isFavorite;
@@ -277,179 +333,183 @@ class ComplaintCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey[200]!,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 1,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap ?? () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ComplaintDetailPage(complaintId: complaint["id"]),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
+              width: 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: themeProvider.isDarkMode ? Colors.black26 : Colors.black.withAlpha(10),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+              BoxShadow(
+                color: themeProvider.isDarkMode ? Colors.black12 : Colors.black.withAlpha(5),
+                blurRadius: 1,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                // Modern media preview
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[100],
-                  ),
-                  child: complaint["media_type"] == "image"
-                      ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      complaint["media_url"],
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap ?? () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ComplaintDetailPage(complaintId: complaint["id"]),
+                ),
+              ),
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    // Modern media preview
+                    Container(
                       width: 56,
                       height: 56,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.broken_image_rounded,
-                              color: Colors.grey[500],
-                              size: 24,
-                            ),
-                          ),
-                    ),
-                  )
-                      : Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.videocam_rounded,
-                      color: Colors.blue[600],
-                      size: 24,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-
-                // Content section
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title and favorite row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              complaint["issue_type"] ?? "Unknown Issue",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1A1A1A),
-                                height: 1.3,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          if (onFavoriteToggle != null)
-                            GestureDetector(
-                              onTap: onFavoriteToggle,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[100],
+                      ),
+                      child: complaint["media_type"] == "image"
+                          ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          complaint["media_url"],
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 child: Icon(
-                                  isFavorite
-                                      ? Icons.favorite_rounded
-                                      : Icons.favorite_border_rounded,
-                                  color: isFavorite
-                                      ? const Color(0xFFE57373)
-                                      : Colors.grey[400],
-                                  size: 20,
+                                  Icons.broken_image_rounded,
+                                  color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                                  size: 24,
                                 ),
                               ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-
-                      // Status badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
                         ),
+                      )
+                          : Container(
                         decoration: BoxDecoration(
-                          color: _getStatusColor(complaint["status"]).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          complaint["status"] ?? "Unknown",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: _getStatusColor(complaint["status"]),
-                          ),
+                        child: Icon(
+                          Icons.videocam_rounded,
+                          color: Colors.blue[600],
+                          size: 24,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                    ),
+                    const SizedBox(width: 16),
 
-                      // Location info
-                      Row(
+                    // Content section
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.location_on_rounded,
-                            size: 14,
-                            color: Colors.grey[500],
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              "${complaint["city"] ?? "Unknown"}, ${complaint["state"] ?? "Unknown"}",
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                                height: 1.3,
+                          // Title and favorite row
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  complaint["issue_type"] ?? "Unknown Issue",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
+                                    height: 1.3,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              const SizedBox(width: 8),
+                              if (onFavoriteToggle != null)
+                                GestureDetector(
+                                  onTap: onFavoriteToggle,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Icon(
+                                      isFavorite
+                                          ? Icons.favorite_rounded
+                                          : Icons.favorite_border_rounded,
+                                      color: isFavorite
+                                          ? const Color(0xFFE57373)
+                                          : (themeProvider.isDarkMode ? Colors.grey[500] : Colors.grey[400]),
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+
+                          // Status badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(complaint["status"]).withAlpha(25),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              complaint["status"] ?? "Unknown",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: _getStatusColor(complaint["status"]),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Location info
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
+                                size: 14,
+                                color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  "${complaint["city"] ?? "Unknown"}, ${complaint["state"] ?? "Unknown"}",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                    height: 1.3,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

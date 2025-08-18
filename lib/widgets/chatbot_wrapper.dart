@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-//working chatbot
+
+
+
 class ChatbotFloatingButton extends StatefulWidget {
   const ChatbotFloatingButton({Key? key}) : super(key: key);
 
   @override
   State<ChatbotFloatingButton> createState() => _ChatbotFloatingButtonState();
 }
-//chatbot floating button
+
+
+
 class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with SingleTickerProviderStateMixin {
   bool _isChatOpen = false;
   late AnimationController _controller;
@@ -55,7 +59,7 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
         ),
         if (_isChatOpen)
           Positioned(
-            bottom: 170,
+            bottom: 165,
             right: 16,
             child: ScaleTransition(
               scale: _scaleAnimation,
@@ -64,13 +68,13 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   width: 340,
-                  height: 440,
+                  height: 420,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withAlpha(30),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -80,6 +84,7 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Container(
+                        height: 60,
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.blueAccent,
@@ -101,10 +106,13 @@ class _ChatbotFloatingButtonState extends State<ChatbotFloatingButton> with Sing
                                 ),
                               ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
-                              splashRadius: 20,
-                              onPressed: _closeChat,
+                            Transform.translate(
+                              offset: const Offset(0, -3),
+                              child: IconButton(
+                                icon: const Icon(Icons.close, color: Colors.white),
+                                splashRadius: 20,
+                                onPressed: _closeChat,
+                              ),
                             ),
                           ],
                         ),
@@ -133,6 +141,7 @@ class ChatbotConversationWidget extends StatefulWidget {
   @override
   State<ChatbotConversationWidget> createState() => _ChatbotConversationWidgetState();
 }
+
 
 class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
   final TextEditingController _controller = TextEditingController();
@@ -189,6 +198,7 @@ class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
     return 'Sorry, I didn\'t understand. Please try rephrasing your question or ask about reporting issues, registration, tracking complaints, support, password reset, profile, account, app update, language, or notifications.';
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -231,7 +241,7 @@ class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
                   margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                   decoration: BoxDecoration(
-                    color: msg.isBot ? Colors.blue[50] : Colors.blueAccent.withOpacity(0.85),
+                    color: msg.isBot ? Colors.blue[50] : Colors.blueAccent.withAlpha(217),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
@@ -253,7 +263,7 @@ class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withAlpha(10),
                 blurRadius: 4,
                 offset: const Offset(0, 1),
               ),
@@ -284,26 +294,58 @@ class _ChatbotConversationWidgetState extends State<ChatbotConversationWidget> {
   }
 }
 
+
 class _ChatMessage {
   final String text;
   final bool isBot;
   _ChatMessage({required this.text, required this.isBot});
 }
 
-class ChatbotWrapper extends StatelessWidget {
+
+// UPDATED CHATBOT WRAPPER - THIS IS THE KEY CHANGE
+class ChatbotWrapper extends StatefulWidget {
   final Widget child;
-  const ChatbotWrapper({required this.child, Key? key}) : super(key: key);
+  final bool hideChat;
+
+  const ChatbotWrapper({
+    required this.child,
+    this.hideChat = false,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  State<ChatbotWrapper> createState() => _ChatbotWrapperState();
+}
+
+
+class _ChatbotWrapperState extends State<ChatbotWrapper> {
+  bool _isDrawerOpen = false;
+
 
   @override
   Widget build(BuildContext context) {
-    // Determine if a Drawer is open
-    final isDrawerOpen = Scaffold.maybeOf(context)?.isDrawerOpen ?? false;
-    return Stack(
-      children: [
-        child,
-        if (!isDrawerOpen)
-          const ChatbotFloatingButton(),
-      ],
+    return NotificationListener<DrawerNotification>(
+      onNotification: (notification) {
+        setState(() {
+          _isDrawerOpen = notification.isOpen;
+        });
+        return true;
+      },
+      child: Stack( // Stack
+        children: [
+          widget.child,
+          // Only show chatbot when hideChat is false AND drawer is not open
+          if (!widget.hideChat && !_isDrawerOpen)
+            const ChatbotFloatingButton(),
+        ],
+      ),
     );
   }
+}
+
+
+// Add this custom notification class
+class DrawerNotification extends Notification { // Drawer Notification
+  final bool isOpen;
+  DrawerNotification(this.isOpen);
 }

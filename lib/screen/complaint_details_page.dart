@@ -1,12 +1,13 @@
-// complaint_details_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'complaint_detail_page.dart'; // Import your complaint detail page
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
+import 'complaint_detail_page.dart';
 
 class ComplaintDetailsPage extends StatefulWidget {
-  final String category; // 'total', 'resolved', 'pending', 'rejected'
+  final String category; // 'total', 'resolved', 'pending', 'inprogress'
   final String title;
   final Color color;
   final IconData icon;
@@ -27,15 +28,31 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
   PageController _pageController = PageController();
   int _currentPage = 0;
   bool isLoading = true;
-  
+
   List<Map<String, dynamic>> totalComplaints = [];
   List<Map<String, dynamic>> resolvedComplaints = [];
   List<Map<String, dynamic>> pendingComplaints = [];
-  List<Map<String, dynamic>> rejectedComplaints = [];
+  List<Map<String, dynamic>> inProgressComplaints =
+      []; // Changed from rejectedComplaints
 
-  final List<String> categories = ['Total', 'Resolved', 'Pending', 'Rejected'];
-  final List<Color> categoryColors = [Colors.blue, Colors.green, Colors.orange, Colors.red];
-  final List<IconData> categoryIcons = [Icons.all_inbox, Icons.check_circle, Icons.timelapse, Icons.cancel];
+  final List<String> categories = [
+    'Total',
+    'Resolved',
+    'Pending',
+    'In Progress'
+  ]; // Updated
+  final List<Color> categoryColors = [
+    Colors.purple,
+    Colors.green,
+    Colors.orange,
+    Colors.blue
+  ]; // Updated colors
+  final List<IconData> categoryIcons = [
+    Icons.all_inbox,
+    Icons.check_circle,
+    Icons.timelapse,
+    Icons.hourglass_empty
+  ]; // Updated icon
 
   @override
   void initState() {
@@ -56,7 +73,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
       case 'pending':
         _currentPage = 2;
         break;
-      case 'rejected':
+      case 'inprogress': // Updated to match the analytics dashboard
         _currentPage = 3;
         break;
     }
@@ -77,10 +94,10 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
         List<Map<String, dynamic>> total = [];
         List<Map<String, dynamic>> resolved = [];
         List<Map<String, dynamic>> pending = [];
-        List<Map<String, dynamic>> rejected = [];
+        List<Map<String, dynamic>> inProgress = []; // Changed from rejected
 
         final data = snapshot.value as Map<dynamic, dynamic>;
-        
+
         for (var entry in data.entries) {
           final complaint = Map<String, dynamic>.from(entry.value);
           String userId = complaint["user_id"] ?? "Unknown";
@@ -98,12 +115,14 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           if (timestamp != "Unknown") {
             DateTime dateTime = DateTime.tryParse(timestamp) ?? DateTime.now();
             date = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
-            time = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+            time =
+                "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
           }
 
-          String? mediaUrl = complaint["media_url"] ?? complaint["image_url"] ?? "";
-          String mediaType = (complaint["media_type"] ?? 
-              (complaint["image_url"] != null ? "image" : "video"))
+          String? mediaUrl =
+              complaint["media_url"] ?? complaint["image_url"] ?? "";
+          String mediaType = (complaint["media_type"] ??
+                  (complaint["image_url"] != null ? "image" : "video"))
               .toString()
               .toLowerCase();
 
@@ -129,7 +148,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           // Add to total
           total.add(complaintData);
 
-          // Categorize by status
+          // Categorize by status - Updated logic
           switch (status.toLowerCase()) {
             case 'resolved':
             case 'completed':
@@ -138,14 +157,10 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
             case 'pending':
               pending.add(complaintData);
               break;
-            case 'in progress':
-              // Add in progress complaints to pending for now
-              pending.add(complaintData);
+            case 'in progress': // This is the main change - properly categorize in progress
+              inProgress.add(complaintData);
               break;
-            case 'rejected':
-            case 'cancelled':
-              rejected.add(complaintData);
-              break;
+            // Removed rejected/cancelled cases since we're not tracking them anymore
           }
         }
 
@@ -153,7 +168,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           totalComplaints = total;
           resolvedComplaints = resolved;
           pendingComplaints = pending;
-          rejectedComplaints = rejected;
+          inProgressComplaints = inProgress; // Updated
           isLoading = false;
         });
       } else {
@@ -161,7 +176,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
           totalComplaints = [];
           resolvedComplaints = [];
           pendingComplaints = [];
-          rejectedComplaints = [];
+          inProgressComplaints = []; // Updated
           isLoading = false;
         });
       }
@@ -180,11 +195,16 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
 
   List<Map<String, dynamic>> _getComplaintsForCategory(int index) {
     switch (index) {
-      case 0: return totalComplaints;
-      case 1: return resolvedComplaints;
-      case 2: return pendingComplaints;
-      case 3: return rejectedComplaints;
-      default: return [];
+      case 0:
+        return totalComplaints;
+      case 1:
+        return resolvedComplaints;
+      case 2:
+        return pendingComplaints;
+      case 3:
+        return inProgressComplaints; // Updated
+      default:
+        return [];
     }
   }
 
@@ -216,7 +236,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
         const end = Offset.zero;
         const curve = Curves.easeInOut;
         final tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
@@ -224,154 +244,309 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F7FF),
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        title: Text(
-          'Complaint Details',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: fetchComplaintsByCategory,
-            tooltip: 'Refresh Data',
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor: themeProvider.isDarkMode
+            ? Colors.grey[900]
+            : const Color(0xFFF2F7FF),
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: Text(
+            'Complaint Details',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
-        ],
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Category Selection Header (Not Swipeable)
-                Container(
-                  margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: List.generate(categories.length, (index) {
-                      bool isSelected = _currentPage == index;
-                      List<Map<String, dynamic>> complaints = _getComplaintsForCategory(index);
-                      
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            _pageController.animateToPage(
-                              index,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            margin: const EdgeInsets.all(4),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isSelected ? categoryColors[index] : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: isSelected ? [
-                                BoxShadow(
-                                  color: categoryColors[index].withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ] : [],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  categoryIcons[index],
-                                  color: isSelected ? Colors.white : categoryColors[index],
-                                  size: 20,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${complaints.length}',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : categoryColors[index],
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              onPressed: fetchComplaintsByCategory,
+              tooltip: 'Refresh Data',
+            ),
+          ],
+        ),
+        body: isLoading
+            ? _buildComplaintsShimmer()
+            : Column(
+                children: [
+                  // Category Selection Header (Not Swipeable)
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(20),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: List.generate(categories.length, (index) {
+                        bool isSelected = _currentPage == index;
+                        List<Map<String, dynamic>> complaints =
+                            _getComplaintsForCategory(index);
+
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              _pageController.animateToPage(
+                                index,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              margin: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? categoryColors[index]
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: categoryColors[index]
+                                              .withAlpha(76),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    categoryIcons[index],
+                                    color: isSelected
+                                        ? Colors.white
+                                        : categoryColors[index],
+                                    size: 20,
                                   ),
-                                ),
-                                Text(
-                                  categories[index],
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: isSelected ? Colors.white : categoryColors[index],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${complaints.length}',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : categoryColors[index],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    categories[index],
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : categoryColors[index],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
-                ),
-                
-                // Page Indicator
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(categories.length, (index) {
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: 4,
-                        width: _currentPage == index ? 24 : 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index 
-                              ? categoryColors[_currentPage] 
-                              : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
 
-                // Swipeable Content Area
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    itemCount: categories.length,
-                    itemBuilder: (context, pageIndex) {
-                      List<Map<String, dynamic>> complaints = _getComplaintsForCategory(pageIndex);
-                      return _buildComplaintsList(complaints, pageIndex);
-                    },
+                  // Page Indicator
+                  Container(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(categories.length, (index) {
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 4,
+                          width: _currentPage == index ? 24 : 8,
+                          decoration: BoxDecoration(
+                            color: _currentPage == index
+                                ? categoryColors[_currentPage]
+                                : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
+
+                  // Swipeable Content Area
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemCount: categories.length,
+                      itemBuilder: (context, pageIndex) {
+                        List<Map<String, dynamic>> complaints =
+                            _getComplaintsForCategory(pageIndex);
+                        return _buildComplaintsList(complaints, pageIndex);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: fetchComplaintsByCategory,
+          backgroundColor: Colors.teal,
+          child: const Icon(Icons.refresh_rounded),
+          tooltip: 'Refresh',
+        ),
+      );
+    });
+  }
+
+  Widget _buildComplaintsShimmer() {
+    return Column(
+      children: [
+        // Header shimmer
+        Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            children: List.generate(
+                4,
+                (index) => Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        height: 80,
+                      ),
+                    )),
+          ),
+        ),
+
+        // Page indicator shimmer
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+                4,
+                (index) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 4,
+                      width: 8,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    )),
+          ),
+        ),
+
+        // List shimmer
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 6,
+            itemBuilder: (context, index) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 16,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                height: 12,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: 60,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      height: 12,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 12,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: fetchComplaintsByCategory,
-        backgroundColor: Colors.teal,
-        child: const Icon(Icons.refresh_rounded),
-        tooltip: 'Refresh',
-      ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildComplaintsList(List<Map<String, dynamic>> complaints, int categoryIndex) {
+  Widget _buildComplaintsList(
+      List<Map<String, dynamic>> complaints, int categoryIndex) {
     if (complaints.isEmpty) {
       return Center(
         child: Column(
@@ -380,13 +555,13 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: categoryColors[categoryIndex].withOpacity(0.1),
+                color: categoryColors[categoryIndex].withAlpha(25),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 categoryIcons[categoryIndex],
                 size: 48,
-                color: categoryColors[categoryIndex].withOpacity(0.5),
+                color: categoryColors[categoryIndex].withAlpha(128),
               ),
             ),
             const SizedBox(height: 16),
@@ -435,19 +610,20 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
     );
   }
 
-  Widget _buildComplaintCard(Map<String, dynamic> complaint, int categoryIndex) {
+  Widget _buildComplaintCard(
+      Map<String, dynamic> complaint, int categoryIndex) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _getStatusColor(complaint["status"]).withOpacity(0.2),
+          color: _getStatusColor(complaint["status"]).withAlpha(51),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(12),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -473,7 +649,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: _getStatusColor(complaint["status"]).withOpacity(0.1),
+                        color:
+                            _getStatusColor(complaint["status"]).withAlpha(25),
                       ),
                       child: complaint["media_type"] == "image"
                           ? ClipRRect(
@@ -485,10 +662,10 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(
-                                      Icons.broken_image_rounded,
-                                      color: _getStatusColor(complaint["status"]),
-                                      size: 24,
-                                    ),
+                                  Icons.broken_image_rounded,
+                                  color: _getStatusColor(complaint["status"]),
+                                  size: 24,
+                                ),
                               ),
                             )
                           : Container(
@@ -504,7 +681,7 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                             ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Content
                     Expanded(
                       child: Column(
@@ -521,7 +698,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.location_on_rounded, size: 14, color: Colors.grey[600]),
+                              Icon(Icons.location_on_rounded,
+                                  size: 14, color: Colors.grey[600]),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
@@ -537,15 +715,18 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                         ],
                       ),
                     ),
-                    
+
                     // Status badge with proper color
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(complaint["status"]).withOpacity(0.1),
+                        color:
+                            _getStatusColor(complaint["status"]).withAlpha(25),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: _getStatusColor(complaint["status"]).withOpacity(0.3),
+                          color: _getStatusColor(complaint["status"])
+                              .withAlpha(76),
                           width: 1,
                         ),
                       ),
@@ -560,9 +741,9 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Description
                 Text(
                   complaint["description"] ?? "No description",
@@ -574,16 +755,17 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Footer info
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.person_outline, size: 14, color: Colors.grey[500]),
+                        Icon(Icons.person_outline,
+                            size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
                           complaint["user_name"] ?? "Unknown",
@@ -597,7 +779,8 @@ class _ComplaintDetailsPageState extends State<ComplaintDetailsPage> {
                     ),
                     Row(
                       children: [
-                        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                        Icon(Icons.access_time,
+                            size: 14, color: Colors.grey[500]),
                         const SizedBox(width: 4),
                         Text(
                           "${complaint["date"]} ${complaint["time"]}",
