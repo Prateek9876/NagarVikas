@@ -503,7 +503,7 @@ class ProfilePageState extends State<ProfilePage>
   Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyPage()));
 }, themeProvider),
         _buildActionTile("Help Center", Icons.help_center_outlined, const Color(0xFFFF9800), () {}, themeProvider),
-        _buildActionTile("Report Issue", Icons.report_problem_outlined, const Color(0xFFE91E63), () {}, themeProvider),
+        _buildActionTile("Report Issue", Icons.report_problem_outlined, const Color(0xFFE91E63), () {_showReportIssueDialog(themeProvider);}, themeProvider),
         _buildActionTile("Logout", Icons.logout_outlined, const Color(0xFFf44336), () => _showLogoutDialog(themeProvider), themeProvider),
       ],
       themeProvider,
@@ -652,6 +652,141 @@ class ProfilePageState extends State<ProfilePage>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showReportIssueDialog(ThemeProvider themeProvider) {
+    final TextEditingController issueController = TextEditingController();
+    String selectedIssueType = 'Bug Report';
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              const Icon(Icons.report_problem, color: Color(0xFFE91E63)),
+              const SizedBox(width: 12),
+              Text(
+                "Report Issue",
+                style: TextStyle(
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Issue Type",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedIssueType,
+                  dropdownColor: themeProvider.isDarkMode ? Colors.grey[700] : Colors.white,
+                  style: TextStyle(
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey,
+                      ),
+                    ),
+                  ),
+                  items: [
+                    'Bug Report',
+                    'Feature Request',
+                    'Login Issue',
+                    'App Crash',
+                    'Performance Issue',
+                    'Other'
+                  ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedIssueType = newValue!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Describe the Issue",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: issueController,
+                  maxLines: 4,
+                  style: TextStyle(
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Please describe the issue in detail...',
+                    hintStyle: TextStyle(
+                      color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                    border: const OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (issueController.text.trim().isNotEmpty) {
+                  // Here you can add logic to send the report
+                  // For now, just show a confirmation
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Issue reported successfully! We will review it soon.'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please describe the issue'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE91E63)),
+              child: const Text("Submit Report", style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       ),
     );
