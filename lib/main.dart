@@ -1,6 +1,7 @@
 // 📦 Importing necessary packages and screens
 import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:nagarvikas/service/connectivity_service.dart';
 import 'package:nagarvikas/widgets/bottom_nav_bar.dart';
 import 'package:nagarvikas/widgets/exit_confirmation.dart';
@@ -30,6 +31,11 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   // ✅ Ensures Flutter is initialized before any Firebase code
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // ✅ OneSignal push notification setup
   OneSignal.initialize("70614e6d-8bbf-4ac1-8f6d-b261a128059c");
