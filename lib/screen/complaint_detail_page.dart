@@ -343,72 +343,103 @@ class _ComplaintDetailPageState extends State<ComplaintDetailPage> {
   Widget _buildDetailShimmer(ThemeProvider themeProvider) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: themeProvider.isDarkMode
-                  ? Colors.black.withAlpha((0.3 * 255).toInt())
-                  : Colors.black.withAlpha((0.1 * 255).toInt()),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image shimmer
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
-                borderRadius: BorderRadius.circular(8),
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: themeProvider.isDarkMode
+                    ? Colors.black.withAlpha((0.3 * 255).toInt())
+                    : Colors.black.withAlpha((0.1 * 255).toInt()),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Info sections shimmer
-            ...List.generate(
-                6,
-                    (index) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                  ],
-                )),
-
-            // Dropdown shimmer
-            Container(
-              width: double.infinity,
-              height: 48,
-              decoration: BoxDecoration(
-                color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image shimmer - responsive
+              Container(
+                height: MediaQuery.of(context).size.width * 0.5, // Responsive height
+                width: double.infinity,
+                constraints: const BoxConstraints(
+                  minHeight: 150,
+                  maxHeight: 250,
+                ),
+                decoration: BoxDecoration(
+                  color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              // Info sections shimmer - responsive
+              ...List.generate(6, (index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title shimmer with responsive width
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.3, // 30% of screen width
+                        height: 16,
+                        constraints: const BoxConstraints(
+                          minWidth: 80,
+                          maxWidth: 150,
+                        ),
+                        decoration: BoxDecoration(
+                          color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Content shimmer - full width but with proper constraints
+                      Container(
+                        width: double.infinity,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+
+              // Dropdown shimmer - responsive
+              Container(
+                width: double.infinity,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Delete button shimmer - centered and responsive
+              Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  height: 44,
+                  constraints: const BoxConstraints(
+                    minWidth: 100,
+                    maxWidth: 150,
+                  ),
+                  decoration: BoxDecoration(
+                    color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
