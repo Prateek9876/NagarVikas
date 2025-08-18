@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:nagarvikas/screen/privacy_policy_page.dart';
 import '../theme/theme_provider.dart';
@@ -498,16 +499,31 @@ class ProfilePageState extends State<ProfilePage>
             themeProvider.isDarkMode ? const Color(0xFFFFB74D) : const Color(0xFF424242),
                 () => themeProvider.toggleTheme(),
             themeProvider),
-        _buildActionTile("Change Password", Icons.lock_outline, const Color(0xFF2196F3), () {}, themeProvider),
+        _buildActionTile("Change Password", Icons.lock_outline, const Color(0xFF2196F3), () => _forgotPassword(), themeProvider),
         _buildActionTile("Privacy Settings", Icons.privacy_tip_outlined, const Color(0xFF4CAF50), () {
-  Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyPage()));
-}, themeProvider),
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyPage()));
+        }, themeProvider),
         _buildActionTile("Help Center", Icons.help_center_outlined, const Color(0xFFFF9800), () {}, themeProvider),
         _buildActionTile("Report Issue", Icons.report_problem_outlined, const Color(0xFFE91E63), () {}, themeProvider),
         _buildActionTile("Logout", Icons.logout_outlined, const Color(0xFFf44336), () => _showLogoutDialog(themeProvider), themeProvider),
       ],
       themeProvider,
     );
+  }
+
+  // 🔑 Forgot password logic using Firebase reset email
+  Future<void> _forgotPassword() async {
+    if (email.isEmpty || email == "Loading...") {
+      Fluttertoast.showToast(msg: "Email not available. Please try again later.");
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      Fluttertoast.showToast(msg: "Password reset link sent to $email");
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error sending reset email.");
+    }
   }
 
   Widget _buildSection(String title, IconData icon, List<Widget> children, ThemeProvider themeProvider) {
