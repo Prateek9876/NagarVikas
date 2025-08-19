@@ -16,14 +16,15 @@ class DiscussionForum extends StatefulWidget {
 class DiscussionForumState extends State<DiscussionForum> {
   final TextEditingController _messageController = TextEditingController();  // 💬 Controls text input
   final DatabaseReference _messagesRef =
-      FirebaseDatabase.instance.ref("discussion/");  // 🔗 Firebase DB ref
-  final ScrollController _scrollController = ScrollController();  // 📜 Scroll controller for ListView
+      FirebaseDatabase.instance.ref("discussion/"); // 🔗 Firebase DB ref
+  final ScrollController _scrollController =
+      ScrollController(); // 📜 Scroll controller for ListView
   String? userId;
 
   @override
   void initState() {
     super.initState();
-    userId = FirebaseAuth.instance.currentUser?.uid;  // 🔐 Get current user ID
+    userId = FirebaseAuth.instance.currentUser?.uid; // 🔐 Get current user ID
   }
 
   /// 📤 Sends a message to Firebase Realtime Database
@@ -31,12 +32,12 @@ class DiscussionForumState extends State<DiscussionForum> {
     if (_messageController.text.trim().isEmpty) return;
 
     _messagesRef.push().set({
-      "message": _messageController.text.trim(),  // ✍️ Message text
-      "senderId": userId,                         // 👤 Sender ID
-      "timestamp": ServerValue.timestamp,         // 🕒 Server-side timestamp
+      "message": _messageController.text.trim(), // ✍️ Message text
+      "senderId": userId, // 👤 Sender ID
+      "timestamp": ServerValue.timestamp, // 🕒 Server-side timestamp
     });
 
-    _messageController.clear();  // 🔄 Clear input
+    _messageController.clear(); // 🔄 Clear input
     Future.delayed(Duration(milliseconds: 300), () {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
@@ -59,7 +60,7 @@ class DiscussionForumState extends State<DiscussionForum> {
           ),
         ),
         child: Text(
-          messageData["message"],  // 📝 Display message
+          messageData["message"], // 📝 Display message
           style: TextStyle(color: isMe ? Colors.white : Colors.black),
         ),
       ),
@@ -95,7 +96,8 @@ class DiscussionForumState extends State<DiscussionForum> {
                     .toList();
 
                 // 🕒 Sort by timestamp (ascending)
-                messagesList.sort((a, b) => a["timestamp"].compareTo(b["timestamp"]));
+                messagesList
+                    .sort((a, b) => a["timestamp"].compareTo(b["timestamp"]));
 
                 return ListView.builder(
                   controller: _scrollController,
@@ -103,7 +105,7 @@ class DiscussionForumState extends State<DiscussionForum> {
                   itemBuilder: (context, index) {
                     final message = messagesList[index];
                     bool isMe = message["senderId"] == userId;
-                    return _buildMessage(message, isMe);  // 🧱 Render message
+                    return _buildMessage(message, isMe); // 🧱 Render message
                   },
                 );
               },
@@ -140,7 +142,7 @@ class DiscussionForumState extends State<DiscussionForum> {
             ),
           ),
         ],
-     ),
-);
-}
+      ),
+    );
+  }
 }

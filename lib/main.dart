@@ -157,7 +157,7 @@ class AuthCheckScreenState extends State<AuthCheckScreen> {
       return const WelcomeScreen();
     } else {
       if (isAdmin && user!.email?.contains("gov") == true) {
-        return AdminDashboard();
+        return MainNavigation();
       } else {
         return const BottomNavBar();
       }

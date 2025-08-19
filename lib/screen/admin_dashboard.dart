@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
-import 'complaint_detail_page.dart';
-import 'favourites.dart';
+import './complaint_detail_page.dart';
 import 'login_page.dart';
-
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -15,10 +13,9 @@ class AdminDashboard extends StatefulWidget {
   AdminDashboardState createState() => AdminDashboardState();
 }
 
-
 class AdminDashboardState extends State<AdminDashboard>
     with SingleTickerProviderStateMixin {
-  
+
   int totalComplaints = 0;
   int pendingComplaints = 0;
   int inProgressComplaints = 0;
@@ -477,7 +474,7 @@ class AdminDashboardState extends State<AdminDashboard>
                   hintText: "Search complaints...",
                   border: InputBorder.none,
                   contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 onChanged: _searchComplaints,
               ),
@@ -487,13 +484,16 @@ class AdminDashboardState extends State<AdminDashboard>
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : filteredComplaints.isEmpty
-
                       ? FadeTransition(
                           opacity: _fadeAnimation,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset("assets/no-compliants-found.png",width: 300,height: 300,),
+                              Image.asset(
+                                "assets/no-compliants-found.png",
+                                width: 300,
+                                height: 300,
+                              ),
                               const SizedBox(height: 16),
                               const Text(
                                 "No complaints found.",
@@ -516,29 +516,35 @@ class AdminDashboardState extends State<AdminDashboard>
                               margin: const EdgeInsets.symmetric(vertical: 8),
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(12),
-                                leading: complaint["media_type"] == "image"
-                                    ? ClipOval(
-                                        child: Image.network(
-                                          complaint["media_url"],
-                                          width: 60,
-                                          height: 60,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  const Icon(Icons.broken_image,
-                                                      size: 40),
+                                leading: Hero(
+                                  tag: "complaint_${complaint["id"]}",
+                                  child: complaint["media_type"] == "image"
+                                      ? ClipOval(
+                                          child: Image.network(
+                                            complaint["media_url"],
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error,
+                                                    stackTrace) =>
+                                                const Icon(Icons.broken_image,
+                                                    size: 40),
+                                          ),
+                                        )
+                                      : const CircleAvatar(
+                                          radius: 30,
+                                          backgroundColor: Colors.grey,
+                                          child: Icon(Icons.videocam,
+                                              color: Colors.white),
                                         ),
-                                      )
-                                    : const CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Colors.grey,
-                                        child: Icon(Icons.videocam,
-                                            color: Colors.white),
-                                      ),
-                                title: Text(
-                                  complaint["issue_type"] ?? "Unknown",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
+                                ),
+                                title: Hero(
+                                  tag: 'title_${complaint["id"]}',
+                                  child: Text(
+                                    complaint["issue_type"] ?? "Unknown",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +563,6 @@ class AdminDashboardState extends State<AdminDashboard>
                               ),
                             );
                           },
-
                         ),
                       )
                           : const CircleAvatar(

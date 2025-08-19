@@ -25,8 +25,6 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   List<Widget> dashboardWidgets = [];
 
-
-
   @override
   void initState() {
     super.initState();
@@ -35,12 +33,14 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
 
   // Handle bottom navigation item tap
   void _onItemTapped(int index) {
-    if (index == 0) { // Home
+    if (index == 0) {
+      // Home
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AdminDashboard()),
       );
-    } else if (index == 2) { // Logout
+    } else if (index == 2) {
+      // Logout
       _showLogoutDialog();
     } else {
       setState(() {
@@ -91,7 +91,8 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
       final data = snapshot.value as Map<dynamic, dynamic>;
       data.forEach((key, value) {
         final complaint = Map<String, dynamic>.from(value);
-        final status = (complaint['status'] ?? 'Pending').toString().toLowerCase();
+        final status =
+            (complaint['status'] ?? 'Pending').toString().toLowerCase();
         if (status == 'resolved') {
           res++;
         } else if (status == 'pending') {
@@ -153,10 +154,14 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
             runSpacing: spacing,
             alignment: WrapAlignment.center,
             children: [
-              _buildNeumorphicCard('Total', total, Colors.blue, Icons.all_inbox, cardWidth),
-              _buildNeumorphicCard('Resolved', resolved, Colors.green, Icons.check_circle, cardWidth),
-              _buildNeumorphicCard('Pending', pending, Colors.orange, Icons.timelapse, cardWidth),
-              _buildNeumorphicCard('Rejected', rejected, Colors.red, Icons.cancel, cardWidth),
+              _buildNeumorphicCard(
+                  'Total', total, Colors.blue, Icons.all_inbox, cardWidth),
+              _buildNeumorphicCard('Resolved', resolved, Colors.green,
+                  Icons.check_circle, cardWidth),
+              _buildNeumorphicCard('Pending', pending, Colors.orange,
+                  Icons.timelapse, cardWidth),
+              _buildNeumorphicCard(
+                  'Rejected', rejected, Colors.red, Icons.cancel, cardWidth),
             ],
           );
         },
@@ -231,20 +236,24 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: isDarkMode
-          ? ThemeData.dark().copyWith(scaffoldBackgroundColor: const Color(0xFF121212))
-          : ThemeData.light().copyWith(scaffoldBackgroundColor: const Color(0xFFF2F7FF)),
+          ? ThemeData.dark()
+              .copyWith(scaffoldBackgroundColor: const Color(0xFF121212))
+          : ThemeData.light()
+              .copyWith(scaffoldBackgroundColor: const Color(0xFFF2F7FF)),
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Color.fromARGB(255, 4, 204, 240),
-          title: Text("Analytics Dashboard",style:  TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600
-
-          ),),
+          title: Text(
+            "Analytics Dashboard",
+            style: TextStyle(
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+          ),
           actions: [
             IconButton(
-              icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode,color: Colors.white,),
+              icon: Icon(
+                isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                color: Colors.white,
+              ),
               onPressed: () {
                 setState(() {
                   isDarkMode = !isDarkMode;
@@ -276,7 +285,6 @@ class _AnalyticsDashboardState extends State<AnalyticsDashboard> {
                   },
                 ),
               ),
-
       ),
     );
   }

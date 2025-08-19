@@ -2,9 +2,12 @@ import 'package:nagarvikas/screen/about.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:NagarVikas/screen/issue_selection.dart';
+import 'package:NagarVikas/screen/my_complaints.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nagarvikas/screen/issue_selection.dart';
 import 'package:nagarvikas/screen/my_complaints.dart';
-import 'package:google_fonts/google_fonts.dart'; 
+import 'package:google_fonts/google_fonts.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key});

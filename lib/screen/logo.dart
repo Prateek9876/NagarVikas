@@ -125,14 +125,13 @@ class LogoWidgetState extends State<LogoWidget>
             child: Column(
               children: [
                 CircularProgressIndicator(
-                  color:  Colors.red, // 🔴 Indicator color
+                  color: Colors.red, // 🔴 Indicator color
                 ),
                 SizedBox(height: 15),
                 Text(
                   "Redirecting to Ministry of Complaints... 🧙‍♂️",
                   style: GoogleFonts.nunito(
                     fontSize: 14,
-                    
                     fontWeight: FontWeight.w600,
                     color: Colors.grey[700],
                   ),
@@ -141,7 +140,7 @@ class LogoWidgetState extends State<LogoWidget>
             ),
           ),
         ],
-     ),
-);
-}
+      ),
+    );
+  }
 }

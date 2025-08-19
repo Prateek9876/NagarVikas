@@ -95,7 +95,8 @@ class FeedbackPageState extends State<FeedbackPage> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Adjusted padding
+        contentPadding: EdgeInsets.symmetric(
+            vertical: 15, horizontal: 15), // Adjusted padding
       ),
       style: TextStyle(color: Colors.black),
     );
@@ -138,7 +139,8 @@ class FeedbackPageState extends State<FeedbackPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
-      child: Text('Submit Feedback', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      child: Text('Submit Feedback',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -165,7 +167,7 @@ class FeedbackPageState extends State<FeedbackPage> {
             ),
           ],
         );
-     },
-);
-}
+      },
+    );
+  }
 }

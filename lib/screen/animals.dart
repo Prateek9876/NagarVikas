@@ -16,7 +16,8 @@ class AnimalsPage extends StatelessWidget {
       body: const SharedIssueForm(
         issueType: "Stray Animals",
         headingText: "Stray animals issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+        infoText:
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );

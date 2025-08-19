@@ -16,7 +16,8 @@ class StreetLightPage extends StatelessWidget {
       body: const SharedIssueForm(
         issueType: "Street Lights",
         headingText: "Street Lights issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+        infoText:
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );

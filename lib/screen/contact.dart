@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactUsPage extends StatelessWidget {
-  final String phoneNumber = "+917307858026";  // Replace with your phone number
+  final String phoneNumber = "+917307858026"; // Replace with your phone number
   final String email = "support@nagarvikas.com";
 
-  const ContactUsPage({super.key});  // Replace with your support email
+  const ContactUsPage({super.key}); // Replace with your support email
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +88,7 @@ class ContactUsPage extends StatelessWidget {
         'body': body,
       },
     );
-  
+
     String emailUrl = emailLaunchUri.toString();
 
     // Replace + with %20 to fix space encoding for mailto

@@ -119,6 +119,7 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
     'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Siliguri', 'Asansol'],
   };
 
+
   @override
   void initState() {
     super.initState();
@@ -163,7 +164,6 @@ class _SharedIssueFormState extends State<SharedIssueForm> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-          // ignore: deprecated_member_use
           desiredAccuracy: LocationAccuracy.high);
       final placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);

@@ -23,13 +23,9 @@ class _MainNavigationState extends State<MainNavigation> {
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         selectedLabelStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600
-        ),
-        unselectedLabelStyle:  TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600
-        ),
+            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
+        unselectedLabelStyle: TextStyle(
+            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black),
         elevation: 10,
         backgroundColor: Colors.white,
         currentIndex: _currentIndex,
@@ -39,15 +35,18 @@ class _MainNavigationState extends State<MainNavigation> {
           });
         },
         items: const [
-
           BottomNavigationBarItem(
-            icon: Icon(Icons.home,color:Color.fromARGB(255, 4, 204, 240),),
+            icon: Icon(
+              Icons.home,
+              color: Color.fromARGB(255, 4, 204, 240),
+            ),
             label: 'Admin',
-
-
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.analytics,color:Color.fromARGB(255, 4, 204, 240),),
+            icon: Icon(
+              Icons.analytics,
+              color: Color.fromARGB(255, 4, 204, 240),
+            ),
             label: 'Analytics',
           ),
         ],

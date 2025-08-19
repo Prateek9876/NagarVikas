@@ -42,18 +42,21 @@ class BarChartWidget extends StatelessWidget {
                   showTitles: true,
                   getTitlesWidget: (value, meta) {
                     int index = value.toInt();
-                    if (index < 0 || index >= labels.length) return const Text('');
+                    if (index < 0 || index >= labels.length)
+                      return const Text('');
                     return Padding(
                       padding: const EdgeInsets.only(top: 6.0),
                       child: Text(
                         labels[index],
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     );
                   },
                 ),
               ),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false)),
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             gridData: FlGridData(show: true, drawVerticalLine: false),
@@ -89,4 +92,3 @@ class BarChartWidget extends StatelessWidget {
     return (max + 5).ceilToDouble();
   }
 }
-

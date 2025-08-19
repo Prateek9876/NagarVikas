@@ -17,7 +17,8 @@ class GarbagePage extends StatelessWidget {
       body: const SharedIssueForm(
         issueType: "Garbage",
         headingText: "Garbage lifting issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+        infoText:
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );

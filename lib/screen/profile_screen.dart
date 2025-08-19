@@ -18,7 +18,7 @@ class ProfilePageState extends State<ProfilePage> {
   String name = "Loading...";
   String email = "Loading...";
   String userId = "Loading...";
-  
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +52,8 @@ class ProfilePageState extends State<ProfilePage> {
       // 📌 App bar with title
       appBar: AppBar(
         title: const Text("Profile"),
-        backgroundColor: const Color.fromARGB(255, 4, 204, 240), // Cyan-colored app bar
+        backgroundColor:
+            const Color.fromARGB(255, 4, 204, 240), // Cyan-colored app bar
       ),
 
       // 📄 Profile content
@@ -64,7 +65,7 @@ class ProfilePageState extends State<ProfilePage> {
             // 👤 User avatar
             const CircleAvatar(
               radius: 50,
-              backgroundColor: Color.fromARGB(255, 3, 3, 3), 
+              backgroundColor: Color.fromARGB(255, 3, 3, 3),
               child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
             const SizedBox(height: 20),
@@ -84,13 +85,13 @@ class ProfilePageState extends State<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
-        readOnly: true,   // Field is not editable by user; for display only
+        readOnly: true, // Field is not editable by user; for display only
         decoration: InputDecoration(
-          labelText: label,           // Field label
-          hintText: value,           // Field value
+          labelText: label, // Field label
+          hintText: value, // Field value
           border: const OutlineInputBorder(), // Standard border
         ),
-     ),
-);
-}
+      ),
+    );
+  }
 }

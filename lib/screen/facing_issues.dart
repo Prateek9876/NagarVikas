@@ -187,7 +187,7 @@ class FacingIssuesPage extends StatelessWidget {
         onTap: () {
           // Open contact support page (or email)
         },
-     ),
-);
-}
+      ),
+    );
+  }
 }

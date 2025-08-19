@@ -16,7 +16,8 @@ class WaterPage extends StatelessWidget {
       body: const SharedIssueForm(
         issueType: "Water",
         headingText: "Water supply issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+        infoText:
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );

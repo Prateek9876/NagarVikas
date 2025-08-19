@@ -16,7 +16,8 @@ class NewEntryPage extends StatelessWidget {
       body: const SharedIssueForm(
         issueType: "New Issue",
         headingText: "Enter new issue",
-        infoText: "Please give accurate and correct information for a faster solution.",
+        infoText:
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );

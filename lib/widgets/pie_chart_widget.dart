@@ -1,4 +1,3 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -21,23 +20,32 @@ class PieChartWidget extends StatelessWidget {
       PieChartSectionData(
         value: resolved.toDouble(),
         color: Colors.greenAccent,
-        title: resolved > 0 ? 'Resolved\n${((resolved / total) * 100).toStringAsFixed(1)}%' : '',
+        title: resolved > 0
+            ? 'Resolved\n${((resolved / total) * 100).toStringAsFixed(1)}%'
+            : '',
         radius: 65,
-        titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        titleStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
       ),
       PieChartSectionData(
         value: pending.toDouble(),
         color: Colors.orangeAccent,
-        title: pending > 0 ? 'Pending\n${((pending / total) * 100).toStringAsFixed(1)}%' : '',
+        title: pending > 0
+            ? 'Pending\n${((pending / total) * 100).toStringAsFixed(1)}%'
+            : '',
         radius: 65,
-        titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        titleStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
       ),
       PieChartSectionData(
         value: rejected.toDouble(),
         color: Colors.redAccent,
-        title: rejected > 0 ? 'Rejected\n${((rejected / total) * 100).toStringAsFixed(1)}%' : '',
+        title: rejected > 0
+            ? 'Rejected\n${((rejected / total) * 100).toStringAsFixed(1)}%'
+            : '',
         radius: 65,
-        titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        titleStyle: const TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
       ),
     ];
 
@@ -54,5 +62,3 @@ class PieChartWidget extends StatelessWidget {
     );
   }
 }
-
-

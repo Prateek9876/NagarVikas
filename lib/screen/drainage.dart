@@ -16,7 +16,8 @@ class DrainagePage extends StatelessWidget {
       body: const SharedIssueForm(
         issueType: "Drainage Issue",
         headingText: "Drainage issue selected",
-        infoText: "Please give accurate and correct information for a faster solution.",
+        infoText:
+            "Please give accurate and correct information for a faster solution.",
         imageAsset: "assets/selected.png",
       ),
     );
