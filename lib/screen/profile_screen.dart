@@ -5,6 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:provider/provider.dart';
 import 'package:nagarvikas/screen/privacy_policy_page.dart';
 import '../theme/theme_provider.dart';
+import 'package:nagarvikas/screen/help_center_page.dart';
 
 /// Modern Profile Settings Page
 /// A comprehensive profile and settings page with beautiful UI
@@ -67,11 +68,12 @@ class ProfilePageState extends State<ProfilePage>
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DatabaseReference userRef =
-        FirebaseDatabase.instance.ref().child('users').child(user.uid);
+            FirebaseDatabase.instance.ref().child('users').child(user.uid);
 
         final snapshot = await userRef.get();
         if (snapshot.exists) {
-          Map<dynamic, dynamic>? data = snapshot.value as Map<dynamic, dynamic>?;
+          Map<dynamic, dynamic>? data =
+              snapshot.value as Map<dynamic, dynamic>?;
           setState(() {
             name = data?['name'] ?? "User";
             email = user.email ?? "No email";
@@ -107,7 +109,11 @@ class ProfilePageState extends State<ProfilePage>
         DatabaseReference ref = FirebaseDatabase.instance.ref('complaints/');
 
         // Listen to changes in complaints for real-time updates
-        ref.orderByChild("user_id").equalTo(currentUserId).onValue.listen((event) {
+        ref
+            .orderByChild("user_id")
+            .equalTo(currentUserId)
+            .onValue
+            .listen((event) {
           final data = event.snapshot.value as Map<dynamic, dynamic>?;
 
           if (mounted) {
@@ -154,13 +160,13 @@ class ProfilePageState extends State<ProfilePage>
               end: Alignment.bottomCenter,
               colors: themeProvider.isDarkMode
                   ? [
-                Colors.grey[900]!,
-                Colors.grey[850]!,
-              ]
+                      Colors.grey[900]!,
+                      Colors.grey[850]!,
+                    ]
                   : [
-                const Color(0xFFF8F9FA),
-                const Color(0xFFFFFFFF),
-              ],
+                      const Color(0xFFF8F9FA),
+                      const Color(0xFFFFFFFF),
+                    ],
             ),
           ),
           child: CustomScrollView(
@@ -195,9 +201,8 @@ class ProfilePageState extends State<ProfilePage>
       floating: false,
       pinned: true,
       elevation: 0,
-      backgroundColor: themeProvider.isDarkMode
-          ? Colors.grey[850]
-          : const Color(0xFF1565C0),
+      backgroundColor:
+          themeProvider.isDarkMode ? Colors.grey[850] : const Color(0xFF1565C0),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
@@ -206,20 +211,21 @@ class ProfilePageState extends State<ProfilePage>
               end: Alignment.bottomRight,
               colors: themeProvider.isDarkMode
                   ? [
-                Colors.grey[850]!,
-                Colors.grey[800]!,
-                Colors.grey[700]!,
-              ]
+                      Colors.grey[850]!,
+                      Colors.grey[800]!,
+                      Colors.grey[700]!,
+                    ]
                   : [
-                const Color(0xFF1565C0),
-                const Color(0xFF42A5F5),
-                const Color(0xFF81C784),
-              ],
+                      const Color(0xFF1565C0),
+                      const Color(0xFF42A5F5),
+                      const Color(0xFF81C784),
+                    ],
             ),
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -293,7 +299,8 @@ class ProfilePageState extends State<ProfilePage>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: (themeProvider.isDarkMode ? Colors.black : Colors.grey).withOpacity(0.1),
+              color: (themeProvider.isDarkMode ? Colors.black : Colors.grey)
+                  .withOpacity(0.1),
               spreadRadius: 2,
               blurRadius: 10,
               offset: const Offset(0, 3),
@@ -341,7 +348,9 @@ class ProfilePageState extends State<ProfilePage>
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -349,7 +358,9 @@ class ProfilePageState extends State<ProfilePage>
                         isLoading ? "Loading..." : email,
                         style: TextStyle(
                           fontSize: 14,
-                          color: themeProvider.isDarkMode ? Colors.grey[300] : Colors.grey[600],
+                          color: themeProvider.isDarkMode
+                              ? Colors.grey[300]
+                              : Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -440,7 +451,8 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, ThemeProvider themeProvider) {
+  Widget _buildStatCard(String title, String value, IconData icon, Color color,
+      ThemeProvider themeProvider) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -464,7 +476,9 @@ class ProfilePageState extends State<ProfilePage>
             title,
             style: TextStyle(
               fontSize: 10,
-              color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              color: themeProvider.isDarkMode
+                  ? Colors.grey[400]
+                  : Colors.grey[600],
               fontWeight: FontWeight.w500,
             ),
             textAlign: TextAlign.center,
@@ -479,10 +493,14 @@ class ProfilePageState extends State<ProfilePage>
       "Account Information",
       Icons.person_outline,
       [
-        _buildInfoTile("Full Name", name, Icons.person, () => _showEditDialog("name", themeProvider), themeProvider),
-        _buildInfoTile("Email Address", email, Icons.email, null, themeProvider),
-        _buildInfoTile("Phone Number", phoneNumber, Icons.phone, () => _showEditDialog("phone", themeProvider), themeProvider),
-        _buildInfoTile("User ID", _formatUserId(userId), Icons.fingerprint, null, themeProvider),
+        _buildInfoTile("Full Name", name, Icons.person,
+            () => _showEditDialog("name", themeProvider), themeProvider),
+        _buildInfoTile(
+            "Email Address", email, Icons.email, null, themeProvider),
+        _buildInfoTile("Phone Number", phoneNumber, Icons.phone,
+            () => _showEditDialog("phone", themeProvider), themeProvider),
+        _buildInfoTile("User ID", _formatUserId(userId), Icons.fingerprint,
+            null, themeProvider),
       ],
       themeProvider,
     );
@@ -493,24 +511,46 @@ class ProfilePageState extends State<ProfilePage>
       "Support & Security",
       Icons.help_outline,
       [
-        _buildActionTile("Dark Mode",
+        _buildActionTile(
+            "Dark Mode",
             themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-            themeProvider.isDarkMode ? const Color(0xFFFFB74D) : const Color(0xFF424242),
-                () => themeProvider.toggleTheme(),
+            themeProvider.isDarkMode
+                ? const Color(0xFFFFB74D)
+                : const Color(0xFF424242),
+            () => themeProvider.toggleTheme(),
             themeProvider),
-        _buildActionTile("Change Password", Icons.lock_outline, const Color(0xFF2196F3), () {}, themeProvider),
-        _buildActionTile("Privacy Settings", Icons.privacy_tip_outlined, const Color(0xFF4CAF50), () {
-  Navigator.push(context, MaterialPageRoute(builder: (context) => const PrivacyPolicyPage()));
-}, themeProvider),
-        _buildActionTile("Help Center", Icons.help_center_outlined, const Color(0xFFFF9800), () {}, themeProvider),
-        _buildActionTile("Report Issue", Icons.report_problem_outlined, const Color(0xFFE91E63), () {}, themeProvider),
-        _buildActionTile("Logout", Icons.logout_outlined, const Color(0xFFf44336), () => _showLogoutDialog(themeProvider), themeProvider),
+        _buildActionTile("Change Password", Icons.lock_outline,
+            const Color(0xFF2196F3), () {}, themeProvider),
+        _buildActionTile("Privacy Settings", Icons.privacy_tip_outlined,
+            const Color(0xFF4CAF50), () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicyPage()));
+        }, themeProvider),
+        _buildActionTile(
+            "Help Center", Icons.help_center_outlined, const Color(0xFFFF9800),
+            () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HelpCenterPage()),
+          );
+        }, themeProvider),
+        _buildActionTile("Report Issue", Icons.report_problem_outlined,
+            const Color(0xFFE91E63), () {}, themeProvider),
+        _buildActionTile(
+            "Logout",
+            Icons.logout_outlined,
+            const Color(0xFFf44336),
+            () => _showLogoutDialog(themeProvider),
+            themeProvider),
       ],
       themeProvider,
     );
   }
 
-  Widget _buildSection(String title, IconData icon, List<Widget> children, ThemeProvider themeProvider) {
+  Widget _buildSection(String title, IconData icon, List<Widget> children,
+      ThemeProvider themeProvider) {
     return FadeInUp(
       duration: const Duration(milliseconds: 600),
       child: Container(
@@ -520,7 +560,8 @@ class ProfilePageState extends State<ProfilePage>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: (themeProvider.isDarkMode ? Colors.black : Colors.grey).withOpacity(0.1),
+              color: (themeProvider.isDarkMode ? Colors.black : Colors.grey)
+                  .withOpacity(0.1),
               spreadRadius: 2,
               blurRadius: 10,
               offset: const Offset(0, 3),
@@ -552,7 +593,9 @@ class ProfilePageState extends State<ProfilePage>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black87,
                     ),
                   ),
                 ],
@@ -566,7 +609,8 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildInfoTile(String title, String value, IconData icon, VoidCallback? onTap, ThemeProvider themeProvider) {
+  Widget _buildInfoTile(String title, String value, IconData icon,
+      VoidCallback? onTap, ThemeProvider themeProvider) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       child: Material(
@@ -579,7 +623,11 @@ class ProfilePageState extends State<ProfilePage>
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(icon, color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 20),
+                Icon(icon,
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+                    size: 20),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -590,7 +638,9 @@ class ProfilePageState extends State<ProfilePage>
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                          color: themeProvider.isDarkMode
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -599,7 +649,9 @@ class ProfilePageState extends State<ProfilePage>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
                         ),
                       ),
                     ],
@@ -609,7 +661,9 @@ class ProfilePageState extends State<ProfilePage>
                   Icon(
                     Icons.edit,
                     size: 16,
-                    color: themeProvider.isDarkMode ? Colors.grey[500] : Colors.grey[400],
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[500]
+                        : Colors.grey[400],
                   ),
               ],
             ),
@@ -619,7 +673,8 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildActionTile(String title, IconData icon, Color color, VoidCallback onTap, ThemeProvider themeProvider) {
+  Widget _buildActionTile(String title, IconData icon, Color color,
+      VoidCallback onTap, ThemeProvider themeProvider) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       child: Material(
@@ -640,14 +695,18 @@ class ProfilePageState extends State<ProfilePage>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black87,
                     ),
                   ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
-                  color: themeProvider.isDarkMode ? Colors.grey[500] : Colors.grey[400],
+                  color: themeProvider.isDarkMode
+                      ? Colors.grey[500]
+                      : Colors.grey[400],
                 ),
               ],
             ),
@@ -661,7 +720,8 @@ class ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
@@ -695,7 +755,8 @@ class ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           "Edit ${field == 'name' ? 'Name' : 'Phone Number'}",
@@ -710,12 +771,15 @@ class ProfilePageState extends State<ProfilePage>
           decoration: InputDecoration(
             labelText: field == 'name' ? 'Full Name' : 'Phone Number',
             labelStyle: TextStyle(
-              color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+              color: themeProvider.isDarkMode
+                  ? Colors.grey[400]
+                  : Colors.grey[600],
             ),
             border: const OutlineInputBorder(),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
-                color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey,
+                color:
+                    themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey,
               ),
             ),
           ),
@@ -738,7 +802,8 @@ class ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+        backgroundColor:
+            themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
@@ -769,7 +834,8 @@ class ProfilePageState extends State<ProfilePage>
               final FirebaseAuth auth = FirebaseAuth.instance;
               await auth.signOut();
               // Navigate to login page - adjust route as needed
-              Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil('/', (route) => false);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text("Logout", style: TextStyle(color: Colors.white)),
