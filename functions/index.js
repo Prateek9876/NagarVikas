@@ -41,11 +41,29 @@ exports.addSenderNameToMessage = functions.database
           }
         }
 
-        // Update the message with sender name
-        await admin.database().ref(`/discussion/${messageId}`).update({
-          senderName: senderName
+        // Prepare update object
+        const updateData = {
+          senderName: senderName,
           createdAt: admin.database.ServerValue.TIMESTAMP
-        });
+        };
+
+        // If replying to a message, get the replied message details
+        if (messageData.replyTo) {
+          try {
+            const repliedMessageSnapshot = await admin.database().ref(`/discussion/${messageData.replyTo}`).once('value');
+            const repliedMessageData = repliedMessageSnapshot.val();
+
+            if (repliedMessageData) {
+              updateData.replyToMessage = repliedMessageData.message || '';
+              updateData.replyToSender = repliedMessageData.senderName || 'Unknown User';
+            }
+          } catch (replyError) {
+            console.error('Error getting replied message:', replyError);
+          }
+        }
+
+        // Update the message with sender name and reply details
+        await admin.database().ref(`/discussion/${messageId}`).update(updateData);
 
         console.log(`Added sender name "${senderName}" to message ${messageId}`);
 

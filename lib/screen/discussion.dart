@@ -19,21 +19,26 @@ class DiscussionForum extends StatefulWidget {
   DiscussionForumState createState() => DiscussionForumState();
 }
 
-class DiscussionForumState extends State<DiscussionForum> with TickerProviderStateMixin {
+class DiscussionForumState extends State<DiscussionForum>
+    with TickerProviderStateMixin {
   final TextEditingController _messageController =
-  TextEditingController(); // 💬 Controls text input
+      TextEditingController(); // 💬 Controls text input
   final DatabaseReference _messagesRef =
-  FirebaseDatabase.instance.ref("discussion/"); // 🔗 Firebase DB ref
+      FirebaseDatabase.instance.ref("discussion/"); // 🔗 Firebase DB ref
   final DatabaseReference _usersRef =
-  FirebaseDatabase.instance.ref("users/"); // 🔗 Users DB ref
+      FirebaseDatabase.instance.ref("users/"); // 🔗 Users DB ref
   final ScrollController _scrollController =
-  ScrollController(); // 📜 Scroll controller for ListView
+      ScrollController(); // 📜 Scroll controller for ListView
   String? userId;
   String? currentUserName;
   bool _showDisclaimer = true;
   bool _hasAgreedToTerms = false;
   bool _showTermsDialog = false;
   late AnimationController _disclaimerController;
+  String? _replyingToMessageId;
+  String? _replyingToMessage;
+  String? _replyingToSender;
+  bool _isReplying = false;
 
   @override
   void initState() {
@@ -141,7 +146,8 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                       Container(
                         padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 4, 204, 240).withOpacity(0.1),
+                          color: const Color.fromARGB(255, 4, 204, 240)
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(50),
                         ),
                         child: Icon(
@@ -158,7 +164,9 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                         style: TextStyle(
                           fontSize: isSmallScreen ? 18 : 22,
                           fontWeight: FontWeight.bold,
-                          color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -169,7 +177,8 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                 // Terms content - Flexible height
                 Flexible(
                   child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 16 : 24),
+                    margin: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 16 : 24),
                     child: SingleChildScrollView(
                       physics: BouncingScrollPhysics(),
                       child: Column(
@@ -230,7 +239,9 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                         "By clicking 'I Agree', you acknowledge that you have read and agree to abide by these terms and guidelines.",
                         style: TextStyle(
                           fontSize: isSmallScreen ? 11 : 13,
-                          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                          color: themeProvider.isDarkMode
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
                           fontStyle: FontStyle.italic,
                         ),
                         textAlign: TextAlign.center,
@@ -258,7 +269,9 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                               child: Text(
                                 "Cancel",
                                 style: TextStyle(
-                                  color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
                                   fontSize: isSmallScreen ? 14 : 16,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -271,7 +284,8 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                             child: ElevatedButton(
                               onPressed: _agreeToTerms,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(255, 4, 204, 240),
+                                backgroundColor:
+                                    const Color.fromARGB(255, 4, 204, 240),
                                 padding: EdgeInsets.symmetric(
                                   vertical: isSmallScreen ? 10 : 12,
                                 ),
@@ -304,7 +318,8 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
   }
 
   /// 📝 Build a terms section with title and bullet points
-  Widget _buildTermsSection(String title, List<String> points, ThemeProvider themeProvider, bool isSmallScreen) {
+  Widget _buildTermsSection(String title, List<String> points,
+      ThemeProvider themeProvider, bool isSmallScreen) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -317,31 +332,38 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
           ),
         ),
         SizedBox(height: isSmallScreen ? 6 : 8),
-        ...points.map((point) => Padding(
-          padding: EdgeInsets.only(left: 8, bottom: isSmallScreen ? 3 : 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "• ",
-                style: TextStyle(
-                  color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                  fontSize: isSmallScreen ? 12 : 14,
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  point,
-                  style: TextStyle(
-                    color: themeProvider.isDarkMode ? Colors.grey[300] : Colors.grey[700],
-                    fontSize: isSmallScreen ? 12 : 14,
-                    height: 1.3,
+        ...points
+            .map((point) => Padding(
+                  padding:
+                      EdgeInsets.only(left: 8, bottom: isSmallScreen ? 3 : 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "• ",
+                        style: TextStyle(
+                          color: themeProvider.isDarkMode
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
+                          fontSize: isSmallScreen ? 12 : 14,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          point,
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode
+                                ? Colors.grey[300]
+                                : Colors.grey[700],
+                            fontSize: isSmallScreen ? 12 : 14,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ],
-          ),
-        )).toList(),
+                ))
+            .toList(),
       ],
     );
   }
@@ -352,9 +374,12 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
       try {
         final snapshot = await _usersRef.child(userId!).once();
         if (snapshot.snapshot.value != null) {
-          final userData = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+          final userData =
+              Map<String, dynamic>.from(snapshot.snapshot.value as Map);
           setState(() {
-            currentUserName = userData['name'] ?? userData['displayName'] ?? _getDefaultName();
+            currentUserName = userData['name'] ??
+                userData['displayName'] ??
+                _getDefaultName();
           });
         } else {
           // If user data doesn't exist, create it with email prefix
@@ -391,20 +416,122 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
 
   /// 📤 Sends a message to Firebase Realtime Database
   void _sendMessage() {
-    if (_messageController.text.trim().isEmpty || currentUserName == null) return;
+    if (_messageController.text.trim().isEmpty || currentUserName == null)
+      return;
 
-    _messagesRef.push().set({
+    Map<String, dynamic> messageData = {
       "message": _messageController.text.trim(), // ✏️ Message text
       "senderId": userId, // 👤 Sender ID
-      "senderName": currentUserName, // 👤 Sender display name - ADDED THIS
-      "timestamp": ServerValue.timestamp, // 🕐 Server-side timestamp
+      "senderName": currentUserName, // 👤 Sender display name
+      "timestamp": ServerValue.timestamp, // 🕒 Server-side timestamp
       "createdAt": ServerValue.timestamp, // 📅 Creation time for display
-    });
+    };
+
+    // Add reply information if replying
+    if (_isReplying && _replyingToMessageId != null) {
+      messageData["replyTo"] = _replyingToMessageId;
+      messageData["replyToMessage"] = _replyingToMessage ?? '';
+      messageData["replyToSender"] = _replyingToSender ?? 'Unknown User';
+    }
+
+    _messagesRef.push().set(messageData);
 
     _messageController.clear(); // 🔄 Clear input
+    _clearReply(); // Clear reply state
+
     Future.delayed(Duration(milliseconds: 300), () {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
+  }
+
+  /// 📝 Set up reply to a message
+  void _replyToMessage(String messageId, String message, String senderName) {
+    setState(() {
+      _isReplying = true;
+      _replyingToMessageId = messageId;
+      _replyingToMessage = message;
+      _replyingToSender = senderName;
+    });
+
+    // Focus on text field
+    FocusScope.of(context).requestFocus(FocusNode());
+  }
+
+  /// ❌ Clear reply state
+  void _clearReply() {
+    setState(() {
+      _isReplying = false;
+      _replyingToMessageId = null;
+      _replyingToMessage = null;
+      _replyingToSender = null;
+    });
+  }
+
+  /// 🏷️ Build reply indicator bar
+  Widget _buildReplyIndicator(ThemeProvider themeProvider) {
+    if (!_isReplying) return SizedBox.shrink();
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          left: BorderSide(
+            color: const Color.fromARGB(255, 4, 204, 240),
+            width: 3,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.reply,
+            size: 16,
+            color: const Color.fromARGB(255, 4, 204, 240),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Replying to ${_replyingToSender}',
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 4, 204, 240),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  _replyingToMessage ?? '',
+                  style: TextStyle(
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+                    fontSize: 13,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: _clearReply,
+            child: Icon(
+              Icons.close,
+              size: 18,
+              color: themeProvider.isDarkMode
+                  ? Colors.grey[400]
+                  : Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 🏷️ Builds the disclaimer banner
@@ -475,7 +602,8 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
   }
 
   /// 🧱 Builds a single message bubble (left or right aligned)
-  Widget _buildMessage(Map<String, dynamic> messageData, bool isMe, ThemeProvider themeProvider) {
+  Widget _buildMessage(Map<String, dynamic> messageData, bool isMe,
+      ThemeProvider themeProvider) {
     // Format the time from createdAt or timestamp
     String formatTime(dynamic timeValue) {
       if (timeValue == null) return '';
@@ -490,7 +618,8 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
 
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
-        final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+        final messageDate =
+            DateTime(dateTime.year, dateTime.month, dateTime.day);
 
         if (messageDate == today) {
           // Today: show time only
@@ -507,14 +636,17 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
       }
     }
 
-    final timeString = formatTime(messageData["createdAt"] ?? messageData["timestamp"]);
+    final timeString =
+        formatTime(messageData["createdAt"] ?? messageData["timestamp"]);
+    final hasReply = messageData["replyTo"] != null;
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             // Show sender name only for other people's messages
             if (!isMe)
@@ -523,51 +655,155 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                 child: Text(
                   messageData["senderName"] ?? "Unknown User",
                   style: TextStyle(
-                    color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    color: themeProvider.isDarkMode
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
-            // Message bubble
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-              decoration: BoxDecoration(
-                color: isMe
-                    ? Colors.blueAccent
-                    : (themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[300]),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomLeft: isMe ? Radius.circular(10) : Radius.circular(0),
-                  bottomRight: isMe ? Radius.circular(0) : Radius.circular(10),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    messageData["message"], // 📝 Display message
-                    style: TextStyle(
-                        color: isMe
-                            ? Colors.white
-                            : (themeProvider.isDarkMode ? Colors.white : Colors.black),
-                        fontSize: 16
-                    ),
+
+            // Message bubble with long press for reply
+            GestureDetector(
+              onLongPress: () {
+                // Don't allow replying to own messages
+                if (!isMe) {
+                  _replyToMessage(
+                    messageData["key"] ?? "",
+                    messageData["message"] ?? "",
+                    messageData["senderName"] ?? "Unknown User",
+                  );
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+                decoration: BoxDecoration(
+                  color: isMe
+                      ? Colors.blueAccent
+                      : (themeProvider.isDarkMode
+                          ? Colors.grey[700]
+                          : Colors.grey[300]),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: isMe ? Radius.circular(10) : Radius.circular(0),
+                    bottomRight:
+                        isMe ? Radius.circular(0) : Radius.circular(10),
                   ),
-                  if (timeString.isNotEmpty) ...[
-                    SizedBox(height: 4),
-                    Text(
-                      timeString,
-                      style: TextStyle(
-                        color: isMe
-                            ? Colors.white70
-                            : (themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600]),
-                        fontSize: 11,
+                ),
+                child: Column(
+                  crossAxisAlignment:
+                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    // Reply indicator (if this message is a reply)
+                    if (hasReply) ...[
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        margin: EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: (isMe
+                              ? Colors.white.withOpacity(0.2)
+                              : Colors.black.withOpacity(0.1)),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border(
+                            left: BorderSide(
+                              color: isMe
+                                  ? Colors.white
+                                  : const Color.fromARGB(255, 4, 204, 240),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              messageData["replyToSender"] ?? "Unknown User",
+                              style: TextStyle(
+                                color: isMe
+                                    ? Colors.white
+                                    : const Color.fromARGB(255, 4, 204, 240),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              messageData["replyToMessage"] ?? "",
+                              style: TextStyle(
+                                color: isMe
+                                    ? Colors.white70
+                                    : (themeProvider.isDarkMode
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600]),
+                                fontSize: 12,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
+                    ],
+
+                    // Main message text
+                    Text(
+                      messageData["message"], // 📝 Display message
+                      style: TextStyle(
+                          color: isMe
+                              ? Colors.white
+                              : (themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black),
+                          fontSize: 16),
+                    ),
+
+                    // Timestamp and reply button
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (timeString.isNotEmpty) ...[
+                          Text(
+                            timeString,
+                            style: TextStyle(
+                              color: isMe
+                                  ? Colors.white70
+                                  : (themeProvider.isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600]),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+
+                        // Reply button (only for other people's messages)
+                        if (!isMe) ...[
+                          SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
+                              _replyToMessage(
+                                messageData["key"] ?? "",
+                                messageData["message"] ?? "",
+                                messageData["senderName"] ?? "Unknown User",
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              child: Icon(
+                                Icons.reply,
+                                size: 14,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
-                ],
+                ),
               ),
             ),
           ],
@@ -581,20 +817,18 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
     return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
       return Scaffold(
         backgroundColor:
-        themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+            themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
         // 🧭 App bar
         appBar: AppBar(
           elevation: 5,
           shadowColor: Colors.black87,
           centerTitle: true,
-          title: Text(
-              "Discussion Forum",
+          title: Text("Discussion Forum",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-              )
-          ),
+              )),
           backgroundColor: const Color.fromARGB(255, 4, 204, 240),
           iconTheme: IconThemeData(
             color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
@@ -613,22 +847,23 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                   // 🏷️ Disclaimer banner
                   if (_showDisclaimer) _buildDisclaimerBanner(themeProvider),
 
-                  // 🔄 Real-time message list
+                  // 📄 Real-time message list
                   Expanded(
                     child: StreamBuilder(
                       stream: _messagesRef.orderByChild("timestamp").onValue,
-                      builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+                      builder:
+                          (context, AsyncSnapshot<DatabaseEvent> snapshot) {
                         if (!snapshot.hasData ||
                             snapshot.data?.snapshot.value == null) {
                           return Center(
                               child: Text(
-                                "No messages yet!",
-                                style: TextStyle(
-                                  color: themeProvider.isDarkMode
-                                      ? Colors.white
-                                      : Colors.black,
-                                ),
-                              )); // 👤 Empty state
+                            "No messages yet!",
+                            style: TextStyle(
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          )); // 👤 Empty state
                         }
 
                         // 🔄 Convert snapshot to list of messages
@@ -638,14 +873,14 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                         List<Map<String, dynamic>> messagesList = messagesMap
                             .entries
                             .map((e) => {
-                          "key": e.key,
-                          ...Map<String, dynamic>.from(e.value)
-                        })
+                                  "key": e.key,
+                                  ...Map<String, dynamic>.from(e.value)
+                                })
                             .toList();
 
-                        // 🕐 Sort by timestamp (ascending)
+                        // 🕒 Sort by timestamp (ascending)
                         messagesList.sort(
-                                (a, b) => a["timestamp"].compareTo(b["timestamp"]));
+                            (a, b) => a["timestamp"].compareTo(b["timestamp"]));
 
                         return ListView.builder(
                           controller: _scrollController,
@@ -653,13 +888,16 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                           itemBuilder: (context, index) {
                             final message = messagesList[index];
                             bool isMe = message["senderId"] == userId;
-                            return _buildMessage(
-                                message, isMe, themeProvider); // 🧱 Render message
+                            return _buildMessage(message, isMe,
+                                themeProvider); // 🧱 Render message
                           },
                         );
                       },
                     ),
                   ),
+
+                  // Reply indicator
+                  _buildReplyIndicator(themeProvider),
 
                   // 💬 Message input field & send button
                   Padding(
@@ -694,15 +932,18 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                                 decoration: InputDecoration(
                                   icon: Padding(
                                     padding: const EdgeInsets.only(
-                                        top: 8.0, left: 18, right: 8, bottom: 8),
-                                    child: Icon(
-                                        Icons.message,
+                                        top: 8.0,
+                                        left: 18,
+                                        right: 8,
+                                        bottom: 8),
+                                    child: Icon(Icons.message,
                                         color: themeProvider.isDarkMode
                                             ? Colors.grey[400]
-                                            : Colors.grey
-                                    ),
+                                            : Colors.grey),
                                   ),
-                                  hintText: "Type a message...",
+                                  hintText: _isReplying
+                                      ? "Reply to ${_replyingToSender}..."
+                                      : "Type a message...",
                                   hintStyle: TextStyle(
                                     color: themeProvider.isDarkMode
                                         ? Colors.grey[400]
@@ -710,10 +951,11 @@ class DiscussionForumState extends State<DiscussionForum> with TickerProviderSta
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide.none, // Remove default border
+                                    borderSide: BorderSide
+                                        .none, // Remove default border
                                   ),
                                   contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 1),
+                                      EdgeInsets.symmetric(horizontal: 1),
                                   filled: true,
                                   fillColor: themeProvider.isDarkMode
                                       ? Colors.grey[800]
@@ -770,8 +1012,8 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
   void initState() {
     super.initState();
     _controller =
-    AnimationController(vsync: this, duration: Duration(seconds: 20))
-      ..repeat();
+        AnimationController(vsync: this, duration: Duration(seconds: 20))
+          ..repeat();
     final random = Random();
     bubbles = List.generate(bubbleCount, (index) {
       final size = random.nextDouble() * 30 + 10;
