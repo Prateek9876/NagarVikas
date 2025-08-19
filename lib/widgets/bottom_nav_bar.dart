@@ -38,7 +38,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black.withAlpha((0.5 * 255).toInt()) : Colors.grey.withAlpha((0.2 * 255).toInt()),
+              color: isDark
+                  ? Colors.black.withAlpha((0.5 * 255).toInt())
+                  : Colors.grey.withAlpha((0.2 * 255).toInt()),
               blurRadius: 20,
               offset: const Offset(0, 5),
             )

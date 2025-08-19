@@ -5,7 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:provider/provider.dart';
 import 'package:nagarvikas/screen/privacy_policy_page.dart';
 import '../theme/theme_provider.dart';
-import 'package:nagarvikas/screen/help_center_page.dart';
+// import 'package:nagarvikas/screen/help_center_page.dart';
 
 /// Modern Profile Settings Page
 /// A comprehensive profile and settings page with beautiful UI
@@ -532,10 +532,10 @@ class ProfilePageState extends State<ProfilePage>
         _buildActionTile(
             "Help Center", Icons.help_center_outlined, const Color(0xFFFF9800),
             () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const HelpCenterPage()),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => const HelpCenterPage()),
+          // );
         }, themeProvider),
         _buildActionTile("Report Issue", Icons.report_problem_outlined,
             const Color(0xFFE91E63), () {}, themeProvider),
@@ -674,8 +674,13 @@ class ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildToggleTile(String title, IconData icon, Color color,
-      bool isToggled, ValueChanged<bool> onToggle, ThemeProvider themeProvider) {
+  Widget _buildToggleTile(
+      String title,
+      IconData icon,
+      Color color,
+      bool isToggled,
+      ValueChanged<bool> onToggle,
+      ThemeProvider themeProvider) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       child: Material(
@@ -704,17 +709,17 @@ class ProfilePageState extends State<ProfilePage>
                 child: Switch(
                   value: isToggled,
                   onChanged: onToggle,
-                  activeColor: themeProvider.isDarkMode 
-                      ? const Color(0xFFFFB74D) 
+                  activeColor: themeProvider.isDarkMode
+                      ? const Color(0xFFFFB74D)
                       : const Color(0xFF424242),
-                  activeTrackColor: themeProvider.isDarkMode 
+                  activeTrackColor: themeProvider.isDarkMode
                       ? const Color(0xFFFFB74D).withOpacity(0.3)
                       : const Color(0xFF424242).withOpacity(0.3),
-                  inactiveThumbColor: themeProvider.isDarkMode 
-                      ? Colors.grey[600] 
+                  inactiveThumbColor: themeProvider.isDarkMode
+                      ? Colors.grey[600]
                       : Colors.grey[400],
-                  inactiveTrackColor: themeProvider.isDarkMode 
-                      ? Colors.grey[700] 
+                  inactiveTrackColor: themeProvider.isDarkMode
+                      ? Colors.grey[700]
                       : Colors.grey[300],
                   splashRadius: 20,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
