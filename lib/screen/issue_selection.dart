@@ -1,4 +1,3 @@
-// Importing necessary Flutter and plugin packages
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -79,7 +78,8 @@ class IssueSelectionPageState extends State<IssueSelectionPage>
     },
     'hi': {
       'title': 'आप किस प्रकार की समस्या का सामना कर रहे हैं?',
-      'subtitle': 'उस श्रेणी का चयन करें जो आपकी चिंता का सबसे अच्छा वर्णन करती है',
+      'subtitle':
+          'उस श्रेणी का चयन करें जो आपकी चिंता का सबसे अच्छा वर्णन करती है',
       'garbage': 'मेरे क्षेत्र में कचरा नहीं उठाया जा रहा है।',
       'water': 'मेरे क्षेत्र में पानी की आपूर्ति नहीं है।',
       'road': 'मेरे क्षेत्र में सड़क क्षतिग्रस्त है।',
@@ -197,206 +197,226 @@ class IssueSelectionPageState extends State<IssueSelectionPage>
   }
 
   void _showTermsAndConditionsDialogIfNeeded() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool hasAccepted = prefs.getBool('hasAcceptedTerms') ?? false;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool hasAccepted = prefs.getBool('hasAcceptedTerms') ?? false;
 
-  if (!hasAccepted) {
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return Consumer<ThemeProvider>(
-            builder: (context, themeProvider, child) {
-              return AlertDialog(
-                backgroundColor: themeProvider.isDarkMode ? Colors.grey[850] : Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                elevation: 10,
-                titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-                actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                title: Row(
-                  children: [
-                    Icon(
-                      Icons.description_outlined,
-                      color: themeProvider.isDarkMode ? Colors.teal[300] : const Color(0xFF1565C0),
-                      size: 24,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      "Terms & Conditions",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                        color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-                content: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    if (!hasAccepted) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return AlertDialog(
+                  backgroundColor: themeProvider.isDarkMode
+                      ? Colors.grey[850]
+                      : Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24)),
+                  elevation: 10,
+                  titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
+                  actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  title: Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: themeProvider.isDarkMode 
-                              ? Colors.teal.withOpacity(0.1) 
-                              : const Color(0xFF1565C0).withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: themeProvider.isDarkMode 
-                                ? Colors.teal.withOpacity(0.3) 
-                                : const Color(0xFF1565C0).withOpacity(0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          "By using this app, you agree to the following terms:",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-                          ),
-                        ),
+                      Icon(
+                        Icons.description_outlined,
+                        color: themeProvider.isDarkMode
+                            ? Colors.teal[300]
+                            : const Color(0xFF1565C0),
+                        size: 24,
                       ),
-                      const SizedBox(height: 16),
-                      _buildTermItem(
-                        "Report issues truthfully and accurately.",
-                        Icons.fact_check_outlined,
-                        themeProvider,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildTermItem(
-                        "Consent to receive notifications from the app.",
-                        Icons.notifications_outlined,
-                        themeProvider,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildTermItem(
-                        "Do not misuse the platform for false complaints.",
-                        Icons.block_outlined,
-                        themeProvider,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildTermItem(
-                        "Data may be used to improve services.",
-                        Icons.analytics_outlined,
-                        themeProvider,
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: themeProvider.isDarkMode 
-                              ? Colors.grey[800] 
-                              : Colors.grey[50],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              size: 16,
-                              color: themeProvider.isDarkMode ? Colors.white60 : Colors.black54,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                "Tap Accept below to proceed and start using the app.",
-                                style: TextStyle(
-                                  fontStyle: FontStyle.italic,
-                                  fontSize: 13,
-                                  color: themeProvider.isDarkMode ? Colors.white60 : Colors.black54,
-                                ),
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 12),
+                      Text(
+                        "Terms & Conditions",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
                         ),
                       ),
                     ],
                   ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      "Decline",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: themeProvider.isDarkMode ? Colors.red[300] : Colors.red[600],
-                      ),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: themeProvider.isDarkMode
+                                ? Colors.teal.withOpacity(0.1)
+                                : const Color(0xFF1565C0).withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: themeProvider.isDarkMode
+                                  ? Colors.teal.withOpacity(0.3)
+                                  : const Color(0xFF1565C0).withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            "By using this app, you agree to the following terms:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black87,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildTermItem(
+                          "Report issues truthfully and accurately.",
+                          Icons.fact_check_outlined,
+                          themeProvider,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTermItem(
+                          "Consent to receive notifications from the app.",
+                          Icons.notifications_outlined,
+                          themeProvider,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTermItem(
+                          "Do not misuse the platform for false complaints.",
+                          Icons.block_outlined,
+                          themeProvider,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildTermItem(
+                          "Data may be used to improve services.",
+                          Icons.analytics_outlined,
+                          themeProvider,
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: themeProvider.isDarkMode
+                                ? Colors.grey[800]
+                                : Colors.grey[50],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 16,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white60
+                                    : Colors.black54,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  "Tap Accept below to proceed and start using the app.",
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 13,
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white60
+                                        : Colors.black54,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: themeProvider.isDarkMode ? Colors.teal : const Color(0xFF1565C0),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 2,
-                    ),
-                    onPressed: () async {
-                      await prefs.setBool('hasAcceptedTerms', true);
-                      if (context.mounted) {
+                  actions: [
+                    TextButton(
+                      onPressed: () {
                         Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text(
-                      "Accept",
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        "Decline",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: themeProvider.isDarkMode
+                              ? Colors.red[300]
+                              : Colors.red[600],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      );
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeProvider.isDarkMode
+                            ? Colors.teal
+                            : const Color(0xFF1565C0),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
+                      ),
+                      onPressed: () async {
+                        await prefs.setBool('hasAcceptedTerms', true);
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text(
+                        "Accept",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      }
     }
   }
-}
 
-Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Container(
-        margin: const EdgeInsets.only(top: 2),
-        child: Icon(
-          icon,
-          size: 16,
-          color: themeProvider.isDarkMode 
-              ? Colors.teal[300] 
-              : const Color(0xFF1565C0),
-        ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 14,
-            height: 1.4,
-            color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+  Widget _buildTermItem(
+      String text, IconData icon, ThemeProvider themeProvider) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 2),
+          child: Icon(
+            icon,
+            size: 16,
+            color: themeProvider.isDarkMode
+                ? Colors.teal[300]
+                : const Color(0xFF1565C0),
           ),
         ),
-      ),
-    ],
-  );
-}
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: themeProvider.isDarkMode ? Colors.white70 : Colors.black87,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   // Requesting Firebase Messaging notification permissions
   void requestNotificationPermission() async {
@@ -436,7 +456,7 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
     log("FCM Token: $token");
 
     DatabaseReference userRef =
-    FirebaseDatabase.instance.ref("users/${user.uid}/fcmToken");
+        FirebaseDatabase.instance.ref("users/${user.uid}/fcmToken");
 
     DatabaseEvent event = await userRef.once();
     String? existingToken = event.snapshot.value as String?;
@@ -477,13 +497,13 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                   end: Alignment.bottomCenter,
                   colors: themeProvider.isDarkMode
                       ? [
-                    Colors.grey[900]!,
-                    Colors.grey[850]!,
-                  ]
+                          Colors.grey[900]!,
+                          Colors.grey[850]!,
+                        ]
                       : [
-                    const Color(0xFFF8F9FA),
-                    const Color(0xFFFFFFFF),
-                  ],
+                          const Color(0xFFF8F9FA),
+                          const Color(0xFFFFFFFF),
+                        ],
                 ),
               ),
               child: CustomScrollView(
@@ -548,7 +568,8 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => DiscussionForum()),
+                        MaterialPageRoute(
+                            builder: (context) => DiscussionForum()),
                       );
                     },
                     child: const Icon(
@@ -572,9 +593,8 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
       floating: false,
       pinned: false,
       elevation: 0,
-      backgroundColor: themeProvider.isDarkMode
-          ? Colors.grey[800]
-          : const Color(0xFF1565C0),
+      backgroundColor:
+          themeProvider.isDarkMode ? Colors.grey[800] : const Color(0xFF1565C0),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: BoxDecoration(
@@ -583,20 +603,21 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
               end: Alignment.bottomRight,
               colors: themeProvider.isDarkMode
                   ? [
-                Colors.grey[800]!,
-                Colors.grey[700]!,
-                Colors.teal[600]!,
-              ]
+                      Colors.grey[800]!,
+                      Colors.grey[700]!,
+                      Colors.teal[600]!,
+                    ]
                   : [
-                const Color(0xFF1565C0),
-                const Color(0xFF42A5F5),
-                const Color(0xFF81C784),
-              ],
+                      const Color(0xFF1565C0),
+                      const Color(0xFF42A5F5),
+                      const Color(0xFF81C784),
+                    ],
             ),
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -661,7 +682,9 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                     ),
                     child: IconButton(
                       icon: Icon(
-                        themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                        themeProvider.isDarkMode
+                            ? Icons.light_mode
+                            : Icons.dark_mode,
                         color: Colors.white,
                       ),
                       onPressed: () {
@@ -738,7 +761,9 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -746,7 +771,9 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                         t('subtitle'),
                         style: TextStyle(
                           fontSize: 14,
-                          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                          color: themeProvider.isDarkMode
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -859,21 +886,22 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
   }
 
   Widget buildEnhancedIssueCard(
-      BuildContext context,
-      ThemeProvider themeProvider,
-      String text,
-      String imagePath,
-      Widget page,
-      Color color,
-      IconData icon,
-      ) {
+    BuildContext context,
+    ThemeProvider themeProvider,
+    String text,
+    String imagePath,
+    Widget page,
+    Color color,
+    IconData icon,
+  ) {
     return Hero(
       tag: 'issue_$text',
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => showEnhancedProcessingDialog(context, themeProvider, page, color),
+          onTap: () =>
+              showEnhancedProcessingDialog(context, themeProvider, page, color),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
@@ -912,13 +940,13 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                         end: Alignment.bottomRight,
                         colors: themeProvider.isDarkMode
                             ? [
-                          color.withOpacity(0.15),
-                          color.withOpacity(0.08),
-                        ]
+                                color.withOpacity(0.15),
+                                color.withOpacity(0.08),
+                              ]
                             : [
-                          color.withOpacity(0.1),
-                          color.withOpacity(0.05),
-                        ],
+                                color.withOpacity(0.1),
+                                color.withOpacity(0.05),
+                              ],
                       ),
                     ),
                     child: ClipRRect(
@@ -979,7 +1007,9 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                      color: themeProvider.isDarkMode
+                          ? Colors.grey[800]
+                          : Colors.white,
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
@@ -996,7 +1026,9 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black87,
                               height: 1.3,
                             ),
                             maxLines: 2,
@@ -1015,7 +1047,8 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                                 : color.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: themeProvider.isDarkMode
-                                ? Border.all(color: color.withOpacity(0.3), width: 0.5)
+                                ? Border.all(
+                                    color: color.withOpacity(0.3), width: 0.5)
                                 : null,
                           ),
                           child: Text(
@@ -1041,19 +1074,15 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
     );
   }
 
-
-  void showEnhancedProcessingDialog(
-      BuildContext context,
-      ThemeProvider themeProvider,
-      Widget nextPage,
-      Color color
-      ) {
+  void showEnhancedProcessingDialog(BuildContext context,
+      ThemeProvider themeProvider, Widget nextPage, Color color) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Container(
             padding: const EdgeInsets.all(32.0),
             decoration: BoxDecoration(
@@ -1062,13 +1091,13 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                 end: Alignment.bottomRight,
                 colors: themeProvider.isDarkMode
                     ? [
-                  Colors.grey[800]!,
-                  Colors.grey[700]!.withOpacity(0.8),
-                ]
+                        Colors.grey[800]!,
+                        Colors.grey[700]!.withOpacity(0.8),
+                      ]
                     : [
-                  Colors.white,
-                  color.withOpacity(0.05),
-                ],
+                        Colors.white,
+                        color.withOpacity(0.05),
+                      ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: themeProvider.isDarkMode
@@ -1112,9 +1141,7 @@ Widget _buildTermItem(String text, IconData icon, ThemeProvider themeProvider) {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: themeProvider.isDarkMode
-                        ? Colors.teal
-                        : color,
+                    color: themeProvider.isDarkMode ? Colors.teal : color,
                   ),
                 ),
                 const SizedBox(height: 8),
