@@ -10,21 +10,24 @@ import 'poll_message_widget.dart';
 class MessageWidgets {
   /// Build message widget with image and video support
   static Widget buildMessage(
-    Map<String, dynamic> messageData,
-    bool isMe,
-    ThemeProvider themeProvider,
-    Function(String) onImageTap,
-    Function(String) onVideoTap,
-    Function(String, String, String) onReply,
-    Function(String, String, ThemeProvider, bool, bool, String, String)
-        onMessageOptions,
-    bool isAdmin,
-    String currentUserId,
-    // NEW PARAMETERS for voting
-    Map<String, Map<String, dynamic>> messageVotes,
-    Function(String, bool) onVote,
-    Function(String) getUserVote,
-  ) {
+      Map<String, dynamic> messageData,
+      bool isMe,
+      ThemeProvider themeProvider,
+      Function(String) onImageTap,
+      Function(String) onVideoTap,
+      Function(String, String, String) onReply,
+      Function(String, String, ThemeProvider, bool, bool, String, String)
+      onMessageOptions,
+      bool isAdmin,
+      String currentUserId,
+      // NEW PARAMETERS for voting
+      Map<String, Map<String, dynamic>> messageVotes,
+      Function(String, bool) onVote,
+      Function(String) getUserVote,
+      // Parameters for jump to message functionality
+          {Function(String)? onJumpToMessage,
+        bool isHighlighted = false}
+      ) {
     final timeString = ForumLogic.formatTime(
         messageData["createdAt"] ?? messageData["timestamp"]);
     final hasReply = messageData["replyTo"] != null;
@@ -56,7 +59,7 @@ class MessageWidgets {
                 margin: EdgeInsets.symmetric(vertical: 2, horizontal: 12),
                 child: Column(
                   crossAxisAlignment:
-                      isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
                     // Show sender name only for other people's messages
                     if (!isMe)
@@ -92,7 +95,7 @@ class MessageWidgets {
 
                     // Message content - Handle different message types
                     if (isPollMessage)
-                      // Poll message
+                    // Poll message
                       PollMessageWidget(
                         pollData: messageData,
                         isMe: isMe,
@@ -100,7 +103,7 @@ class MessageWidgets {
                         currentUserId: currentUserId,
                       )
                     else
-                      // Regular message bubble for text, image, video
+                    // Regular message bubble for text, image, video
                       GestureDetector(
                         onLongPress: () {
                           onMessageOptions(
@@ -113,56 +116,69 @@ class MessageWidgets {
                             messageData["senderName"] ?? "Unknown User",
                           );
                         },
+                        onTap: () {
+                          // Show reply option for messages that aren't from the current user
+                          if (!isMe) {
+                            onReply(
+                              messageData["key"] ?? "",
+                              messageData["message"] ?? (isImageMessage ? "Image" : isVideoMessage ? "Video" : "Message"),
+                              messageData["senderName"] ?? "Unknown User",
+                            );
+                          }
+                        },
                         child: Container(
                           constraints: BoxConstraints(
                             maxWidth: MediaQuery.of(context).size.width * 0.75,
                           ),
                           padding: EdgeInsets.symmetric(
-                            vertical:
-                                (isImageMessage || isVideoMessage) ? 4 : 8,
-                            horizontal:
-                                (isImageMessage || isVideoMessage) ? 4 : 12,
+                            vertical: (isImageMessage || isVideoMessage) ? 4 : 8,
+                            horizontal: (isImageMessage || isVideoMessage) ? 4 : 12,
                           ),
                           decoration: BoxDecoration(
                             gradient: isMe
                                 ? LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Color(0xFF1976D2),
-                                      Color(0xFF2196F3)
-                                    ],
-                                  )
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: isHighlighted
+                                  ? [Color(0xFFFFB74D), Color(0xFFFF9800)]
+                                  : [Color(0xFF1976D2), Color(0xFF2196F3)],
+                            )
                                 : null,
                             color: isMe
                                 ? null
+                                : (isHighlighted
+                                ? (themeProvider.isDarkMode ? Color(0xFFFFB74D).withOpacity(0.3) : Color(0xFFFFE0B2))
                                 : (themeProvider.isDarkMode
-                                    ? Colors.grey[700]
-                                    : Colors.grey[100]),
+                                ? Colors.grey[700]
+                                : Colors.grey[100])),
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(18),
                               topRight: Radius.circular(18),
-                              bottomLeft: isMe
-                                  ? Radius.circular(18)
-                                  : Radius.circular(3),
-                              bottomRight: isMe
-                                  ? Radius.circular(3)
-                                  : Radius.circular(18),
+                              bottomLeft:
+                              isMe ? Radius.circular(18) : Radius.circular(3),
+                              bottomRight:
+                              isMe ? Radius.circular(3) : Radius.circular(18),
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: themeProvider.isDarkMode
+                                color: isHighlighted
+                                    ? Color(0xFFFF9800).withOpacity(0.4)
+                                    : (themeProvider.isDarkMode
                                     ? Colors.black26
-                                    : Colors.grey.withOpacity(0.1),
-                                blurRadius: 8,
+                                    : Colors.grey.withOpacity(0.1)),
+                                blurRadius: isHighlighted ? 12 : 8,
                                 offset: Offset(0, 2),
                               ),
                             ],
                             border: !isMe && !themeProvider.isDarkMode
                                 ? Border.all(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    width: 0.5)
-                                : null,
+                                color: isHighlighted
+                                    ? Color(0xFFFF9800).withOpacity(0.5)
+                                    : Colors.grey.withOpacity(0.2),
+                                width: isHighlighted ? 1.5 : 0.5)
+                                : (isHighlighted
+                                ? Border.all(color: Color(0xFFFF9800), width: 1.5)
+                                : null),
                           ),
                           child: Column(
                             crossAxisAlignment: isMe
@@ -171,55 +187,79 @@ class MessageWidgets {
                             children: [
                               // Reply indicator
                               if (hasReply) ...[
-                                Container(
-                                  padding: EdgeInsets.all(6),
-                                  margin: EdgeInsets.only(bottom: 6),
-                                  decoration: BoxDecoration(
-                                    color: (isMe
-                                        ? Colors.white.withOpacity(0.2)
-                                        : Colors.black.withOpacity(0.1)),
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border(
-                                      left: BorderSide(
-                                        color: isMe
-                                            ? Colors.white
-                                            : const Color.fromARGB(
-                                                255, 4, 204, 240),
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        messageData["replyToSender"] ??
-                                            "Unknown User",
-                                        style: TextStyle(
+                                GestureDetector(
+                                  onTap: () {
+                                    if (onJumpToMessage != null && messageData["replyTo"] != null) {
+                                      onJumpToMessage(messageData["replyTo"]);
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(6),
+                                    margin: EdgeInsets.only(bottom: 6),
+                                    decoration: BoxDecoration(
+                                      color: (isMe
+                                          ? Colors.white.withOpacity(0.2)
+                                          : Colors.black.withOpacity(0.1)),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border(
+                                        left: BorderSide(
                                           color: isMe
                                               ? Colors.white
-                                              : const Color.fromARGB(
-                                                  255, 4, 204, 240),
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
+                                              : const Color.fromARGB(255, 4, 204, 240),
+                                          width: 2,
                                         ),
                                       ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        messageData["replyToMessage"] ?? "",
-                                        style: TextStyle(
-                                          color: isMe
-                                              ? Colors.white70
-                                              : (themeProvider.isDarkMode
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[600]),
-                                          fontSize: 12,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
+                                    ),
+                                    child: IntrinsicWidth(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                messageData["replyToSender"] ?? "Unknown User",
+                                                style: TextStyle(
+                                                  color: isMe
+                                                      ? Colors.white
+                                                      : const Color.fromARGB(255, 4, 204, 240),
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              Icon(
+                                                Icons.keyboard_arrow_up,
+                                                size: 16,
+                                                color: isMe
+                                                    ? Colors.white70
+                                                    : const Color.fromARGB(255, 4, 204, 240),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 2),
+                                          ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context).size.width * 0.5,
+                                            ),
+                                            child: Text(
+                                              messageData["replyToMessage"] ?? "",
+                                              style: TextStyle(
+                                                color: isMe
+                                                    ? Colors.white70
+                                                    : (themeProvider.isDarkMode
+                                                    ? Colors.grey[400]
+                                                    : Colors.grey[600]),
+                                                fontSize: 12,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -278,7 +318,7 @@ class MessageWidgets {
                                         decoration: BoxDecoration(
                                           color: Colors.grey[300],
                                           borderRadius:
-                                              BorderRadius.circular(14),
+                                          BorderRadius.circular(14),
                                         ),
                                         child: Center(
                                           child: CircularProgressIndicator(
@@ -289,30 +329,30 @@ class MessageWidgets {
                                       ),
                                       errorWidget: (context, url, error) =>
                                           Container(
-                                        width: 200,
-                                        height: 200,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius:
+                                            width: 200,
+                                            height: 200,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[300],
+                                              borderRadius:
                                               BorderRadius.circular(14),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.error_outline,
-                                                color: Colors.grey[600]),
-                                            SizedBox(height: 4),
-                                            Text(
-                                              "Failed to load",
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 12,
-                                              ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.error_outline,
+                                                    color: Colors.grey[600]),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  "Failed to load",
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                     ),
                                   ),
                                 ),
@@ -360,7 +400,7 @@ class MessageWidgets {
                                             decoration: BoxDecoration(
                                               color: Colors.black54,
                                               borderRadius:
-                                                  BorderRadius.circular(30),
+                                              BorderRadius.circular(30),
                                             ),
                                             padding: EdgeInsets.all(12),
                                             child: Icon(
@@ -381,7 +421,7 @@ class MessageWidgets {
                                               decoration: BoxDecoration(
                                                 color: Colors.black54,
                                                 borderRadius:
-                                                    BorderRadius.circular(4),
+                                                BorderRadius.circular(4),
                                               ),
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -398,7 +438,7 @@ class MessageWidgets {
                                                       color: Colors.white,
                                                       fontSize: 10,
                                                       fontWeight:
-                                                          FontWeight.w500,
+                                                      FontWeight.w500,
                                                     ),
                                                   ),
                                                 ],
@@ -433,8 +473,8 @@ class MessageWidgets {
                                     color: isMe
                                         ? Colors.white
                                         : (themeProvider.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black87),
+                                        ? Colors.white
+                                        : Colors.black87),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                     height: 1.4,
@@ -462,26 +502,26 @@ class MessageWidgets {
                                         decoration: BoxDecoration(
                                           color: userVote == 'upvote'
                                               ? Color(0xFF4CAF50)
-                                                  .withOpacity(0.2)
+                                              .withOpacity(0.2)
                                               : Colors.transparent,
                                           borderRadius:
-                                              BorderRadius.circular(12),
+                                          BorderRadius.circular(12),
                                           border: userVote == 'upvote'
                                               ? Border.all(
-                                                  color: Color(0xFF4CAF50),
-                                                  width: 1.5,
-                                                )
+                                            color: Color(0xFF4CAF50),
+                                            width: 1.5,
+                                          )
                                               : Border.all(
-                                                  color: Colors.transparent,
-                                                  width: 1.5,
-                                                ),
+                                            color: Colors.transparent,
+                                            width: 1.5,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             AnimatedSwitcher(
                                               duration:
-                                                  Duration(milliseconds: 200),
+                                              Duration(milliseconds: 200),
                                               child: Icon(
                                                 userVote == 'upvote'
                                                     ? Icons.thumb_up
@@ -492,19 +532,19 @@ class MessageWidgets {
                                                 color: userVote == 'upvote'
                                                     ? Color(0xFF4CAF50)
                                                     : (isMe
-                                                        ? Colors.white70
-                                                        : (themeProvider
-                                                                .isDarkMode
-                                                            ? Colors.grey[400]
-                                                            : Colors
-                                                                .grey[600])),
+                                                    ? Colors.white70
+                                                    : (themeProvider
+                                                    .isDarkMode
+                                                    ? Colors.grey[400]
+                                                    : Colors
+                                                    .grey[600])),
                                               ),
                                             ),
                                             if (voteCounts['upvotes']! > 0) ...[
                                               SizedBox(width: 4),
                                               AnimatedSwitcher(
                                                 duration:
-                                                    Duration(milliseconds: 200),
+                                                Duration(milliseconds: 200),
                                                 child: Text(
                                                   '${voteCounts['upvotes']}',
                                                   key: ValueKey(
@@ -513,13 +553,13 @@ class MessageWidgets {
                                                     color: userVote == 'upvote'
                                                         ? Color(0xFF4CAF50)
                                                         : (isMe
-                                                            ? Colors.white70
-                                                            : (themeProvider
-                                                                    .isDarkMode
-                                                                ? Colors
-                                                                    .grey[400]
-                                                                : Colors.grey[
-                                                                    600])),
+                                                        ? Colors.white70
+                                                        : (themeProvider
+                                                        .isDarkMode
+                                                        ? Colors
+                                                        .grey[400]
+                                                        : Colors.grey[
+                                                    600])),
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -548,23 +588,23 @@ class MessageWidgets {
                                               ? Colors.red.withOpacity(0.2)
                                               : Colors.transparent,
                                           borderRadius:
-                                              BorderRadius.circular(12),
+                                          BorderRadius.circular(12),
                                           border: userVote == 'downvote'
                                               ? Border.all(
-                                                  color: Colors.red,
-                                                  width: 1.5,
-                                                )
+                                            color: Colors.red,
+                                            width: 1.5,
+                                          )
                                               : Border.all(
-                                                  color: Colors.transparent,
-                                                  width: 1.5,
-                                                ),
+                                            color: Colors.transparent,
+                                            width: 1.5,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             AnimatedSwitcher(
                                               duration:
-                                                  Duration(milliseconds: 200),
+                                              Duration(milliseconds: 200),
                                               child: Icon(
                                                 userVote == 'downvote'
                                                     ? Icons.thumb_down
@@ -575,12 +615,12 @@ class MessageWidgets {
                                                 color: userVote == 'downvote'
                                                     ? Colors.red
                                                     : (isMe
-                                                        ? Colors.white70
-                                                        : (themeProvider
-                                                                .isDarkMode
-                                                            ? Colors.grey[400]
-                                                            : Colors
-                                                                .grey[600])),
+                                                    ? Colors.white70
+                                                    : (themeProvider
+                                                    .isDarkMode
+                                                    ? Colors.grey[400]
+                                                    : Colors
+                                                    .grey[600])),
                                               ),
                                             ),
                                             if (voteCounts['downvotes']! >
@@ -588,23 +628,23 @@ class MessageWidgets {
                                               SizedBox(width: 4),
                                               AnimatedSwitcher(
                                                 duration:
-                                                    Duration(milliseconds: 200),
+                                                Duration(milliseconds: 200),
                                                 child: Text(
                                                   '${voteCounts['downvotes']}',
                                                   key: ValueKey(
                                                       'downvotes-${voteCounts['downvotes']}'),
                                                   style: TextStyle(
                                                     color: userVote ==
-                                                            'downvote'
+                                                        'downvote'
                                                         ? Colors.red
                                                         : (isMe
-                                                            ? Colors.white70
-                                                            : (themeProvider
-                                                                    .isDarkMode
-                                                                ? Colors
-                                                                    .grey[400]
-                                                                : Colors.grey[
-                                                                    600])),
+                                                        ? Colors.white70
+                                                        : (themeProvider
+                                                        .isDarkMode
+                                                        ? Colors
+                                                        .grey[400]
+                                                        : Colors.grey[
+                                                    600])),
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -629,8 +669,8 @@ class MessageWidgets {
                                           color: isMe
                                               ? Colors.white70
                                               : (themeProvider.isDarkMode
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[600]),
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600]),
                                           fontSize: 11,
                                         ),
                                       ),
@@ -643,8 +683,8 @@ class MessageWidgets {
                                           color: isMe
                                               ? Colors.white70
                                               : (themeProvider.isDarkMode
-                                                  ? Colors.grey[400]
-                                                  : Colors.grey[600]),
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600]),
                                           fontSize: 10,
                                           fontStyle: FontStyle.italic,
                                         ),
@@ -659,8 +699,8 @@ class MessageWidgets {
                                               (isImageMessage
                                                   ? "Image"
                                                   : isVideoMessage
-                                                      ? "Video"
-                                                      : "Message"),
+                                                  ? "Video"
+                                                  : "Message"),
                                           messageData["senderName"] ??
                                               "Unknown User",
                                         );
@@ -692,14 +732,15 @@ class MessageWidgets {
     );
   }
 
-  static Map<String, int> _getVoteCountsFromData(Map<String, dynamic> votes) {
+  /// Helper function to get vote counts from data
+  static Map<String, int> _getVoteCountsFromData(Map<String, dynamic> voteData) {
     int upvotes = 0;
     int downvotes = 0;
 
-    votes.forEach((userId, voteData) {
-      if (voteData is Map && voteData['type'] == 'upvote') {
+    voteData.forEach((userId, vote) {
+      if (vote == true) {
         upvotes++;
-      } else if (voteData is Map && voteData['type'] == 'downvote') {
+      } else if (vote == false) {
         downvotes++;
       }
     });
