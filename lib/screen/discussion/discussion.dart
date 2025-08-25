@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:nagarvikas/screen/discussion/search_message.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,6 +45,8 @@ class DiscussionForumState extends State<DiscussionForum>
   bool _isUploading = false;
   bool _isAdmin = false;
   bool _isUserBanned = false;
+  String? _highlightedMessageId;
+  Timer? _highlightTimer;
   Map<String, Map<String, dynamic>> _messageVotes = {}; // Cache message votes
   final DatabaseReference _votesRef = FirebaseDatabase.instance.ref("votes/");
 
@@ -187,6 +191,7 @@ class DiscussionForumState extends State<DiscussionForum>
     _messageAnimationController.dispose();
     _disclaimerController.dispose();
     _emojiAnimationController.dispose();
+    _highlightTimer?.cancel();
     super.dispose();
   }
 
@@ -280,23 +285,6 @@ class DiscussionForumState extends State<DiscussionForum>
     }
   }
 
-  /// Get vote counts for a message
-  Map<String, int> _getVoteCounts(String messageId) {
-    final votes = _messageVotes[messageId] ?? {};
-    int upvotes = 0;
-    int downvotes = 0;
-
-    votes.forEach((userId, voteData) {
-      if (voteData is Map && voteData['type'] == 'upvote') {
-        upvotes++;
-      } else if (voteData is Map && voteData['type'] == 'downvote') {
-        downvotes++;
-      }
-    });
-
-    return {'upvotes': upvotes, 'downvotes': downvotes};
-  }
-
   /// Check if current user has voted on a message
   String? _getUserVote(String messageId) {
     if (userId == null) return null;
@@ -323,6 +311,137 @@ class DiscussionForumState extends State<DiscussionForum>
           }
         });
       }
+    }
+  }
+
+  /// Scroll to a specific message (for search results)
+  Future<void> _scrollToMessage(String messageId) async {
+    try {
+
+      // Get message details first
+      final messageSnapshot = await _messagesRef.child(messageId).once();
+
+      // Get all messages to find the position of our target message
+      final allMessagesSnapshot =
+          await _messagesRef.orderByChild("timestamp").once();
+
+      if (!allMessagesSnapshot.snapshot.exists) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No messages found'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Convert to list and sort by timestamp (same as in build method)
+      Map<dynamic, dynamic> messagesMap =
+          allMessagesSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      List<Map<String, dynamic>> messagesList = messagesMap.entries
+          .map((e) => {"key": e.key, ...Map<String, dynamic>.from(e.value)})
+          .toList();
+
+      // Sort by timestamp (ascending)
+      messagesList.sort((a, b) => a["timestamp"].compareTo(b["timestamp"]));
+
+      // Find the index of our target message
+      int targetIndex = -1;
+      for (int i = 0; i < messagesList.length; i++) {
+        if (messagesList[i]["key"] == messageId) {
+          targetIndex = i;
+          break;
+        }
+      }
+
+      if (targetIndex == -1) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Message not found in current view'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Set the message to be highlighted
+      setState(() {
+        _highlightedMessageId = messageId;
+      });
+
+      // Hide the loading snackbar
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      // Calculate approximate scroll position
+      // Each message widget is approximately 80-120 pixels high (including date separators)
+      // We'll use a conservative estimate
+      double estimatedItemHeight = 100.0;
+      double scrollPosition = targetIndex * estimatedItemHeight;
+
+      // Ensure we don't exceed max scroll extent
+      await Future.delayed(
+          Duration(milliseconds: 100)); // Wait for UI to update
+
+      if (_scrollController.hasClients) {
+        double maxScrollExtent = _scrollController.position.maxScrollExtent;
+        double targetPosition = scrollPosition.clamp(0.0, maxScrollExtent);
+
+        // Animate to the calculated position
+        await _scrollController.animateTo(
+          targetPosition,
+          duration: Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+
+        // Fine-tune the position with additional scrolling attempts
+        // This helps account for dynamic content height variations
+        for (int attempt = 0; attempt < 5; attempt++) {
+          await Future.delayed(Duration(milliseconds: 200));
+          if (_scrollController.hasClients) {
+            // Try to center the message better
+            double adjustment = attempt * 50.0; // Small adjustments
+            double newPosition = (targetPosition - adjustment)
+                .clamp(0.0, _scrollController.position.maxScrollExtent);
+
+            await _scrollController.animateTo(
+              newPosition,
+              duration: Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+            );
+          }
+        }
+      }
+
+      // Get message details for feedback
+      final messageData =
+          Map<String, dynamic>.from(messageSnapshot.snapshot.value as Map);
+      final senderName = messageData['senderName'] ?? 'Unknown User';
+
+      // Remove highlight after 5 seconds
+      _highlightTimer?.cancel();
+      _highlightTimer = Timer(Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            _highlightedMessageId = null;
+          });
+        }
+      });
+    } catch (e) {
+      print('Error finding message: $e');
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error finding message. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      // Clear highlight on error
+      setState(() {
+        _highlightedMessageId = null;
+      });
     }
   }
 
@@ -1478,6 +1597,35 @@ class DiscussionForumState extends State<DiscussionForum>
           iconTheme: IconThemeData(
             color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
           ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.search,
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                size: 24,
+              ),
+              onPressed: () async {
+                final result = await showSearch(
+                  context: context,
+                  delegate: MessageSearchDelegate(
+                    themeProvider: themeProvider,
+                    messagesRef: _messagesRef,
+                    onMessageFound: (messageId) {
+                      // This function is called when a search result is clicked
+                      _scrollToMessage(messageId);
+                    },
+                  ),
+                );
+
+                // Handle the result returned when search is closed
+                if (result != null && result.isNotEmpty) {
+                  _scrollToMessage(result);
+                }
+              },
+              tooltip: 'Search messages',
+            ),
+            SizedBox(width: 8),
+          ],
           flexibleSpace: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -1609,6 +1757,9 @@ class DiscussionForumState extends State<DiscussionForum>
                                 _messageVotes,
                                 _voteMessage,
                                 (messageId) => _getUserVote(messageId) ?? '',
+                                // NEW: Add highlighting parameters
+                                isHighlighted:
+                                    _highlightedMessageId == message["key"],
                               ));
                             }
                           }
