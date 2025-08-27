@@ -357,3 +357,49 @@ exports.checkUserBanStatus = functions.database
       return null;
     }
   });
+
+// Function to handle message reports
+exports.handleMessageReport = functions.database
+  .ref('/reports/{reportId}')
+  .onCreate(async (snapshot, context) => {
+    const reportData = snapshot.val();
+    const reportId = context.params.reportId;
+
+    try {
+      // Get the reported message details
+      const messageSnapshot = await admin.database().ref(`/discussion/${reportData.messageId}`).once('value');
+      const messageData = messageSnapshot.val();
+
+      if (!messageData) {
+        console.log('Reported message not found');
+        return null;
+      }
+
+      // Get reporter details
+      const reporterSnapshot = await admin.database().ref(`/users/${reportData.reporterId}`).once('value');
+      const reporterData = reporterSnapshot.val();
+
+      // Create admin notification
+      const adminNotification = {
+        type: 'message_report',
+        reportId: reportId,
+        messageId: reportData.messageId,
+        reportedUserId: messageData.senderId,
+        reportedUserName: messageData.senderName,
+        reporterName: reporterData?.name || 'Unknown User',
+        reason: reportData.reason,
+        messageContent: messageData.message || 'Media/Poll content',
+        timestamp: admin.database.ServerValue.TIMESTAMP,
+        status: 'pending'
+      };
+
+      // Store in admin notifications
+      await admin.database().ref('/admin_notifications').push().set(adminNotification);
+
+      console.log(`Message report created: ${reportId}`);
+      return null;
+    } catch (error) {
+      console.error('Error handling message report:', error);
+      return null;
+    }
+  });
