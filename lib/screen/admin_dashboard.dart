@@ -58,7 +58,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
     _fabScaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeInOut),
     );
-    
+
     // Card animation controller
     _cardAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
@@ -124,7 +124,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
   void _startInitialAnimations() {
     // Start header animation immediately
     _headerAnimationController.forward();
-    
+
     // Start search animation after a short delay
     Timer(const Duration(milliseconds: 200), () {
       if (mounted) _searchAnimationController.forward();
@@ -234,7 +234,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
           filteredComplaints = complaints;
           isLoading = false;
         });
-        
+
         // Start card and list animations when data is loaded
         _cardAnimationController.forward();
         _listAnimationController.forward();
@@ -282,7 +282,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
       builder: (context, themeProvider, child) {
         final screenWidth = MediaQuery.of(context).size.width;
         final isDarkMode = themeProvider.isDarkMode;
-        
+
         return Scaffold(
           drawer: AdminDrawer(
             favoriteComplaints: favoriteComplaints,
@@ -567,7 +567,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Filter Dropdown with animation
                   TweenAnimationBuilder<double>(
                     duration: Duration(milliseconds: 700 + 400),
@@ -675,8 +675,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDarkMode 
-                      ? Colors.grey[800]?.withOpacity(0.5) 
+                  color: isDarkMode
+                      ? Colors.grey[800]?.withOpacity(0.5)
                       : Colors.grey[100],
                   shape: BoxShape.circle,
                 ),
@@ -717,7 +717,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
         final complaintId = complaint["id"] ?? complaint.hashCode.toString();
         final isFavorite = favoriteComplaints.any(
             (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
-        
+
         return TweenAnimationBuilder<double>(
           duration: Duration(milliseconds: 300 + (index * 100).clamp(0, 500)),
           tween: Tween(begin: 0.0, end: 1.0),
@@ -1047,7 +1047,7 @@ class ComplaintCard extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         final isDarkMode = themeProvider.isDarkMode;
-        
+
         return MouseRegion(
           cursor: SystemMouseCursors.click,
           child: TweenAnimationBuilder(
@@ -1118,7 +1118,7 @@ class ComplaintCard extends StatelessWidget {
                               color: isDarkMode ? Colors.grey[700] : Colors.grey[100],
                               boxShadow: [
                                 BoxShadow(
-                                  color: isDarkMode 
+                                  color: isDarkMode
                                       ? Colors.black.withOpacity(0.3)
                                       : Colors.black.withOpacity(0.1),
                                   blurRadius: 8,
@@ -1222,7 +1222,7 @@ class ComplaintCard extends StatelessWidget {
                                           duration: const Duration(milliseconds: 200),
                                           padding: const EdgeInsets.all(6),
                                           decoration: BoxDecoration(
-                                            color: isFavorite 
+                                            color: isFavorite
                                                 ? const Color(0xFFE57373).withOpacity(0.2)
                                                 : (isDarkMode ? Colors.grey[700] : Colors.grey[100]),
                                             borderRadius: BorderRadius.circular(10),
@@ -1352,8 +1352,8 @@ class ComplaintCard extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: isDarkMode 
-                                        ? Colors.grey[750]?.withOpacity(0.5) 
+                                    color: isDarkMode
+                                        ? Colors.grey[750]?.withOpacity(0.5)
                                         : Colors.grey[50],
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
@@ -1378,7 +1378,7 @@ class ComplaintCard extends StatelessWidget {
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
-                                            color: isDarkMode 
+                                            color: isDarkMode
                                                 ? Colors.teal.withOpacity(0.2)
                                                 : const Color(0xFF1565C0).withOpacity(0.1),
                                             borderRadius: BorderRadius.circular(6),

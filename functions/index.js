@@ -403,3 +403,56 @@ exports.handleMessageReport = functions.database
       return null;
     }
   });
+
+// Function to handle report status updates and send notifications
+exports.handleReportStatusUpdate = functions.database
+  .ref('/message_reports/{reportId}/status')
+  .onUpdate(async (change, context) => {
+    const newStatus = change.after.val();
+    const reportId = context.params.reportId;
+
+    try {
+      // Get the full report data
+      const reportSnapshot = await admin.database().ref(`/message_reports/${reportId}`).once('value');
+      const reportData = reportSnapshot.val();
+
+      if (!reportData) {
+        console.log('Report data not found');
+        return null;
+      }
+
+      // Get reporter details for notification
+      const reporterSnapshot = await admin.database().ref(`/users/${reportData.reporterId}`).once('value');
+      const reporterData = reporterSnapshot.val();
+
+      // Send notification to reporter about status update
+      if (reporterData && reporterData.fcmToken) {
+        const payload = {
+          notification: {
+            title: 'Report Status Update',
+            body: `Your report has been marked as ${newStatus}. Thank you for helping keep our community safe.`,
+            icon: '@mipmap/ic_launcher',
+            sound: 'default',
+          },
+          data: {
+            reportId: reportId,
+            newStatus: newStatus,
+            click_action: 'FLUTTER_NOTIFICATION_CLICK',
+          },
+        };
+
+        try {
+          await admin.messaging().sendToDevice(reporterData.fcmToken, payload);
+          console.log(`Report status notification sent to reporter: ${reportData.reporterId}`);
+        } catch (notificationError) {
+          console.error('Error sending report status notification:', notificationError);
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error in handleReportStatusUpdate:', error);
+      return null;
+    }
+  });
+

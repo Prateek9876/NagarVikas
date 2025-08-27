@@ -11,9 +11,12 @@ import 'package:dio/dio.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../theme/theme_provider.dart';
+import '../message_reports_dashboard.dart';
+import 'banned_users_dashboard.dart';
 import 'emoji_picker.dart';
 import 'forum_logic.dart';
 import 'forum_animations.dart';
+import 'message_reporting_screen.dart';
 import 'message_widgets.dart';
 import 'poll_creation_widget.dart';
 import 'package:flutter/services.dart';
@@ -1586,166 +1589,13 @@ class DiscussionForumState extends State<DiscussionForum>
   /// Show report dialog for a message
   void _showReportDialog(String messageId, String message, String senderName,
       String senderId, ThemeProvider themeProvider) {
-    if (_isUserBanned) {
-      Fluttertoast.showToast(msg: "You are banned from reporting messages");
-      return;
-    }
-
-    String selectedReason = 'Inappropriate Content';
-    final reasons = [
-      'Inappropriate Content',
-      'Spam or Advertising',
-      'Harassment or Bullying',
-      'Hate Speech',
-      'Violence or Threats',
-      'False Information',
-      'Other'
-    ];
-
-    showDialog(
+    MessageReportingSystem.showReportDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Icons.flag, color: Colors.orange, size: 20),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Report Message',
-                  style: TextStyle(
-                    color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Message preview
-              Container(
-                padding: EdgeInsets.all(12),
-                margin: EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: themeProvider.isDarkMode
-                      ? Colors.grey[700]?.withOpacity(0.5)
-                      : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: themeProvider.isDarkMode
-                        ? Colors.grey[600]!
-                        : Colors.grey[300]!,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Reporting message from: $senderName',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      message.isNotEmpty ? message : 'Media/Poll content',
-                      style: TextStyle(
-                        color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-                        fontSize: 13,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                'Why are you reporting this message?',
-                style: TextStyle(
-                  color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 12),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
-                  ),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedReason,
-                    isExpanded: true,
-                    dropdownColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
-                    items: reasons.map((reason) => DropdownMenuItem(
-                      value: reason,
-                      child: Text(
-                        reason,
-                        style: TextStyle(
-                          color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
-                          fontSize: 14,
-                        ),
-                      ),
-                    )).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          selectedReason = value;
-                        });
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () => _submitReport(messageId, message, senderName, senderId, selectedReason),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                elevation: 2,
-              ),
-              child: Text(
-                'Report',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ),
+      messageId: messageId,
+      messageContent: message.isNotEmpty ? message : 'Media/Poll content',
+      reportedUserId: senderId,
+      reportedUserName: senderName,
+      themeProvider: themeProvider,
     );
   }
 
@@ -1903,19 +1753,75 @@ class DiscussionForumState extends State<DiscussionForum>
                     themeProvider: themeProvider,
                     messagesRef: _messagesRef,
                     onMessageFound: (messageId) {
-                      // This function is called when a search result is clicked
                       _scrollToMessage(messageId);
                     },
                   ),
                 );
 
-                // Handle the result returned when search is closed
                 if (result != null && result.isNotEmpty) {
                   _scrollToMessage(result);
                 }
               },
               tooltip: 'Search messages',
             ),
+            // Add admin menu if user is admin
+            if (_isAdmin)
+              PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.admin_panel_settings,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                  size: 24,
+                ),
+                color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                onSelected: (value) {
+                  switch (value) {
+                    case 'reports':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MessageReportsDashboard()),
+                      );
+                      break;
+                    case 'banned_users':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BannedUsersDashboard()),
+                      );
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'reports',
+                    child: Row(
+                      children: [
+                        Icon(Icons.report, color: Colors.red, size: 20),
+                        SizedBox(width: 12),
+                        Text(
+                          'Message Reports',
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'banned_users',
+                    child: Row(
+                      children: [
+                        Icon(Icons.block, color: Colors.orange, size: 20),
+                        SizedBox(width: 12),
+                        Text(
+                          'Banned Users',
+                          style: TextStyle(
+                            color: themeProvider.isDarkMode ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             SizedBox(width: 8),
           ],
           flexibleSpace: Container(
