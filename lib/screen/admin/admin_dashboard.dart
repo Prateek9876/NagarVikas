@@ -14,7 +14,8 @@ class AdminDashboard extends StatefulWidget {
   AdminDashboardState createState() => AdminDashboardState();
 }
 
-class AdminDashboardState extends State<AdminDashboard> with TickerProviderStateMixin {
+class AdminDashboardState extends State<AdminDashboard>
+    with TickerProviderStateMixin {
   int totalComplaints = 0;
   int pendingComplaints = 0;
   int inProgressComplaints = 0;
@@ -145,101 +146,101 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
 
   Future<void> _fetchComplaints() async {
     DatabaseReference complaintsRef =
-    FirebaseDatabase.instance.ref('complaints');
+        FirebaseDatabase.instance.ref('complaints');
     DatabaseReference usersRef = FirebaseDatabase.instance.ref('users');
 
     _complaintsSubscription =
         complaintsRef.onValue.listen((complaintEvent) async {
-          if (!mounted) return;
+      if (!mounted) return;
 
-          final complaintData =
+      final complaintData =
           complaintEvent.snapshot.value as Map<dynamic, dynamic>?;
 
-          if (complaintData == null) {
-            if (mounted) {
-              setState(() {
-                totalComplaints = pendingComplaints =
-                    inProgressComplaints = resolvedComplaints = 0;
-                complaints = [];
-                filteredComplaints = [];
-                isLoading = false;
-              });
-              // Start list animation when loading is complete
-              _listAnimationController.forward();
-            }
-            return;
-          }
+      if (complaintData == null) {
+        if (mounted) {
+          setState(() {
+            totalComplaints = pendingComplaints =
+                inProgressComplaints = resolvedComplaints = 0;
+            complaints = [];
+            filteredComplaints = [];
+            isLoading = false;
+          });
+          // Start list animation when loading is complete
+          _listAnimationController.forward();
+        }
+        return;
+      }
 
-          List<Map<String, dynamic>> loadedComplaints = [];
-          int pending = 0, inProgress = 0, resolved = 0, total = 0;
+      List<Map<String, dynamic>> loadedComplaints = [];
+      int pending = 0, inProgress = 0, resolved = 0, total = 0;
 
-          for (var entry in complaintData.entries) {
-            final complaint = entry.value as Map<dynamic, dynamic>;
-            String userId = complaint["user_id"] ?? "Unknown";
+      for (var entry in complaintData.entries) {
+        final complaint = entry.value as Map<dynamic, dynamic>;
+        String userId = complaint["user_id"] ?? "Unknown";
 
-            DataSnapshot userSnapshot = await usersRef.child(userId).get();
-            Map<String, dynamic>? userData = userSnapshot.value != null
-                ? Map<String, dynamic>.from(userSnapshot.value as Map)
-                : null;
+        DataSnapshot userSnapshot = await usersRef.child(userId).get();
+        Map<String, dynamic>? userData = userSnapshot.value != null
+            ? Map<String, dynamic>.from(userSnapshot.value as Map)
+            : null;
 
-            String status = complaint["status"]?.toString() ?? "Pending";
-            if (status == "Pending") pending++;
-            if (status == "In Progress") inProgress++;
-            if (status == "Resolved") resolved++;
-            total++;
+        String status = complaint["status"]?.toString() ?? "Pending";
+        if (status == "Pending") pending++;
+        if (status == "In Progress") inProgress++;
+        if (status == "Resolved") resolved++;
+        total++;
 
-            String timestamp = complaint["timestamp"] ?? "Unknown";
-            String date = "Unknown", time = "Unknown";
+        String timestamp = complaint["timestamp"] ?? "Unknown";
+        String date = "Unknown", time = "Unknown";
 
-            if (timestamp != "Unknown") {
-              DateTime dateTime = DateTime.tryParse(timestamp) ?? DateTime.now();
-              date = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
-              time = "${dateTime.hour}:${dateTime.minute}";
-            }
+        if (timestamp != "Unknown") {
+          DateTime dateTime = DateTime.tryParse(timestamp) ?? DateTime.now();
+          date = "${dateTime.day}-${dateTime.month}-${dateTime.year}";
+          time = "${dateTime.hour}:${dateTime.minute}";
+        }
 
-            String? mediaUrl =
-                complaint["media_url"] ?? complaint["image_url"] ?? "";
-            String mediaType = (complaint["media_type"] ??
+        String? mediaUrl =
+            complaint["media_url"] ?? complaint["image_url"] ?? "";
+        String mediaType = (complaint["media_type"] ??
                 (complaint["image_url"] != null ? "image" : "video"))
-                .toString()
-                .toLowerCase();
+            .toString()
+            .toLowerCase();
 
-            loadedComplaints.add({
-              "id": entry.key,
-              "issue_type": complaint["issue_type"] ?? "Unknown",
-              "city": complaint["city"] ?? "Unknown",
-              "state": complaint["state"] ?? "Unknown",
-              "location": complaint["location"] ?? "Unknown",
-              "description": complaint["description"] ?? "No description",
-              "date": date,
-              "time": time,
-              "status": status,
-              "media_url": (mediaUrl ?? '').isEmpty
-                  ? 'https://picsum.photos/250?image=9'
-                  : mediaUrl,
-              "media_type": mediaType,
-              "user_id": userId,
-              "user_name": userData?["name"] ?? "Unknown",
-              "user_email": userData?["email"] ?? "Unknown",
-            });
-          }
-
-          if (mounted) {
-            setState(() {
-              totalComplaints = total;
-              pendingComplaints = pending;
-              inProgressComplaints = inProgress;
-              resolvedComplaints = resolved;
-              complaints = loadedComplaints;
-              filteredComplaints = complaints;
-              isLoading = false;
-            });
-
-            // Start card and list animations when data is loaded
-            _cardAnimationController.forward();
-            _listAnimationController.forward();
-          }
+        loadedComplaints.add({
+          "id": entry.key,
+          "issue_type": complaint["issue_type"] ?? "Unknown",
+          "city": complaint["city"] ?? "Unknown",
+          "state": complaint["state"] ?? "Unknown",
+          "location": complaint["location"] ?? "Unknown",
+          "description": complaint["description"] ?? "No description",
+          "date": date,
+          "time": time,
+          "status": status,
+          "media_url": (mediaUrl ?? '').isEmpty
+              ? 'https://picsum.photos/250?image=9'
+              : mediaUrl,
+          "media_type": mediaType,
+          "user_id": userId,
+          "user_name": userData?["name"] ?? "Unknown",
+          "user_email": userData?["email"] ?? "Unknown",
         });
+      }
+
+      if (mounted) {
+        setState(() {
+          totalComplaints = total;
+          pendingComplaints = pending;
+          inProgressComplaints = inProgress;
+          resolvedComplaints = resolved;
+          complaints = loadedComplaints;
+          filteredComplaints = complaints;
+          isLoading = false;
+        });
+
+        // Start card and list animations when data is loaded
+        _cardAnimationController.forward();
+        _listAnimationController.forward();
+      }
+    });
   }
 
   void _searchComplaints(String query) {
@@ -254,8 +255,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
             complaint['status'].toString().toLowerCase() ==
                 selectedStatus.toLowerCase();
         final matchesQuery = query.isEmpty ||
-            complaint.values.any((value) =>
-                value.toString().toLowerCase().contains(query));
+            complaint.values
+                .any((value) => value.toString().toLowerCase().contains(query));
         return matchesStatus && matchesQuery;
       }).toList();
     });
@@ -270,7 +271,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
         const end = Offset.zero;
         const curve = Curves.easeInOut;
         final tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
@@ -288,9 +289,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
             favoriteComplaints: favoriteComplaints,
             onRemoveFavorite: _removeFavoriteFromDashboard,
           ),
-          backgroundColor: isDarkMode
-              ? Colors.grey[900]
-              : const Color(0xFFF8F9FA),
+          backgroundColor:
+              isDarkMode ? Colors.grey[900] : const Color(0xFFF8F9FA),
           appBar: _buildAnimatedAppBar(isDarkMode, themeProvider),
           body: Container(
             decoration: BoxDecoration(
@@ -316,7 +316,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                         return Opacity(
                           opacity: _listOpacityAnimation.value,
                           child: Transform.translate(
-                            offset: Offset(0, (1 - _listOpacityAnimation.value) * 20),
+                            offset: Offset(
+                                0, (1 - _listOpacityAnimation.value) * 20),
                             child: _buildComplaintsList(isDarkMode),
                           ),
                         );
@@ -333,7 +334,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
     );
   }
 
-  PreferredSizeWidget _buildAnimatedAppBar(bool isDarkMode, ThemeProvider themeProvider) {
+  PreferredSizeWidget _buildAnimatedAppBar(
+      bool isDarkMode, ThemeProvider themeProvider) {
     return AppBar(
       toolbarHeight: 80,
       elevation: 0,
@@ -355,7 +357,9 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (isDarkMode ? Colors.teal : const Color(0xFF1565C0)).withOpacity(0.3),
+                      color:
+                          (isDarkMode ? Colors.teal : const Color(0xFF1565C0))
+                              .withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -446,7 +450,9 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                   ),
                   child: IconButton(
                     icon: Icon(
-                      themeProvider.isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                      themeProvider.isDarkMode
+                          ? Icons.light_mode_rounded
+                          : Icons.dark_mode_rounded,
                       size: 22,
                       color: Colors.white,
                     ),
@@ -511,7 +517,9 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                         color: isDarkMode ? Colors.grey[750] : Colors.grey[50],
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDarkMode ? Colors.grey[600]! : Colors.grey[200]!,
+                          color: isDarkMode
+                              ? Colors.grey[600]!
+                              : Colors.grey[200]!,
                           width: 1,
                         ),
                       ),
@@ -520,38 +528,46 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
+                          color: isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF1A1A1A),
                         ),
                         decoration: InputDecoration(
                           prefixIcon: Container(
                             padding: const EdgeInsets.all(12),
                             child: Icon(
                               Icons.search_rounded,
-                              color: isDarkMode ? Colors.teal[300] : const Color(0xFF1565C0),
+                              color: isDarkMode
+                                  ? Colors.teal[300]
+                                  : const Color(0xFF1565C0),
                               size: 20,
                             ),
                           ),
                           suffixIcon: searchController.text.isNotEmpty
                               ? Container(
-                            padding: const EdgeInsets.all(12),
-                            child: GestureDetector(
-                              onTap: () {
-                                searchController.clear();
-                                _searchComplaints('');
-                              },
-                              child: Icon(
-                                Icons.clear_rounded,
-                                color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
-                                size: 18,
-                              ),
-                            ),
-                          )
+                                  padding: const EdgeInsets.all(12),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      searchController.clear();
+                                      _searchComplaints('');
+                                    },
+                                    child: Icon(
+                                      Icons.clear_rounded,
+                                      color: isDarkMode
+                                          ? Colors.grey[400]
+                                          : Colors.grey[500],
+                                      size: 18,
+                                    ),
+                                  ),
+                                )
                               : null,
                           hintText: "Search complaints...",
                           hintStyle: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
-                            color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                            color: isDarkMode
+                                ? Colors.grey[400]
+                                : Colors.grey[500],
                           ),
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -561,7 +577,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                             vertical: 16,
                           ),
                         ),
-                        cursorColor: isDarkMode ? Colors.teal : const Color(0xFF1565C0),
+                        cursorColor:
+                            isDarkMode ? Colors.teal : const Color(0xFF1565C0),
                         onChanged: _searchComplaints,
                       ),
                     ),
@@ -583,12 +600,15 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                     },
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: isDarkMode ? Colors.grey[750] : Colors.grey[50],
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDarkMode ? Colors.grey[600]! : Colors.grey[200]!,
+                          color: isDarkMode
+                              ? Colors.grey[600]!
+                              : Colors.grey[200]!,
                           width: 1,
                         ),
                       ),
@@ -598,36 +618,42 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                           isExpanded: true,
                           icon: Icon(
                             Icons.keyboard_arrow_down_rounded,
-                            color: isDarkMode ? Colors.teal[300] : const Color(0xFF1565C0),
+                            color: isDarkMode
+                                ? Colors.teal[300]
+                                : const Color(0xFF1565C0),
                             size: 24,
                           ),
-                          dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                          dropdownColor:
+                              isDarkMode ? Colors.grey[800] : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           items: ['All', 'Pending', 'In Progress', 'Resolved']
                               .map((status) => DropdownMenuItem(
-                            value: status,
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    color: _getFilterStatusColor(status),
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  status,
-                                  style: TextStyle(
-                                    color: isDarkMode ? Colors.white : Colors.black87,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ))
+                                    value: status,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                _getFilterStatusColor(status),
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          status,
+                                          style: TextStyle(
+                                            color: isDarkMode
+                                                ? Colors.white
+                                                : Colors.black87,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ))
                               .toList(),
                           onChanged: (value) {
                             if (value != null) {
@@ -716,7 +742,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
         final complaint = filteredComplaints[index];
         final complaintId = complaint["id"] ?? complaint.hashCode.toString();
         final isFavorite = favoriteComplaints.any(
-                (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
+            (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
 
         return TweenAnimationBuilder<double>(
           duration: Duration(milliseconds: 300 + (index * 100).clamp(0, 500)),
@@ -769,7 +795,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: (isDarkMode ? Colors.teal : const Color(0xFF1565C0)).withOpacity(0.4),
+                  color: (isDarkMode ? Colors.teal : const Color(0xFF1565C0))
+                      .withOpacity(0.4),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -786,7 +813,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
               },
               backgroundColor: Colors.transparent,
               elevation: 0,
-              child: const Icon(Icons.forum_rounded, color: Colors.white, size: 26),
+              child: const Icon(Icons.forum_rounded,
+                  color: Colors.white, size: 26),
               tooltip: 'Discussion Forum',
             ),
           ),
@@ -816,7 +844,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
     setState(() {
       final complaintId = complaint["id"] ?? complaint.hashCode.toString();
       final existingIndex = favoriteComplaints.indexWhere(
-              (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
+          (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
 
       if (existingIndex >= 0) {
         // Remove from favorites
@@ -827,12 +855,14 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
               children: [
                 Icon(Icons.heart_broken, color: Colors.white, size: 20),
                 SizedBox(width: 12),
-                Text('Removed from favorites', style: TextStyle(fontWeight: FontWeight.w600)),
+                Text('Removed from favorites',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
               ],
             ),
             backgroundColor: Colors.grey[700],
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -845,12 +875,14 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
               children: [
                 Icon(Icons.favorite, color: Colors.white, size: 20),
                 SizedBox(width: 12),
-                Text('Added to favorites', style: TextStyle(fontWeight: FontWeight.w600)),
+                Text('Added to favorites',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
               ],
             ),
             backgroundColor: const Color(0xFF4CAF50),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -862,7 +894,7 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
     setState(() {
       final complaintId = complaint["id"] ?? complaint.hashCode.toString();
       favoriteComplaints.removeWhere(
-              (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
+          (fav) => (fav["id"] ?? fav.hashCode.toString()) == complaintId);
     });
   }
 
@@ -887,7 +919,8 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
             child: Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+                color:
+                    themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: themeProvider.isDarkMode
@@ -922,11 +955,13 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                             gradient: LinearGradient(
                               colors: [
                                 (themeProvider.isDarkMode
-                                    ? Colors.grey[700]!
-                                    : Colors.grey[300]!).withOpacity(value),
+                                        ? Colors.grey[700]!
+                                        : Colors.grey[300]!)
+                                    .withOpacity(value),
                                 (themeProvider.isDarkMode
-                                    ? Colors.grey[600]!
-                                    : Colors.grey[200]!).withOpacity(value),
+                                        ? Colors.grey[600]!
+                                        : Colors.grey[200]!)
+                                    .withOpacity(value),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(16),
@@ -952,11 +987,13 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                                   gradient: LinearGradient(
                                     colors: [
                                       (themeProvider.isDarkMode
-                                          ? Colors.grey[700]!
-                                          : Colors.grey[300]!).withOpacity(value),
+                                              ? Colors.grey[700]!
+                                              : Colors.grey[300]!)
+                                          .withOpacity(value),
                                       (themeProvider.isDarkMode
-                                          ? Colors.grey[600]!
-                                          : Colors.grey[200]!).withOpacity(value),
+                                              ? Colors.grey[600]!
+                                              : Colors.grey[200]!)
+                                          .withOpacity(value),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(6),
@@ -977,11 +1014,13 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                                   gradient: LinearGradient(
                                     colors: [
                                       (themeProvider.isDarkMode
-                                          ? Colors.grey[700]!
-                                          : Colors.grey[300]!).withOpacity(value),
+                                              ? Colors.grey[700]!
+                                              : Colors.grey[300]!)
+                                          .withOpacity(value),
                                       (themeProvider.isDarkMode
-                                          ? Colors.grey[600]!
-                                          : Colors.grey[200]!).withOpacity(value),
+                                              ? Colors.grey[600]!
+                                              : Colors.grey[200]!)
+                                          .withOpacity(value),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(6),
@@ -1002,11 +1041,13 @@ class AdminDashboardState extends State<AdminDashboard> with TickerProviderState
                                   gradient: LinearGradient(
                                     colors: [
                                       (themeProvider.isDarkMode
-                                          ? Colors.grey[700]!
-                                          : Colors.grey[300]!).withOpacity(value),
+                                              ? Colors.grey[700]!
+                                              : Colors.grey[300]!)
+                                          .withOpacity(value),
                                       (themeProvider.isDarkMode
-                                          ? Colors.grey[600]!
-                                          : Colors.grey[200]!).withOpacity(value),
+                                              ? Colors.grey[600]!
+                                              : Colors.grey[200]!)
+                                          .withOpacity(value),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(6),
@@ -1086,12 +1127,12 @@ class ComplaintCard extends StatelessWidget {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: onTap ??
-                          () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ComplaintDetailPage(complaintId: complaint["id"]),
-                        ),
-                      ),
+                      () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ComplaintDetailPage(
+                                  complaintId: complaint["id"]),
+                            ),
+                          ),
                   borderRadius: BorderRadius.circular(20),
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -1115,7 +1156,9 @@ class ComplaintCard extends StatelessWidget {
                             height: 64,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              color: isDarkMode ? Colors.grey[700] : Colors.grey[100],
+                              color: isDarkMode
+                                  ? Colors.grey[700]
+                                  : Colors.grey[100],
                               boxShadow: [
                                 BoxShadow(
                                   color: isDarkMode
@@ -1128,42 +1171,48 @@ class ComplaintCard extends StatelessWidget {
                             ),
                             child: complaint["media_type"] == "image"
                                 ? ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.network(
-                                complaint["media_url"],
-                                width: 64,
-                                height: 64,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: isDarkMode ? Colors.grey[700] : Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Icon(
-                                        Icons.broken_image_rounded,
-                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
-                                        size: 28,
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.network(
+                                      complaint["media_url"],
+                                      width: 64,
+                                      height: 64,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                        decoration: BoxDecoration(
+                                          color: isDarkMode
+                                              ? Colors.grey[700]
+                                              : Colors.grey[200],
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: Icon(
+                                          Icons.broken_image_rounded,
+                                          color: isDarkMode
+                                              ? Colors.grey[400]
+                                              : Colors.grey[500],
+                                          size: 28,
+                                        ),
                                       ),
                                     ),
-                              ),
-                            )
+                                  )
                                 : Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.blue[400]!.withOpacity(0.2),
-                                    Colors.blue[600]!.withOpacity(0.1),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(
-                                Icons.videocam_rounded,
-                                color: Colors.blue[600],
-                                size: 28,
-                              ),
-                            ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.blue[400]!.withOpacity(0.2),
+                                          Colors.blue[600]!.withOpacity(0.1),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Icon(
+                                      Icons.videocam_rounded,
+                                      color: Colors.blue[600],
+                                      size: 28,
+                                    ),
+                                  ),
                           ),
                         ),
                         const SizedBox(width: 20),
@@ -1178,7 +1227,8 @@ class ComplaintCard extends StatelessWidget {
                                 children: [
                                   Expanded(
                                     child: TweenAnimationBuilder<double>(
-                                      duration: const Duration(milliseconds: 400),
+                                      duration:
+                                          const Duration(milliseconds: 400),
                                       tween: Tween(begin: 0.0, end: 1.0),
                                       builder: (context, value, child) {
                                         return Transform.translate(
@@ -1190,11 +1240,14 @@ class ComplaintCard extends StatelessWidget {
                                         );
                                       },
                                       child: Text(
-                                        complaint["issue_type"] ?? "Unknown Issue",
+                                        complaint["issue_type"] ??
+                                            "Unknown Issue",
                                         style: TextStyle(
                                           fontSize: 17,
                                           fontWeight: FontWeight.bold,
-                                          color: isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
+                                          color: isDarkMode
+                                              ? Colors.white
+                                              : const Color(0xFF1A1A1A),
                                           height: 1.3,
                                         ),
                                         maxLines: 1,
@@ -1205,7 +1258,8 @@ class ComplaintCard extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   if (onFavoriteToggle != null)
                                     TweenAnimationBuilder<double>(
-                                      duration: const Duration(milliseconds: 500),
+                                      duration:
+                                          const Duration(milliseconds: 500),
                                       tween: Tween(begin: 0.0, end: 1.0),
                                       builder: (context, value, child) {
                                         return Transform.scale(
@@ -1219,24 +1273,33 @@ class ComplaintCard extends StatelessWidget {
                                       child: GestureDetector(
                                         onTap: onFavoriteToggle,
                                         child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 200),
+                                          duration:
+                                              const Duration(milliseconds: 200),
                                           padding: const EdgeInsets.all(6),
                                           decoration: BoxDecoration(
                                             color: isFavorite
-                                                ? const Color(0xFFE57373).withOpacity(0.2)
-                                                : (isDarkMode ? Colors.grey[700] : Colors.grey[100]),
-                                            borderRadius: BorderRadius.circular(10),
+                                                ? const Color(0xFFE57373)
+                                                    .withOpacity(0.2)
+                                                : (isDarkMode
+                                                    ? Colors.grey[700]
+                                                    : Colors.grey[100]),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
                                           child: AnimatedSwitcher(
-                                            duration: const Duration(milliseconds: 200),
+                                            duration: const Duration(
+                                                milliseconds: 200),
                                             child: Icon(
                                               isFavorite
                                                   ? Icons.favorite_rounded
-                                                  : Icons.favorite_border_rounded,
+                                                  : Icons
+                                                      .favorite_border_rounded,
                                               key: ValueKey(isFavorite),
                                               color: isFavorite
                                                   ? const Color(0xFFE57373)
-                                                  : (isDarkMode ? Colors.grey[400] : Colors.grey[500]),
+                                                  : (isDarkMode
+                                                      ? Colors.grey[400]
+                                                      : Colors.grey[500]),
                                               size: 20,
                                             ),
                                           ),
@@ -1270,13 +1333,17 @@ class ComplaintCard extends StatelessWidget {
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           colors: [
-                                            _getStatusColor(complaint["status"]).withOpacity(0.2),
-                                            _getStatusColor(complaint["status"]).withOpacity(0.1),
+                                            _getStatusColor(complaint["status"])
+                                                .withOpacity(0.2),
+                                            _getStatusColor(complaint["status"])
+                                                .withOpacity(0.1),
                                           ],
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: _getStatusColor(complaint["status"]).withOpacity(0.3),
+                                          color: _getStatusColor(
+                                                  complaint["status"])
+                                              .withOpacity(0.3),
                                           width: 1,
                                         ),
                                       ),
@@ -1284,7 +1351,8 @@ class ComplaintCard extends StatelessWidget {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           TweenAnimationBuilder<double>(
-                                            duration: const Duration(milliseconds: 1000),
+                                            duration: const Duration(
+                                                milliseconds: 1000),
                                             tween: Tween(begin: 0.0, end: 1.0),
                                             builder: (context, value, child) {
                                               return Transform.scale(
@@ -1293,7 +1361,8 @@ class ComplaintCard extends StatelessWidget {
                                                   width: 6,
                                                   height: 6,
                                                   decoration: BoxDecoration(
-                                                    color: _getStatusColor(complaint["status"]),
+                                                    color: _getStatusColor(
+                                                        complaint["status"]),
                                                     shape: BoxShape.circle,
                                                   ),
                                                 ),
@@ -1306,7 +1375,8 @@ class ComplaintCard extends StatelessWidget {
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w700,
-                                              color: _getStatusColor(complaint["status"]),
+                                              color: _getStatusColor(
+                                                  complaint["status"]),
                                             ),
                                           ),
                                         ],
@@ -1327,7 +1397,9 @@ class ComplaintCard extends StatelessWidget {
                                       "${complaint["date"] ?? "Unknown"} • ${complaint["time"] ?? "Unknown"}",
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+                                        color: isDarkMode
+                                            ? Colors.grey[400]
+                                            : Colors.grey[500],
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -1350,21 +1422,25 @@ class ComplaintCard extends StatelessWidget {
                                   );
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: isDarkMode
                                         ? Colors.grey[750]?.withOpacity(0.5)
                                         : Colors.grey[50],
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: isDarkMode ? Colors.grey[600]! : Colors.grey[200]!,
+                                      color: isDarkMode
+                                          ? Colors.grey[600]!
+                                          : Colors.grey[200]!,
                                       width: 1,
                                     ),
                                   ),
                                   child: Row(
                                     children: [
                                       TweenAnimationBuilder<double>(
-                                        duration: const Duration(milliseconds: 1200),
+                                        duration:
+                                            const Duration(milliseconds: 1200),
                                         tween: Tween(begin: 0.0, end: 1.0),
                                         builder: (context, value, child) {
                                           return Transform.scale(
@@ -1380,13 +1456,17 @@ class ComplaintCard extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             color: isDarkMode
                                                 ? Colors.teal.withOpacity(0.2)
-                                                : const Color(0xFF1565C0).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(6),
+                                                : const Color(0xFF1565C0)
+                                                    .withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(6),
                                           ),
                                           child: Icon(
                                             Icons.location_on_rounded,
                                             size: 14,
-                                            color: isDarkMode ? Colors.teal[300] : const Color(0xFF1565C0),
+                                            color: isDarkMode
+                                                ? Colors.teal[300]
+                                                : const Color(0xFF1565C0),
                                           ),
                                         ),
                                       ),
@@ -1396,7 +1476,9 @@ class ComplaintCard extends StatelessWidget {
                                           "${complaint["city"] ?? "Unknown"}, ${complaint["state"] ?? "Unknown"}",
                                           style: TextStyle(
                                             fontSize: 13,
-                                            color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                                            color: isDarkMode
+                                                ? Colors.grey[300]
+                                                : Colors.grey[700],
                                             height: 1.3,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -1405,7 +1487,8 @@ class ComplaintCard extends StatelessWidget {
                                         ),
                                       ),
                                       TweenAnimationBuilder<double>(
-                                        duration: const Duration(milliseconds: 1000),
+                                        duration:
+                                            const Duration(milliseconds: 1000),
                                         tween: Tween(begin: 0.0, end: 1.0),
                                         builder: (context, value, child) {
                                           return Transform.translate(
@@ -1419,7 +1502,9 @@ class ComplaintCard extends StatelessWidget {
                                         child: Icon(
                                           Icons.arrow_forward_ios_rounded,
                                           size: 12,
-                                          color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+                                          color: isDarkMode
+                                              ? Colors.grey[500]
+                                              : Colors.grey[400],
                                         ),
                                       ),
                                     ],

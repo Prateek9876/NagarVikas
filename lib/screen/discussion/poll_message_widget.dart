@@ -541,7 +541,7 @@ class _PollMessageWidgetState extends State<PollMessageWidget>
 
       // Delete the message containing the poll
       final messageRef =
-          FirebaseDatabase.instance.ref('messages/${widget.pollData['key']}');
+          FirebaseDatabase.instance.ref('discussion/${widget.pollData['key']}');
       await messageRef.remove();
 
       // Show success message
