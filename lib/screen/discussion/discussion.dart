@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import '../../service/eveyone_notification_service.dart';
 import '../../widgets/mention_text_field.dart';
 import '../../service/notification_service.dart';
+import 'admin_only_manager.dart';
 
 /// DiscussionForum with Image and Video Sharing
 /// Enhanced real-time chat interface with image/video upload and full-screen viewing capabilities
@@ -56,6 +57,16 @@ class DiscussionForumState extends State<DiscussionForum>
   StreamSubscription<DatabaseEvent>? _everyoneNotificationSubscription;
   bool _hasEveryoneMention = false;
   OverlayEntry? _mentionOverlay;
+  bool _isAdminOnlyMode = false;
+  bool _isGovAdmin = false;
+  StreamSubscription<DatabaseEvent>? _adminOnlySubscription;
+
+  Map<String, Map<String, dynamic>> _messageReactions =
+      {}; // Cache message reactions
+  final DatabaseReference _reactionsRef =
+      FirebaseDatabase.instance.ref("reactions/");
+  String? _selectedMessageForReaction;
+  OverlayEntry? _reactionPickerOverlay;
 
 // Animation controllers for enhanced UI
   late AnimationController _sendButtonAnimationController;
@@ -206,6 +217,16 @@ class DiscussionForumState extends State<DiscussionForum>
         }
       }
     });
+    _messagesRef.onValue.listen((event) {
+      if (event.snapshot.exists) {
+        final messagesData =
+            Map<String, dynamic>.from(event.snapshot.value as Map);
+        messagesData.forEach((messageId, messageData) {
+          _loadMessageReactions(messageId);
+        });
+      }
+    });
+    _initAdminOnlyMode();
   }
 
   @override
@@ -218,7 +239,346 @@ class DiscussionForumState extends State<DiscussionForum>
     _highlightTimer?.cancel();
     _everyoneNotificationSubscription?.cancel();
     _mentionOverlay?.remove();
+    _reactionPickerOverlay?.remove();
+    _adminOnlySubscription?.cancel();
     super.dispose();
+  }
+
+  // Initialize admin-only mode functionality
+  void _initAdminOnlyMode() async {
+    // Check if current user is a gov admin
+    _isGovAdmin = await AdminOnlyManager.checkGovAdminStatus(userId, _isAdmin);
+
+    // Listen to admin-only mode changes
+    _adminOnlySubscription =
+        AdminOnlyManager.listenToAdminOnlyMode((isAdminOnly) {
+      if (mounted) {
+        setState(() {
+          _isAdminOnlyMode = isAdminOnly;
+        });
+      }
+    });
+
+    // Update state
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Load reactions for a specific message
+  Future<void> _loadMessageReactions(String messageId) async {
+    try {
+      final snapshot = await _reactionsRef.child(messageId).once();
+      if (snapshot.snapshot.exists) {
+        final reactionsData =
+            Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+        setState(() {
+          _messageReactions[messageId] = reactionsData;
+        });
+      } else {
+        setState(() {
+          _messageReactions[messageId] = {};
+        });
+      }
+    } catch (e) {
+      print('Error loading reactions for message $messageId: $e');
+    }
+  }
+
+  /// Show reaction picker overlay
+  void _showReactionPicker(
+      BuildContext context, String messageId, Offset tapPosition) {
+    if (_isUserBanned) {
+      Fluttertoast.showToast(msg: "You are banned from reacting to messages");
+      return;
+    }
+
+    _selectedMessageForReaction = messageId;
+
+    // Remove existing overlay if any
+    _reactionPickerOverlay?.remove();
+
+    _reactionPickerOverlay = OverlayEntry(
+      builder: (context) => Positioned(
+        left: tapPosition.dx - 150,
+        top: tapPosition.dy - 60,
+        child: Material(
+          elevation: 8,
+          borderRadius: BorderRadius.circular(30),
+          child: Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                decoration: BoxDecoration(
+                  color: themeProvider.isDarkMode
+                      ? Colors.grey[800]
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: ['👍', '❤️', '😂', '😮', '😢', '😡']
+                      .map((emoji) => GestureDetector(
+                            onTap: () => _reactToMessage(messageId, emoji),
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              margin: EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                emoji,
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context)?.insert(_reactionPickerOverlay!);
+
+    // Auto-hide after 5 seconds
+    Timer(Duration(seconds: 5), () {
+      _hideReactionPicker();
+    });
+  }
+
+  /// Hide reaction picker overlay
+  void _hideReactionPicker() {
+    _reactionPickerOverlay?.remove();
+    _reactionPickerOverlay = null;
+    _selectedMessageForReaction = null;
+  }
+
+  /// React to a message
+  Future<void> _reactToMessage(String messageId, String emoji) async {
+    if (userId == null) return;
+
+    // Check if user can react (not banned and if admin-only mode, user must be admin)
+    if (!AdminOnlyManager.canUserSendMessage(
+      isAdminOnlyMode: _isAdminOnlyMode,
+      isAdmin: _isAdmin,
+      isUserBanned: _isUserBanned,
+    )) {
+      Fluttertoast.showToast(
+        msg: AdminOnlyManager.getBannedMessage(
+          isAdminOnlyMode: _isAdminOnlyMode,
+          isAdmin: _isAdmin,
+          isUserBanned: _isUserBanned,
+        ),
+      );
+      return;
+    }
+
+    _hideReactionPicker();
+
+    try {
+      final userReactionRef = _reactionsRef.child(messageId).child(userId!);
+      final snapshot = await userReactionRef.once();
+
+      if (snapshot.snapshot.exists) {
+        final currentReaction =
+            Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+        if (currentReaction['emoji'] == emoji) {
+          // Same reaction - remove it
+          await userReactionRef.remove();
+          Fluttertoast.showToast(msg: "Reaction removed");
+        } else {
+          // Different reaction - update it
+          await userReactionRef.update({
+            'emoji': emoji,
+            'timestamp': ServerValue.timestamp,
+            'userName': currentUserName ?? 'Unknown User',
+          });
+        }
+      } else {
+        // New reaction
+        await userReactionRef.set({
+          'emoji': emoji,
+          'timestamp': ServerValue.timestamp,
+          'userName': currentUserName ?? 'Unknown User',
+        });
+      }
+
+      // Reload reactions for this message
+      await _loadMessageReactions(messageId);
+    } catch (e) {
+      print('Error reacting to message: $e');
+      Fluttertoast.showToast(msg: "Failed to add reaction");
+    }
+  }
+
+  /// Show who reacted to a message
+  void _showReactionDetails(String messageId, String emoji) {
+    final reactions = _messageReactions[messageId] ?? {};
+    final usersWithThisEmoji = <Map<String, dynamic>>[];
+
+    reactions.forEach((userId, reactionData) {
+      if (reactionData is Map && reactionData['emoji'] == emoji) {
+        usersWithThisEmoji.add({
+          'userId': userId,
+          'userName': reactionData['userName'] ?? 'Unknown User',
+          'timestamp': reactionData['timestamp'],
+        });
+      }
+    });
+
+    if (usersWithThisEmoji.isEmpty) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return Container(
+            decoration: BoxDecoration(
+              color: themeProvider.isDarkMode ? Colors.grey[900] : Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                // Title
+                Row(
+                  children: [
+                    Text(
+                      emoji,
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '${usersWithThisEmoji.length} ${usersWithThisEmoji.length == 1 ? 'person' : 'people'}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+
+                // Users list
+                ...usersWithThisEmoji.map((user) => ListTile(
+                      leading: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: ForumLogic.getAvatarColor(user['userName']),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            user['userName']
+                                .toString()
+                                .substring(0, 1)
+                                .toUpperCase(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        user['userName'],
+                        style: TextStyle(
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: user['userId'] == userId
+                          ? GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                                _removeReaction(messageId);
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border:
+                                      Border.all(color: Colors.red, width: 1),
+                                ),
+                                child: Text(
+                                  'Remove',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                    )),
+                SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Remove user's reaction
+  Future<void> _removeReaction(String messageId) async {
+    if (userId == null) return;
+
+    try {
+      await _reactionsRef.child(messageId).child(userId!).remove();
+      await _loadMessageReactions(messageId);
+      Fluttertoast.showToast(msg: "Reaction removed");
+    } catch (e) {
+      print('Error removing reaction: $e');
+      Fluttertoast.showToast(msg: "Failed to remove reaction");
+    }
+  }
+
+  /// Get reaction summary for a message
+  Map<String, int> _getReactionSummary(String messageId) {
+    final reactions = _messageReactions[messageId] ?? {};
+    final summary = <String, int>{};
+
+    reactions.forEach((userId, reactionData) {
+      if (reactionData is Map && reactionData['emoji'] != null) {
+        final emoji = reactionData['emoji'];
+        summary[emoji] = (summary[emoji] ?? 0) + 1;
+      }
+    });
+
+    return summary;
   }
 
   /// Load votes for a specific message
@@ -455,10 +815,21 @@ class DiscussionForumState extends State<DiscussionForum>
 
   /// Vote on a message (upvote or downvote)
   Future<void> _voteMessage(String messageId, bool isUpvote) async {
-    if (userId == null || _isUserBanned) {
-      if (_isUserBanned) {
-        Fluttertoast.showToast(msg: "You are banned from voting");
-      }
+    if (userId == null) return;
+
+    // Check if user can vote (not banned and if admin-only mode, user must be admin)
+    if (!AdminOnlyManager.canUserSendMessage(
+      isAdminOnlyMode: _isAdminOnlyMode,
+      isAdmin: _isAdmin,
+      isUserBanned: _isUserBanned,
+    )) {
+      Fluttertoast.showToast(
+        msg: AdminOnlyManager.getBannedMessage(
+          isAdminOnlyMode: _isAdminOnlyMode,
+          isAdmin: _isAdmin,
+          isUserBanned: _isUserBanned,
+        ),
+      );
       return;
     }
 
@@ -474,7 +845,7 @@ class DiscussionForumState extends State<DiscussionForum>
         currentVote = voteData['type'];
       }
 
-      // Determine new vote action - THIS IS THE KEY PART
+      // Determine new vote action
       if (currentVote == null) {
         // No previous vote - add new vote
         await voteRef.set({
@@ -767,11 +1138,37 @@ class DiscussionForumState extends State<DiscussionForum>
 
   /// Show poll creation dialog
   void _showPollCreation() {
-    if (_isUserBanned) {
+    if (!AdminOnlyManager.canUserSendMessage(
+      isAdminOnlyMode: _isAdminOnlyMode,
+      isAdmin: _isAdmin,
+      isUserBanned: _isUserBanned,
+    )) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('You are banned from creating polls'),
+          content: Row(
+            children: [
+              Icon(
+                AdminOnlyManager.getBannedIcon(
+                  isAdminOnlyMode: _isAdminOnlyMode,
+                  isAdmin: _isAdmin,
+                  isUserBanned: _isUserBanned,
+                ),
+                color: Colors.white,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(AdminOnlyManager.getBannedMessage(
+                  isAdminOnlyMode: _isAdminOnlyMode,
+                  isAdmin: _isAdmin,
+                  isUserBanned: _isUserBanned,
+                )),
+              ),
+            ],
+          ),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
       return;
@@ -1129,6 +1526,43 @@ class DiscussionForumState extends State<DiscussionForum>
 
   // NEW: Show media selection bottom sheet (WhatsApp-like)
   void _showMediaOptions() {
+    // Check if user can send messages before showing media options
+    if (!AdminOnlyManager.canUserSendMessage(
+      isAdminOnlyMode: _isAdminOnlyMode,
+      isAdmin: _isAdmin,
+      isUserBanned: _isUserBanned,
+    )) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                AdminOnlyManager.getBannedIcon(
+                  isAdminOnlyMode: _isAdminOnlyMode,
+                  isAdmin: _isAdmin,
+                  isUserBanned: _isUserBanned,
+                ),
+                color: Colors.white,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(AdminOnlyManager.getBannedMessage(
+                  isAdminOnlyMode: _isAdminOnlyMode,
+                  isAdmin: _isAdmin,
+                  isUserBanned: _isUserBanned,
+                )),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1520,12 +1954,38 @@ class DiscussionForumState extends State<DiscussionForum>
   }
 
   void _sendMessage({String? mediaUrl, String? mediaType}) {
-    // Check if user is banned
-    if (_isUserBanned) {
+    // Check if user can send messages (banned or admin-only mode)
+    if (!AdminOnlyManager.canUserSendMessage(
+      isAdminOnlyMode: _isAdminOnlyMode,
+      isAdmin: _isAdmin,
+      isUserBanned: _isUserBanned,
+    )) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('You are banned from sending messages'),
+          content: Row(
+            children: [
+              Icon(
+                AdminOnlyManager.getBannedIcon(
+                  isAdminOnlyMode: _isAdminOnlyMode,
+                  isAdmin: _isAdmin,
+                  isUserBanned: _isUserBanned,
+                ),
+                color: Colors.white,
+                size: 16,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(AdminOnlyManager.getBannedMessage(
+                  isAdminOnlyMode: _isAdminOnlyMode,
+                  isAdmin: _isAdmin,
+                  isUserBanned: _isUserBanned,
+                )),
+              ),
+            ],
+          ),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
       return;
@@ -2380,9 +2840,54 @@ class DiscussionForumState extends State<DiscussionForum>
                   case 'restore_chat':
                     _restoreAllMessages();
                     break;
+                  case 'toggle_admin_only':
+                    AdminOnlyManager.showToggleAdminOnlyDialog(
+                      context: context,
+                      isGovAdmin: _isGovAdmin,
+                      currentAdminOnlyMode: _isAdminOnlyMode,
+                      currentUserName: currentUserName,
+                    );
+                    break;
                 }
               },
               itemBuilder: (context) => [
+                // Admin-only mode toggle (only for gov admins)
+                if (_isGovAdmin)
+                  PopupMenuItem<String>(
+                    value: 'toggle_admin_only',
+                    child: Row(
+                      children: [
+                        Icon(
+                          _isAdminOnlyMode ? Icons.lock_open : Icons.lock,
+                          color: _isAdminOnlyMode
+                              ? Color(0xFF4CAF50)
+                              : Color(0xFFFF9800),
+                          size: 20,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          _isAdminOnlyMode
+                              ? 'Disable Admin-Only'
+                              : 'Enable Admin-Only',
+                          style: TextStyle(
+                            color: _isAdminOnlyMode
+                                ? Color(0xFF4CAF50)
+                                : Color(0xFFFF9800),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Separator if gov admin
+                if (_isGovAdmin)
+                  PopupMenuItem<String>(
+                    enabled: false,
+                    child: Divider(height: 1),
+                  ),
+
+                // Existing menu items
                 PopupMenuItem<String>(
                   value: 'clear_chat',
                   child: Row(
@@ -2411,11 +2916,7 @@ class DiscussionForumState extends State<DiscussionForum>
                     value: 'restore_chat',
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.restore,
-                          color: Color(0xFF4CAF50),
-                          size: 20,
-                        ),
+                        Icon(Icons.restore, color: Color(0xFF4CAF50), size: 20),
                         SizedBox(width: 12),
                         Text(
                           'Restore All Messages',
@@ -2479,6 +2980,13 @@ class DiscussionForumState extends State<DiscussionForum>
                       _disclaimerController,
                       _hideDisclaimer,
                     ),
+
+                  // Admin-only mode indicator
+                  AdminOnlyManager.buildAdminOnlyIndicator(
+                    context: context,
+                    isAdminOnlyMode: _isAdminOnlyMode,
+                    themeProvider: themeProvider,
+                  ),
 
                   // Restore button at top
                   if (_showRestoreButton)
@@ -2613,16 +3121,17 @@ class DiscussionForumState extends State<DiscussionForum>
                                     _isAdmin,
                                     userId!,
                                     currentUserName,
-                                    // Add voting parameters
                                     _messageVotes,
                                     _voteMessage,
                                     (messageId) =>
                                         _getUserVote(messageId) ?? '',
-                                    // Add jumping functionality
                                     onJumpToMessage: _scrollToMessage,
-                                    // Add highlighting parameters
                                     isHighlighted:
                                         _highlightedMessageId == message["key"],
+                                    messageReactions: _messageReactions,
+                                    onShowReactionPicker: _showReactionPicker,
+                                    onShowReactionDetails: _showReactionDetails,
+                                    getReactionSummary: _getReactionSummary,
                                   ),
                                 ),
                               );
@@ -2807,7 +3316,11 @@ class DiscussionForumState extends State<DiscussionForum>
                         ),
                       ],
                     ),
-                    child: _isUserBanned
+                    child: !AdminOnlyManager.canUserSendMessage(
+                      isAdminOnlyMode: _isAdminOnlyMode,
+                      isAdmin: _isAdmin,
+                      isUserBanned: _isUserBanned,
+                    )
                         ? Container(
                             padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -2817,11 +3330,23 @@ class DiscussionForumState extends State<DiscussionForum>
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.block, color: Colors.red, size: 20),
+                                Icon(
+                                  AdminOnlyManager.getBannedIcon(
+                                    isAdminOnlyMode: _isAdminOnlyMode,
+                                    isAdmin: _isAdmin,
+                                    isUserBanned: _isUserBanned,
+                                  ),
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'You are banned from sending messages',
+                                    AdminOnlyManager.getBannedMessage(
+                                      isAdminOnlyMode: _isAdminOnlyMode,
+                                      isAdmin: _isAdmin,
+                                      isUserBanned: _isUserBanned,
+                                    ),
                                     style: TextStyle(
                                       color: Colors.red,
                                       fontWeight: FontWeight.w500,
