@@ -632,17 +632,22 @@ class DiscussionForumState extends State<DiscussionForum>
           Row(
             children: [
               // Text field with @everyone support
-              Expanded(
-                child: MentionTextField(
-                  controller: _messageController,
-                  focusNode: _textFieldFocusNode,
-                  hintText: _isEditing
-                      ? "Edit your message..."
-                      : (_isReplying
-                          ? "Reply to ${_replyingToSender}..."
-                          : (_isListening
-                              ? "Listening..."
-                              : "Type a message...")),
+      Expanded(
+      child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.grey[200],
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: MentionTextField(
+        controller: _messageController,
+        focusNode: _textFieldFocusNode,
+        decoration: const InputDecoration(
+          isCollapsed: true,              // ✅ Keeps text aligned properly
+          border: InputBorder.none,       // ✅ Removes extra border
+          hintText: "Type a message...",
+          contentPadding: EdgeInsets.symmetric(vertical: 12), // ✅ keeps text vertically centered
+        ),
                   style: TextStyle(
                     color: themeProvider.isDarkMode
                         ? Colors.white
@@ -681,6 +686,7 @@ class DiscussionForumState extends State<DiscussionForum>
                   },
                 ),
               ),
+      ),
 
               // Mic button
               GestureDetector(

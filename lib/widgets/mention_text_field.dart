@@ -11,6 +11,8 @@ class MentionTextField extends StatefulWidget {
   final int? maxLines;
   final int? minLines;
 
+  final InputDecoration? decoration;  // ✅ Add this
+
   const MentionTextField({
     Key? key,
     required this.controller,
@@ -21,6 +23,7 @@ class MentionTextField extends StatefulWidget {
     this.onTap,
     this.maxLines,
     this.minLines,
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -183,7 +186,7 @@ class _MentionTextFieldState extends State<MentionTextField> {
       style: widget.style,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
-      decoration: InputDecoration(
+      decoration: widget.decoration ?? InputDecoration(
         hintText: widget.hintText,
         border: InputBorder.none,
       ),
