@@ -475,6 +475,7 @@ class MyComplaintsScreenState extends State<MyComplaintsScreen>
                 floating: false,
                 pinned: true,
                 elevation: 0,
+                automaticallyImplyLeading: false,
                 backgroundColor: themeProvider.isDarkMode
                     ? Colors.grey[850]
                     : const Color(0xFF1E88E5),
