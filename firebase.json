@@ -8,8 +8,34 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log",
-        "*.local"
-      ]
+        "*.local",
+        "README.md",
+        "tests/"
+      ],
+      "runtime": "nodejs18"
     }
-  ]
+  ],
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          { "key": "Cache-Control", "value": "max-age=31536000" }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      }
+    ]
+  }
 }
+

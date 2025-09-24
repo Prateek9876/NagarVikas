@@ -27,6 +27,7 @@ class AdminDashboardState extends State<AdminDashboard>
   TextEditingController searchController = TextEditingController();
   String selectedStatus = 'All';
   StreamSubscription? _complaintsSubscription;
+  bool isSearchCollapsed = false;
 
   // Enhanced animation controllers
   late AnimationController _fabAnimationController;
@@ -478,8 +479,8 @@ class AdminDashboardState extends State<AdminDashboard>
           child: Opacity(
             opacity: _searchOpacityAnimation.value,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              padding: const EdgeInsets.all(20),
+              duration: const Duration(milliseconds: 400),
+              padding: EdgeInsets.all(isSearchCollapsed ? 16 : 20),
               decoration: BoxDecoration(
                 color: isDarkMode ? Colors.grey[800] : Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -499,135 +500,211 @@ class AdminDashboardState extends State<AdminDashboard>
               ),
               child: Column(
                 children: [
-                  // Search Field with enhanced animation
-                  TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 700 + 200),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) {
-                      return Transform.translate(
-                        offset: Offset(0, 20 * (1 - value)),
-                        child: Opacity(
-                          opacity: value,
-                          child: child,
-                        ),
-                      );
+                  // Collapse/Expand Header
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isSearchCollapsed = !isSearchCollapsed;
+                      });
                     },
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? Colors.grey[750] : Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDarkMode
-                              ? Colors.grey[600]!
-                              : Colors.grey[200]!,
-                          width: 1,
-                        ),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: isDarkMode
-                              ? Colors.white
-                              : const Color(0xFF1A1A1A),
-                        ),
-                        decoration: InputDecoration(
-                          prefixIcon: Container(
-                            padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isDarkMode
+                                  ? Colors.teal.withOpacity(0.2)
+                                  : const Color(0xFF1565C0).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             child: Icon(
                               Icons.search_rounded,
                               color: isDarkMode
                                   ? Colors.teal[300]
                                   : const Color(0xFF1565C0),
-                              size: 20,
+                              size: 18,
                             ),
                           ),
-                          suffixIcon: searchController.text.isNotEmpty
-                              ? Container(
-                                  padding: const EdgeInsets.all(12),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      searchController.clear();
-                                      _searchComplaints('');
-                                    },
-                                    child: Icon(
-                                      Icons.clear_rounded,
-                                      color: isDarkMode
-                                          ? Colors.grey[400]
-                                          : Colors.grey[500],
-                                      size: 18,
-                                    ),
-                                  ),
-                                )
-                              : null,
-                          hintText: "Search complaints...",
-                          hintStyle: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: isDarkMode
-                                ? Colors.grey[400]
-                                : Colors.grey[500],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              isSearchCollapsed ? "Search & Filter" : "Search & Filter Complaints",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDarkMode ? Colors.white : Colors.black87,
+                              ),
+                            ),
                           ),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
+                          AnimatedRotation(
+                            turns: isSearchCollapsed ? 0.0 : 0.5,
+                            duration: const Duration(milliseconds: 300),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: isDarkMode
+                                    ? Colors.grey[700]
+                                    : Colors.grey[100],
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                                size: 18,
+                              ),
+                            ),
                           ),
-                        ),
-                        cursorColor:
-                            isDarkMode ? Colors.teal : const Color(0xFF1565C0),
-                        onChanged: _searchComplaints,
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
 
-                  // Filter Dropdown with animation
-                  TweenAnimationBuilder<double>(
-                    duration: Duration(milliseconds: 700 + 400),
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) {
-                      return Transform.translate(
-                        offset: Offset(0, 20 * (1 - value)),
-                        child: Opacity(
-                          opacity: value,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? Colors.grey[750] : Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isDarkMode
-                              ? Colors.grey[600]!
-                              : Colors.grey[200]!,
-                          width: 1,
-                        ),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: selectedStatus,
-                          isExpanded: true,
-                          icon: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: isDarkMode
-                                ? Colors.teal[300]
-                                : const Color(0xFF1565C0),
-                            size: 24,
+                  // Collapsible Content
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut,
+                    height: isSearchCollapsed ? 0 : null,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 300),
+                      opacity: isSearchCollapsed ? 0.0 : 1.0,
+                      child: isSearchCollapsed
+                          ? const SizedBox.shrink()
+                          : Column(
+                        children: [
+                          const SizedBox(height: 16),
+                          // Search Field with enhanced animation
+                          TweenAnimationBuilder<double>(
+                            duration: Duration(milliseconds: 700 + 200),
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            builder: (context, value, child) {
+                              return Transform.translate(
+                                offset: Offset(0, 20 * (1 - value)),
+                                child: Opacity(
+                                  opacity: value,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: isDarkMode ? Colors.grey[750] : Colors.grey[50],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isDarkMode
+                                      ? Colors.grey[600]!
+                                      : Colors.grey[200]!,
+                                  width: 1,
+                                ),
+                              ),
+                              child: TextField(
+                                controller: searchController,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDarkMode
+                                      ? Colors.white
+                                      : const Color(0xFF1A1A1A),
+                                ),
+                                decoration: InputDecoration(
+                                  prefixIcon: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Icon(
+                                      Icons.search_rounded,
+                                      color: isDarkMode
+                                          ? Colors.teal[300]
+                                          : const Color(0xFF1565C0),
+                                      size: 20,
+                                    ),
+                                  ),
+                                  suffixIcon: searchController.text.isNotEmpty
+                                      ? Container(
+                                    padding: const EdgeInsets.all(12),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        searchController.clear();
+                                        _searchComplaints('');
+                                      },
+                                      child: Icon(
+                                        Icons.clear_rounded,
+                                        color: isDarkMode
+                                            ? Colors.grey[400]
+                                            : Colors.grey[500],
+                                        size: 18,
+                                      ),
+                                    ),
+                                  )
+                                      : null,
+                                  hintText: "Search complaints...",
+                                  hintStyle: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: isDarkMode
+                                        ? Colors.grey[400]
+                                        : Colors.grey[500],
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
+                                ),
+                                cursorColor:
+                                isDarkMode ? Colors.teal : const Color(0xFF1565C0),
+                                onChanged: _searchComplaints,
+                              ),
+                            ),
                           ),
-                          dropdownColor:
-                              isDarkMode ? Colors.grey[800] : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          items: ['All', 'Pending', 'In Progress', 'Resolved']
-                              .map((status) => DropdownMenuItem(
+                          const SizedBox(height: 16),
+
+                          // Filter Dropdown with animation
+                          TweenAnimationBuilder<double>(
+                            duration: Duration(milliseconds: 700 + 400),
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            builder: (context, value, child) {
+                              return Transform.translate(
+                                offset: Offset(0, 20 * (1 - value)),
+                                child: Opacity(
+                                  opacity: value,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isDarkMode ? Colors.grey[750] : Colors.grey[50],
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isDarkMode
+                                      ? Colors.grey[600]!
+                                      : Colors.grey[200]!,
+                                  width: 1,
+                                ),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: selectedStatus,
+                                  isExpanded: true,
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: isDarkMode
+                                        ? Colors.teal[300]
+                                        : const Color(0xFF1565C0),
+                                    size: 24,
+                                  ),
+                                  dropdownColor:
+                                  isDarkMode ? Colors.grey[800] : Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  items: ['All', 'Pending', 'In Progress', 'Resolved']
+                                      .map((status) => DropdownMenuItem(
                                     value: status,
                                     child: Row(
                                       children: [
@@ -636,7 +713,7 @@ class AdminDashboardState extends State<AdminDashboard>
                                           height: 8,
                                           decoration: BoxDecoration(
                                             color:
-                                                _getFilterStatusColor(status),
+                                            _getFilterStatusColor(status),
                                             shape: BoxShape.circle,
                                           ),
                                         ),
@@ -654,16 +731,20 @@ class AdminDashboardState extends State<AdminDashboard>
                                       ],
                                     ),
                                   ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                selectedStatus = value;
-                              });
-                              _applyFilters();
-                            }
-                          },
-                        ),
+                                      .toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        selectedStatus = value;
+                                      });
+                                      _applyFilters();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

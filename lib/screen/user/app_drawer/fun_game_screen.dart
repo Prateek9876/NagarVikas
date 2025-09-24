@@ -83,7 +83,7 @@ class _FunGameScreenState extends State<FunGameScreen> {
                     fontSize: 22, fontWeight: FontWeight.bold),
               ),
               content:
-                  Text('Looks like youâ€™re out of moves!', style: textStyle),
+                  Text('Looks like you are out of moves!', style: textStyle),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -195,13 +195,25 @@ class _FunGameScreenState extends State<FunGameScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.remove('highScore');
-                    setState(() => highScore = 0);
-                  },
-                  child: const Text('Reset High Score',
-                      style: TextStyle(color: Colors.redAccent)),
+                  onPressed: game.score == 0
+                      ? () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.remove('highScore');
+                          setState(() => highScore = 0);
+                        }
+                      : () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Reset high score only works when game is over or reset'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                  child: Text('Reset High Score',
+                      style: TextStyle(
+                        color: game.score == 0 ? Colors.redAccent : Colors.grey,
+                      )),
                 ),
                 const SizedBox(height: 12),
                 Expanded(

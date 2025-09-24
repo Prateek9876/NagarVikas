@@ -633,52 +633,57 @@ class DiscussionForumState extends State<DiscussionForum>
             children: [
               // Text field with @everyone support
               Expanded(
-                child: MentionTextField(
-                  controller: _messageController,
-                  focusNode: _textFieldFocusNode,
-                  hintText: _isEditing
-                      ? "Edit your message..."
-                      : (_isReplying
-                          ? "Reply to ${_replyingToSender}..."
-                          : (_isListening
-                              ? "Listening..."
-                              : "Type a message...")),
-                  style: TextStyle(
-                    color: themeProvider.isDarkMode
-                        ? Colors.white
-                        : Colors.black87,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 3,
-                  minLines: 1,
-                  onChanged: (text) {
-                    if (text.length > 1000) {
-                      _messageController.text = text.substring(0, 1000);
-                      _messageController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: 1000),
-                      );
-                    }
-                  },
-                  onTap: () {
-                    // Hide emoji picker when text field is tapped
-                    if (_showEmojiPicker) {
-                      setState(() {
-                        _showEmojiPicker = false;
-                      });
-                      _emojiAnimationController.reverse();
-                    }
-                    // Auto scroll if at bottom when keyboard opens
-                    Future.delayed(Duration(milliseconds: 300), () {
-                      if (!_showGoDownButton && _scrollController.hasClients) {
-                        _scrollController.animateTo(
-                          _scrollController.position.maxScrollExtent,
-                          duration: Duration(milliseconds: 200),
-                          curve: Curves.easeOut,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16.0),
+                  child: MentionTextField(
+                    controller: _messageController,
+                    focusNode: _textFieldFocusNode,
+                    hintText: _isEditing
+                        ? "Edit your message..."
+                        : (_isReplying
+                            ? "Reply to ${_replyingToSender}..."
+                            : (_isListening
+                                ? "Listening..."
+                                : "Type a message...")),
+                    style: TextStyle(
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 3,
+                    minLines: 1,
+                    onChanged: (text) {
+                      if (text.length > 1000) {
+                        _messageController.text = text.substring(0, 1000);
+                        _messageController.selection =
+                            TextSelection.fromPosition(
+                          TextPosition(offset: 1000),
                         );
                       }
-                    });
-                  },
+                    },
+                    onTap: () {
+                      // Hide emoji picker when text field is tapped
+                      if (_showEmojiPicker) {
+                        setState(() {
+                          _showEmojiPicker = false;
+                        });
+                        _emojiAnimationController.reverse();
+                      }
+                      // Auto scroll if at bottom when keyboard opens
+                      Future.delayed(Duration(milliseconds: 300), () {
+                        if (!_showGoDownButton &&
+                            _scrollController.hasClients) {
+                          _scrollController.animateTo(
+                            _scrollController.position.maxScrollExtent,
+                            duration: Duration(milliseconds: 200),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      });
+                    },
+                  ),
                 ),
               ),
 
