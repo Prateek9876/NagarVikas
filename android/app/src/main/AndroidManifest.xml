@@ -78,11 +78,22 @@
 
     </application>
 
-    <!-- Required to query activities that can process text -->
+    <!-- Required to query activities that can process text and launch URLs -->
     <queries>
+        <!-- Existing query for text processing -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        
+        <!-- New queries for URL launcher -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
         </intent>
     </queries>
 
