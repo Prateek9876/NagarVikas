@@ -543,10 +543,10 @@ We welcome contributions! Please read our [Contributing Guidelines](Contributing
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/GxAditya">
-                    <img src="https://avatars.githubusercontent.com/u/177012111?v=4" width="100;" alt="GxAditya"/>
+                <a href="https://github.com/PearlGrell">
+                    <img src="https://avatars.githubusercontent.com/u/185500672?v=4" width="100;" alt="PearlGrell"/>
                     <br />
-                    <sub><b>GxAditya</b></sub>
+                    <sub><b>PearlGrell</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -557,10 +557,10 @@ We welcome contributions! Please read our [Contributing Guidelines](Contributing
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/PearlGrell">
-                    <img src="https://avatars.githubusercontent.com/u/185500672?v=4" width="100;" alt="PearlGrell"/>
+                <a href="https://github.com/GxAditya">
+                    <img src="https://avatars.githubusercontent.com/u/177012111?v=4" width="100;" alt="GxAditya"/>
                     <br />
-                    <sub><b>PearlGrell</b></sub>
+                    <sub><b>GxAditya</b></sub>
                 </a>
             </td>
             <td align="center">
